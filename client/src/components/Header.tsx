@@ -123,11 +123,8 @@ export function Header() {
               </DropdownMenu>
             ) : (
               <div className="flex items-center space-x-2">
-                <Button variant="outline" asChild>
-                  <Link href="/register">Register</Link>
-                </Button>
                 <Button asChild>
-                  <a href="/api/login">{t('header.login')}</a>
+                  <a href="/api/login">Get Started</a>
                 </Button>
               </div>
             )}
