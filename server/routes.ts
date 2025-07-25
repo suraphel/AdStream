@@ -3,6 +3,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { featureToggleService } from "./services/FeatureToggleService";
+import { config } from "./config";
 import { imageRoutes } from "./routes/imageRoutes";
 import { metricsMiddleware, metricsHandler } from "./monitoring/metrics";
 import { healthCheckHandler, readinessHandler, livenessHandler } from "./monitoring/healthCheck";
@@ -289,6 +291,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error removing favorite:", error);
       res.status(500).json({ message: "Failed to remove favorite" });
     }
+  });
+
+  // Feature configuration endpoint
+  app.post('/api/features/config', async (req, res) => {
+    try {
+      const { context } = req.body;
+      
+      // Enhance context with request information
+      const enhancedContext = {
+        ...context,
+        userAgent: req.get('User-Agent'),
+        ipAddress: req.ip,
+      };
+      
+      // If user is authenticated, add user info
+      if (req.isAuthenticated() && req.user) {
+        const userId = (req.user as any).claims?.sub;
+        const user = await storage.getUser(userId);
+        enhancedContext.userId = userId;
+        enhancedContext.userRole = (user as any)?.role || 'user';
+      }
+      
+      const featureConfig = featureToggleService.getFeatureConfig(enhancedContext);
+      res.json(featureConfig);
+    } catch (error) {
+      console.error('Error fetching feature configuration:', error);
+      res.status(500).json({ message: 'Failed to fetch feature configuration' });
+    }
+  });
+
+  // Feature analytics endpoint (admin only)
+  app.get('/api/features/analytics', isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as any).claims?.sub;
+      const user = await storage.getUser(userId);
+      
+      if ((user as any)?.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+      
+      const analytics = featureToggleService.getFeatureAnalytics();
+      res.json(analytics);
+    } catch (error) {
+      console.error('Error fetching feature analytics:', error);
+      res.status(500).json({ message: 'Failed to fetch feature analytics' });
+    }
+  });
+
+  // Environment information endpoint
+  app.get('/api/environment', (req, res) => {
+    res.json({
+      environment: config.nodeEnv,
+      version: process.env.npm_package_version || '1.0.0',
+      features: {
+        total: Object.keys(config.features).length,
+        enabled: Object.values(config.features).filter(Boolean).length,
+      },
+      localization: config.localization,
+    });
   });
 
   const httpServer = createServer(app);
