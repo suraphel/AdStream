@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#ecfdf5"/>
+  <rect x="60" y="120" width="280" height="120" fill="#7c3aed"/>
+  <polygon points="60,120 200,50 340,120" fill="#dc2626"/>
+  <rect x="80" y="150" width="50" height="90" fill="#92400e"/>
+  <rect x="90" y="170" width="30" height="30" fill="#fbbf24"/>
+  <rect x="150" y="150" width="50" height="40" fill="#fbbf24"/>
+  <rect x="220" y="150" width="50" height="40" fill="#fbbf24"/>
+  <rect x="290" y="150" width="40" height="90" fill="#92400e"/>
+  <rect x="300" y="170" width="20" height="30" fill="#fbbf24"/>
+  <rect x="30" y="200" width="340" height="20" fill="#16a34a"/>
+  <circle cx="80" cy="190" r="8" fill="#22c55e"/>
+  <circle cx="320" cy="190" r="8" fill="#22c55e"/>
+  <text x="200" y="270" text-anchor="middle" fill="#16a34a" font-family="Arial" font-size="12">Villa Front View</text>
+</svg>

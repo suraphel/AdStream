@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#fef7cd"/>
+  <rect x="80" y="120" width="60" height="80" fill="#dc2626"/>
+  <rect x="160" y="120" width="60" height="80" fill="#f59e0b"/>
+  <rect x="240" y="120" width="60" height="80" fill="#10b981"/>
+  <rect x="85" y="115" width="50" height="10" fill="#7f1d1d"/>
+  <rect x="165" y="115" width="50" height="10" fill="#92400e"/>
+  <rect x="245" y="115" width="50" height="10" fill="#14532d"/>
+  <circle cx="110" cy="140" r="8" fill="#fca5a5"/>
+  <circle cx="190" cy="140" r="8" fill="#fed7aa"/>
+  <circle cx="270" cy="140" r="8" fill="#a7f3d0"/>
+  <text x="110" y="220" text-anchor="middle" fill="#7f1d1d" font-family="Arial" font-size="10">Berbere</text>
+  <text x="190" y="220" text-anchor="middle" fill="#92400e" font-family="Arial" font-size="10">Turmeric</text>
+  <text x="270" y="220" text-anchor="middle" fill="#14532d" font-family="Arial" font-size="10">Cardamom</text>
+  <text x="200" y="260" text-anchor="middle" fill="#d97706" font-family="Arial" font-size="12">Ethiopian Spice Collection</text>
+</svg>

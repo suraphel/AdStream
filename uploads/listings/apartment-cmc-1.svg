@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#dbeafe"/>
+  <rect x="80" y="80" width="240" height="160" fill="#1e40af"/>
+  <rect x="90" y="90" width="50" height="50" fill="#fef3c7"/>
+  <rect x="90" y="150" width="50" height="50" fill="#fef3c7"/>
+  <rect x="150" y="90" width="50" height="50" fill="#fef3c7"/>
+  <rect x="150" y="150" width="50" height="50" fill="#fef3c7"/>
+  <rect x="210" y="90" width="50" height="50" fill="#fef3c7"/>
+  <rect x="210" y="150" width="50" height="50" fill="#fef3c7"/>
+  <rect x="270" y="90" width="40" height="100" fill="#92400e"/>
+  <rect x="280" y="100" width="20" height="30" fill="#fbbf24"/>
+  <text x="200" y="270" text-anchor="middle" fill="#1e40af" font-family="Arial" font-size="12">2BR Apartment CMC</text>
+</svg>

@@ -328,7 +328,7 @@ export class DatabaseStorage implements IStorage {
     // Get images for each listing
     const listingIds = results.map(r => r.listing.id);
     const images = listingIds.length > 0 
-      ? await db.select().from(listingImages).where(sql`${listingImages.listingId} = ANY(${listingIds})`)
+      ? await db.select().from(listingImages).where(inArray(listingImages.listingId, listingIds))
       : [];
 
     const imagesByListingId = images.reduce((acc, img) => {
