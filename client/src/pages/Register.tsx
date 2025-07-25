@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { PasswordStrengthInput } from '@/components/ui/password-strength';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
@@ -20,7 +21,12 @@ const registerSchema = z.object({
   lastName: z.string().min(2, 'Last name must be at least 2 characters'),
   email: z.string().email('Please enter a valid email address'),
   phoneNumber: z.string().min(10, 'Phone number must be at least 10 digits').regex(/^[+\d\s-()]+$/, 'Please enter a valid phone number'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/\d/, 'Password must contain at least one number')
+    .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character'),
   confirmPassword: z.string(),
   dateOfBirth: z.string().min(1, 'Date of birth is required'),
   city: z.string().min(2, 'City is required'),
@@ -227,7 +233,7 @@ export default function Register() {
                 />
 
                 {/* Password Fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-4">
                   <FormField
                     control={form.control}
                     name="password"
@@ -235,10 +241,11 @@ export default function Register() {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="password"
-                            placeholder="Create a strong password" 
-                            {...field} 
+                          <PasswordStrengthInput
+                            password={field.value}
+                            onPasswordChange={field.onChange}
+                            placeholder="Create a strong password"
+                            showSuggestions={true}
                           />
                         </FormControl>
                         <FormMessage />

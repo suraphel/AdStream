@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { PasswordStrengthInput } from '@/components/ui/password-strength';
 import { useToast } from '@/hooks/use-toast';
 import { Building2, User, Mail, Phone, MapPin, Lock } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
@@ -20,7 +21,12 @@ const userRegistrationSchema = z.object({
   phone: z.string().min(10, 'Phone number must be at least 10 characters'),
   address: z.string().min(5, 'Address must be at least 5 characters'),
   contactPerson: z.string().min(2, 'Contact person name must be at least 2 characters'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/\d/, 'Password must contain at least one number')
+    .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character'),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
@@ -187,7 +193,7 @@ const TenderUserRegister: React.FC = () => {
                 />
 
                 {/* Password Fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-4">
                   <FormField
                     control={form.control}
                     name="password"
@@ -198,7 +204,12 @@ const TenderUserRegister: React.FC = () => {
                           Password
                         </FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="Enter password" {...field} />
+                          <PasswordStrengthInput
+                            password={field.value}
+                            onPasswordChange={field.onChange}
+                            placeholder="Create a strong password"
+                            showSuggestions={true}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

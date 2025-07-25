@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { PasswordStrengthInput } from '@/components/ui/password-strength';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Building2, User, Mail, Phone, MapPin, Lock, Upload, FileText, Calendar, Globe, Receipt, CreditCard, Hash, Shield, BookOpen, Factory } from 'lucide-react';
@@ -29,7 +30,12 @@ const companyRegistrationSchema = z.object({
   businessType: z.string().min(1, 'Business type is required'),
   establishedYear: z.number().min(1900, 'Invalid year').max(new Date().getFullYear(), 'Year cannot be in the future'),
   website: z.string().url('Please enter a valid website URL').optional().or(z.literal('')),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/\d/, 'Password must contain at least one number')
+    .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character'),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
@@ -360,7 +366,7 @@ const TenderCompanyRegister: React.FC = () => {
                 </div>
 
                 {/* Password Fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-4">
                   <FormField
                     control={form.control}
                     name="password"
@@ -371,7 +377,12 @@ const TenderCompanyRegister: React.FC = () => {
                           Password
                         </FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="Enter password" {...field} />
+                          <PasswordStrengthInput
+                            password={field.value}
+                            onPasswordChange={field.onChange}
+                            placeholder="Create a strong password"
+                            showSuggestions={true}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
