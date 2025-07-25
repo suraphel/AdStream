@@ -12,6 +12,9 @@ import ListingDetail from "@/pages/ListingDetail";
 import PostListing from "@/pages/PostListing";
 import Profile from "@/pages/Profile";
 import Category from "@/pages/Category";
+import AdminDashboard from "@/pages/admin/Dashboard";
+import AdminUsers from "@/pages/admin/Users";
+import AdminListings from "@/pages/admin/Listings";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -34,6 +37,9 @@ function Router() {
           <Route path="/favorites" component={Profile} />
           <Route path="/category/:slug" component={Category} />
           <Route path="/categories" component={Category} />
+          <Route path="/admin/dashboard" component={AdminDashboard} />
+          <Route path="/admin/users" component={AdminUsers} />
+          <Route path="/admin/listings" component={AdminListings} />
         </>
       )}
       {/* Fallback to 404 */}
