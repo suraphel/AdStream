@@ -38,7 +38,7 @@ export default function ListingDetail() {
   const queryClient = useQueryClient();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const { data: listing, isLoading, error } = useQuery({
+  const { data: listing, isLoading, error } = useQuery<any>({
     queryKey: [`/api/listings/${id}`],
     enabled: !!id,
   });
@@ -46,7 +46,7 @@ export default function ListingDetail() {
   const contactSellerMutation = useMutation({
     mutationFn: async (message: string) => {
       return await apiRequest('/api/conversations', 'POST', {
-        otherUserId: listing?.userId,
+        otherUserId: listing?.user?.id,
         listingId: listing?.id,
         initialMessage: message,
       });
@@ -82,13 +82,13 @@ export default function ListingDetail() {
   const favoriteMutation = useMutation({
     mutationFn: async () => {
       if (listing?.isFavorited) {
-        await apiRequest('DELETE', `/api/favorites/${listing.id}`);
+        await apiRequest(`/api/favorites/${listing.id}`, 'DELETE');
       } else {
-        await apiRequest('POST', '/api/favorites', { listingId: listing?.id });
+        await apiRequest('/api/favorites', 'POST', { listingId: listing?.id });
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/listings', id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/listings/${id}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
     },
     onError: (error) => {
@@ -124,8 +124,16 @@ export default function ListingDetail() {
       window.location.href = '/api/login';
       return;
     }
-    const defaultMessage = `Hi! I'm interested in your listing "${listing?.title}". Is it still available?`;
-    contactSellerMutation.mutate(defaultMessage);
+    
+    // Check if category requires authentication for contact
+    if (requiresAuthForContact(listing?.category.slug)) {
+      const defaultMessage = `Hi! I'm interested in your listing "${listing?.title}". Is it still available?`;
+      contactSellerMutation.mutate(defaultMessage);
+    } else {
+      // For public categories (like tenders), allow direct contact
+      const defaultMessage = `Hi! I'm interested in your listing "${listing?.title}". Please provide more information.`;
+      contactSellerMutation.mutate(defaultMessage);
+    }
   };
 
   const nextImage = () => {
@@ -233,7 +241,7 @@ export default function ListingDetail() {
               {/* Image Thumbnails */}
               {listing.images.length > 1 && (
                 <div className="flex space-x-2 mt-4 overflow-x-auto">
-                  {listing.images.map((image, index) => (
+                  {listing.images.map((image: any, index: number) => (
                     <button
                       key={image.id}
                       onClick={() => setCurrentImageIndex(index)}
@@ -347,7 +355,7 @@ export default function ListingDetail() {
                   </div>
                 </div>
 
-                {user?.id !== listing.user.id && (
+                {user?.id !== listing?.user?.id && (
                   /* Contact Section - Authentication Required for P2P Categories */
                   requiresAuthForContact(listing.category.slug) && !isAuthenticated ? (
                     <div className="space-y-3">
