@@ -1,4 +1,20 @@
 // Utility functions for category-based access control
+import { 
+  Smartphone, 
+  Laptop, 
+  Car, 
+  Zap, 
+  Home, 
+  Building, 
+  Shirt, 
+  Sofa, 
+  Briefcase, 
+  Scissors, 
+  Package, 
+  FileText, 
+  Plane,
+  Truck
+} from 'lucide-react';
 
 // Categories that require authentication for contact details and messaging
 const P2P_RESTRICTED_CATEGORIES = [
@@ -77,4 +93,35 @@ export function getAuthRequiredMessage(categorySlug: string, language: 'en' | 'a
   };
   
   return messages[language].default;
+}
+
+/**
+ * Gets the appropriate icon component for a category
+ * @param categorySlug - The category slug
+ * @returns React icon component
+ */
+export function getCategoryIcon(categorySlug: string) {
+  const iconMap: Record<string, any> = {
+    'electronics': Package,
+    'smartphones': Smartphone,
+    'laptops': Laptop,
+    'vehicles': Car,
+    'cars': Car,
+    'motorcycles': Zap,
+    'trucks': Truck,
+    'real-estate': Home,
+    'apartments': Building,
+    'houses': Home,
+    'fashion': Shirt,
+    'mens-clothing': Shirt,
+    'womens-clothing': Shirt,
+    'home-garden': Sofa,
+    'furniture': Sofa,
+    'jobs': Briefcase,
+    'services': Scissors,
+    'tenders': FileText,
+    'airline-tickets': Plane,
+  };
+  
+  return iconMap[categorySlug] || Package;
 }

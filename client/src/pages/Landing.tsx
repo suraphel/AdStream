@@ -1,14 +1,27 @@
 import { Link } from 'wouter';
+import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { SearchHero } from '@/components/SearchHero';
 import { CategoryNav } from '@/components/CategoryNav';
 import { Layout } from '@/components/Layout';
+import { ListingCard } from '@/components/ListingCard';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Plus } from 'lucide-react';
 
 export default function Landing() {
   const { t } = useLanguage();
+  
+  // Fetch featured listings (same as Home page)
+  const { data: featuredListings, isLoading: featuredLoading } = useQuery({
+    queryKey: ['/api/listings?featured=true&limit=8'],
+  });
+
+  // Fetch recent listings
+  const { data: recentListings, isLoading: recentLoading } = useQuery({
+    queryKey: ['/api/listings?limit=12'],
+  });
 
   return (
     <Layout>
@@ -116,6 +129,73 @@ export default function Landing() {
               <div className="text-3xl font-bold mb-2">24/7</div>
               <div className="text-primary-100 text-sm">{t('stats.support')}</div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Listings */}
+      <section className="py-12 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              {t('listings.featured')}
+            </h2>
+            <p className="text-lg text-gray-600">
+              {t('listings.featuredSubtitle')}
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredLoading ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="space-y-4">
+                  <Skeleton className="w-full h-48 rounded-lg" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              ))
+            ) : (
+              (featuredListings as any)?.map((listing: any) => (
+                <ListingCard key={listing.id} listing={listing} featured />
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Recent Listings */}
+      <section className="py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                {t('listings.recent')}
+              </h2>
+              <p className="text-gray-600">
+                {t('listings.recentSubtitle')}
+              </p>
+            </div>
+            <Button asChild variant="outline">
+              <Link href="/categories">
+                View All Categories
+              </Link>
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {recentLoading ? (
+              Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} className="space-y-4">
+                  <Skeleton className="w-full h-48 rounded-lg" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              ))
+            ) : (
+              (recentListings as any)?.map((listing: any) => (
+                <ListingCard key={listing.id} listing={listing} />
+              ))
+            )}
           </div>
         </div>
       </section>

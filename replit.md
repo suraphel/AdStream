@@ -170,6 +170,14 @@ Preferred communication style: Simple, everyday language.
   - **Authentication Prompts**: Added "Show Contact Info" and "Start Chat" buttons that redirect to login for unauthenticated users
   - **Messaging System Database**: Fixed missing conversations tables and indexes for proper messaging functionality
   - **Privacy Protection**: Seller names shown as "J***" for unauthenticated users, full details visible only after login
+- **Landing Page Enhancement**: Updated landing page to show listings for all users while maintaining contact restrictions
+  - **Public Listings Display**: Featured and recent listings now visible to unauthenticated users to encourage exploration
+  - **Contact Restrictions Maintained**: "Contact Seller" and messaging features still require authentication for P2P categories
+  - **Improved User Experience**: Users can browse and discover products before signing up, reducing friction
+- **Category Icons Improvement**: Fixed category page to display proper category-specific icons
+  - **Icon Mapping**: Added comprehensive icon mapping for all categories (smartphones, cars, motorcycles, real estate, etc.)
+  - **Visual Consistency**: Categories now show appropriate icons instead of generic package icons
+  - **Better Navigation**: Improved visual hierarchy and category recognition for users
 - **Comprehensive Messaging System**: Implemented user-to-user communication similar to finn.no
   - **Database Schema**: Added conversations and messages tables with proper user relations
   - **Messaging API**: Created REST endpoints for conversation management and message sending

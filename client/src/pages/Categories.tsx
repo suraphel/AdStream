@@ -5,6 +5,7 @@ import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Package } from 'lucide-react';
+import { getCategoryIcon } from '@/lib/categoryUtils';
 
 interface Category {
   id: number;
@@ -61,7 +62,9 @@ export default function Categories() {
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
                     <div className="p-2 bg-primary/10 rounded-lg w-fit">
-                      <Package className="h-6 w-6 text-primary" />
+                      {React.createElement(getCategoryIcon(category.slug), {
+                        className: "h-6 w-6 text-primary"
+                      })}
                     </div>
                     <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                   </div>
