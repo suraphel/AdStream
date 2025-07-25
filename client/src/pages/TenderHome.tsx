@@ -79,18 +79,11 @@ const TenderHome: React.FC = () => {
             Access comprehensive tender documents from verified companies
           </p>
           
-          {/* CTA Buttons */}
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <Link href="/tender/register-user">
-              <Button size="lg" className="bg-primary hover:bg-primary/90">
-                Register to Access Documents
-              </Button>
-            </Link>
-            <Link href="/tender/register-company">
-              <Button size="lg" variant="outline">
-                Upload Tenders
-              </Button>
-            </Link>
+          {/* Info Text */}
+          <div className="text-center mb-8">
+            <p className="text-lg text-gray-600">
+              Please login to your marketplace account first, then register for tender services
+            </p>
           </div>
         </div>
 

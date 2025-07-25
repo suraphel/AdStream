@@ -317,17 +317,13 @@ const TenderDetail: React.FC = () => {
                     <div className="space-y-2">
                       <Button 
                         className="w-full" 
-                        onClick={() => navigate('/tender/register-user')}
+                        onClick={() => navigate('/api/login')}
                       >
-                        Register to Purchase
+                        Login to Marketplace First
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        className="w-full"
-                        onClick={() => navigate('/tender/login-user')}
-                      >
-                        Already have an account? Login
-                      </Button>
+                      <p className="text-sm text-gray-600 text-center">
+                        You need to login to your marketplace account, then register for tender services
+                      </p>
                     </div>
                   )}
 
