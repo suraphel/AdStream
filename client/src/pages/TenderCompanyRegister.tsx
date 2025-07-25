@@ -49,10 +49,7 @@ const TenderCompanyRegister: React.FC = () => {
   const registerMutation = useMutation({
     mutationFn: async (data: CompanyRegistrationFormData) => {
       const { confirmPassword, ...registrationData } = data;
-      return apiRequest('/api/tender-auth/register-company', {
-        method: 'POST',
-        body: JSON.stringify(registrationData),
-      });
+      return apiRequest('/api/tender-auth/register-company', 'POST', registrationData);
     },
     onSuccess: (data) => {
       toast({

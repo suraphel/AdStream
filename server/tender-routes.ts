@@ -185,6 +185,10 @@ export function registerTenderRoutes(app: Express) {
     try {
       const tenderId = parseInt(req.params.id);
       
+      if (isNaN(tenderId)) {
+        return res.status(400).json({ message: 'Invalid tender ID' });
+      }
+      
       const [tender] = await db
         .select({
           id: tenderDocuments.id,
@@ -396,6 +400,10 @@ export function registerTenderRoutes(app: Express) {
       const tenderId = parseInt(req.params.id);
       const userId = req.user.id;
 
+      if (isNaN(tenderId)) {
+        return res.status(400).json({ message: 'Invalid tender ID' });
+      }
+
       const [purchase] = await db
         .select()
         .from(tenderPurchases)
@@ -416,6 +424,10 @@ export function registerTenderRoutes(app: Express) {
     try {
       const tenderId = parseInt(req.params.id);
       const userId = req.user.id;
+
+      if (isNaN(tenderId)) {
+        return res.status(400).json({ message: 'Invalid tender ID' });
+      }
 
       // Check if already purchased
       const [existingPurchase] = await db
@@ -497,6 +509,10 @@ export function registerTenderRoutes(app: Express) {
     try {
       const tenderId = parseInt(req.params.id);
       const userId = req.user.id;
+
+      if (isNaN(tenderId)) {
+        return res.status(400).json({ message: 'Invalid tender ID' });
+      }
 
       // Check if user has purchased this document
       const [purchase] = await db

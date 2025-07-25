@@ -1,0 +1,16 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+        <rect width="800" height="600" fill="#87CEEB"/>
+        <rect y="300" width="800" height="200" fill="#8B4513"/>
+        <rect y="350" width="800" height="100" fill="#696969"/>
+        <rect y="375" width="800" height="50" fill="#FFFF00" opacity="0.3"/>
+        <rect y="380" width="800" height="40" fill="#FFFFFF" opacity="0.8"/>
+        <!-- Vehicles -->
+        <rect x="100" y="360" width="60" height="30" fill="#FF4500"/>
+        <circle cx="110" cy="395" r="8" fill="#000"/>
+        <circle cx="150" cy="395" r="8" fill="#000"/>
+        <rect x="300" y="350" width="80" height="40" fill="#4169E1"/>
+        <circle cx="320" cy="395" r="10" fill="#000"/>
+        <circle cx="360" cy="395" r="10" fill="#000"/>
+        <text x="400" y="100" font-family="Arial" font-size="24" fill="#000">Highway Construction Project</text>
+        <text x="400" y="130" font-family="Arial" font-size="16" fill="#333">50km Addis Ababa to Debre Zeit</text>
+      </svg>

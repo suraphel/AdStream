@@ -49,10 +49,7 @@ const TenderUserRegister: React.FC = () => {
   const registerMutation = useMutation({
     mutationFn: async (data: UserRegistrationFormData) => {
       const { confirmPassword, ...registrationData } = data;
-      return apiRequest('/api/tender-auth/register-user', {
-        method: 'POST',
-        body: JSON.stringify(registrationData),
-      });
+      return apiRequest('/api/tender-auth/register-user', 'POST', registrationData);
     },
     onSuccess: (data) => {
       toast({
