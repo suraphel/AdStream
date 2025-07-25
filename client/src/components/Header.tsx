@@ -23,7 +23,6 @@ export function Header() {
     { name: t('header.home'), href: '/', current: location === '/' },
     { name: t('header.categories'), href: '/categories', current: location.startsWith('/categories') },
     { name: 'TenderFloat', href: '/tender', current: location.startsWith('/tender') },
-    { name: 'External Listings', href: '/external', current: location === '/external', auth: true },
     { name: t('header.myAds'), href: '/my-ads', current: location === '/my-ads', auth: true },
     { name: t('header.messages'), href: '/messages', current: location === '/messages', auth: true },
   ];

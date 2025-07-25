@@ -21,7 +21,9 @@ import {
   List,
   SlidersHorizontal,
   MapPin,
-  Filter
+  Filter,
+  ExternalLink,
+  Building
 } from 'lucide-react';
 import { formatNumber } from '@/lib/i18n';
 
@@ -64,6 +66,9 @@ export default function Category() {
     },
     enabled: !isOverview && !!category,
   });
+
+  // Check if this is the real estate category
+  const isRealEstateCategory = slug === 'real-estate';
 
   const locations = [
     { value: 'all', label: t('search.allEthiopia') },
@@ -309,6 +314,42 @@ export default function Category() {
             </div>
           </CardContent>
         </Card>
+
+        {/* External Listings Section for Real Estate */}
+        {isRealEstateCategory && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building className="h-5 w-5 text-primary" />
+                External Real Estate Listings
+                <ExternalLink className="h-4 w-4 text-muted-foreground" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                Access thousands of additional property listings from trusted external platforms
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Button 
+                  onClick={() => window.location.href = '/external'}
+                  className="flex items-center gap-2"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Browse External Listings
+                </Button>
+                <Button variant="outline" size="sm">
+                  RentCast Properties
+                </Button>
+                <Button variant="outline" size="sm">
+                  Zillow Data
+                </Button>
+                <Button variant="outline" size="sm">
+                  More Sources
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Listings */}
         {listingsLoading ? (
