@@ -84,7 +84,7 @@ export function Header() {
 
             {/* Post Ad Button */}
             {isAuthenticated && (
-              <Link href="/post">
+              <Link href="/select-category">
                 <Button className="bg-primary text-white hover:bg-primary/90">
                   <Plus className="w-4 h-4 mr-2" />
                   {t('header.postAd')}
@@ -122,9 +122,14 @@ export function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button asChild>
-                <a href="/api/login">{t('header.login')}</a>
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button variant="outline" asChild>
+                  <Link href="/register">Register</Link>
+                </Button>
+                <Button asChild>
+                  <a href="/api/login">{t('header.login')}</a>
+                </Button>
+              </div>
             )}
 
             {/* Mobile Menu Button */}

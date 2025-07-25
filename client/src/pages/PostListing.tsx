@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
+import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -18,9 +19,9 @@ import { apiRequest } from '@/lib/queryClient';
 const listingSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
-  price: z.string().min(1, 'Price is required'),
+  price: z.number().min(0, 'Price must be non-negative'),
   currency: z.string().default('ETB'),
-  categoryId: z.string().min(1, 'Category is required'),
+  categoryId: z.number().min(1, 'Category is required'),
   location: z.string().min(2, 'Location is required'),
   condition: z.string().optional(),
 });
@@ -40,6 +41,11 @@ const PostListing: React.FC = () => {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Get category from URL params
+  const searchParams = new URLSearchParams(window.location.search);
+  const selectedCategoryId = searchParams.get('category');
+  const selectedCategoryName = searchParams.get('name');
 
   const translations = {
     en: {
@@ -107,11 +113,11 @@ const PostListing: React.FC = () => {
     defaultValues: {
       title: '',
       description: '',
-      price: '',
+      price: 0,
       currency: 'ETB',
-      categoryId: '',
+      categoryId: selectedCategoryId ? parseInt(selectedCategoryId) : 10,
       location: '',
-      condition: '',
+      condition: 'new',
     },
   });
 
@@ -119,6 +125,11 @@ const PostListing: React.FC = () => {
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
   });
+
+  // Categories that don't need condition field (houses, services, etc.)
+  const categoriesWithoutCondition = ['real-estate', 'services', 'jobs'];
+  const currentCategory = categories.find(cat => cat.id === parseInt(selectedCategoryId || '10'));
+  const showConditionField = currentCategory ? !categoriesWithoutCondition.includes(currentCategory.slug) : true;
 
   const createListingMutation = useMutation({
     mutationFn: async (data: ListingFormData & { imageKeys: string[] }) => {
@@ -130,8 +141,8 @@ const PostListing: React.FC = () => {
         credentials: 'include',
         body: JSON.stringify({
           ...data,
-          categoryId: parseInt(data.categoryId),
-          price: parseFloat(data.price),
+          categoryId: data.categoryId,
+          price: data.price,
           images: data.imageKeys,
         }),
       });
@@ -170,7 +181,8 @@ const PostListing: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <Layout>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
@@ -183,7 +195,9 @@ const PostListing: React.FC = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             {t.backToHome}
           </Button>
-          <h1 className="text-2xl font-bold">{t.title}</h1>
+          <h1 className="text-2xl font-bold">
+            {selectedCategoryName ? `Post in ${selectedCategoryName}` : t.title}
+          </h1>
         </div>
         
         <Button
@@ -252,7 +266,8 @@ const PostListing: React.FC = () => {
                           <Input 
                             type="number"
                             placeholder={t.pricePlaceholder} 
-                            {...field} 
+                            value={field.value}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                           />
                         </FormControl>
                         <FormMessage />
@@ -293,7 +308,7 @@ const PostListing: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t.category}</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder={t.categoryPlaceholder} />
@@ -330,29 +345,31 @@ const PostListing: React.FC = () => {
                 />
               </div>
 
-              {/* Condition */}
-              <FormField
-                control={form.control}
-                name="condition"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t.condition}</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={t.conditionPlaceholder} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="new">{t.conditionNew}</SelectItem>
-                        <SelectItem value="used">{t.conditionUsed}</SelectItem>
-                        <SelectItem value="refurbished">{t.conditionRefurbished}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Condition - Only show for relevant categories */}
+              {showConditionField && (
+                <FormField
+                  control={form.control}
+                  name="condition"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t.condition}</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={t.conditionPlaceholder} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="new">{t.conditionNew}</SelectItem>
+                          <SelectItem value="used">{t.conditionUsed}</SelectItem>
+                          <SelectItem value="refurbished">{t.conditionRefurbished}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               {/* Images */}
               <div className="space-y-2">
@@ -396,7 +413,8 @@ const PostListing: React.FC = () => {
           </Form>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </Layout>
   );
 };
 

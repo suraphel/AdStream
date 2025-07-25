@@ -13,6 +13,8 @@ import ListingDetail from "@/pages/ListingDetail";
 import PostListing from "@/pages/PostListing";
 import Profile from "@/pages/Profile";
 import Category from "@/pages/Category";
+import CategorySelect from "@/pages/CategorySelect";
+import Register from "@/pages/Register";
 import ExternalListings from "@/pages/ExternalListings";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminUsers from "@/pages/admin/Users";
@@ -37,12 +39,14 @@ function Router() {
           <Route path="/" component={Landing} />
           <Route path="/listing/:id" component={ListingDetail} />
           <Route path="/category/:slug" component={Category} />
+          <Route path="/register" component={Register} />
         </>
       ) : (
         <>
           <Route path="/" component={Home} />
           <Route path="/listing/:id" component={ListingDetail} />
           <Route path="/post" component={PostListing} />
+          <Route path="/select-category" component={CategorySelect} />
           <Route path="/profile" component={Profile} />
           <Route path="/my-ads" component={Profile} />
           <Route path="/favorites" component={Profile} />

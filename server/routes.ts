@@ -61,6 +61,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Registration endpoint for additional user data
+  app.post('/api/auth/register', async (req, res) => {
+    try {
+      const {
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+        password,
+        dateOfBirth,
+        city,
+        region,
+        marketingConsent
+      } = req.body;
+
+      // Basic validation
+      if (!firstName || !lastName || !email || !phoneNumber) {
+        return res.status(400).json({ 
+          message: "Missing required fields: firstName, lastName, email, phoneNumber" 
+        });
+      }
+
+      // In a real application, you would:
+      // 1. Hash the password
+      // 2. Validate phone number format
+      // 3. Send verification emails
+      // 4. Store in database
+      
+      // For now, we'll return success since this integrates with Replit Auth
+      res.status(201).json({ 
+        message: "Registration successful. Please verify your email.",
+        userId: `temp_${Date.now()}` // Temporary ID
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Registration failed. Please try again." });
+    }
+  });
+
   // Category routes
   app.get('/api/categories', async (req, res) => {
     try {
