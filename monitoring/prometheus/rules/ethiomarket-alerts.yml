@@ -1,0 +1,121 @@
+groups:
+  - name: ethiomarket-api
+    rules:
+      # High error rate alert
+      - alert: HighErrorRate
+        expr: rate(ethiomarket_errors_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: ethiomarket-api
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }} errors per second"
+          summary_am: "ከፍተኛ የስህተት መጠን ተገኝቷል"
+          description_am: "የስህተት መጠን በሰከንድ {{ $value }} ስህተቶች ነው"
+
+      # High response time alert
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(ethiomarket_http_request_duration_seconds_bucket[5m])) > 2
+        for: 2m
+        labels:
+          severity: warning
+          service: ethiomarket-api
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}s"
+          summary_am: "ከፍተኛ የምላሽ ጊዜ ተገኝቷል"
+          description_am: "95ኛ መቶኛ የምላሽ ጊዜ {{ $value }} ሰከንድ ነው"
+
+      # Database connection issues
+      - alert: DatabaseConnectionDown
+        expr: up{job="ethiomarket-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: ethiomarket-api
+        annotations:
+          summary: "Database connection is down"
+          description: "Cannot connect to the database"
+          summary_am: "የመረጃ ቋት ግንኙነት ተቋርጧል"
+          description_am: "ከመረጃ ቋት ጋር መገናኘት አይቻልም"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 90%"
+          summary_am: "ከፍተኛ የማህደረ ትውስታ አጠቃቀም"
+          description_am: "የማህደረ ትውስታ አጠቃቀም ከ90% በላይ ነው"
+
+      # Disk space low
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+          service: system
+        annotations:
+          summary: "Disk space is low"
+          description: "Less than 10% disk space remaining"
+          summary_am: "የቅዠብ ቦታ አነስተኛ ነው"
+          description_am: "ከ10% ያነሰ የቅዠብ ቦታ ቀርቷል"
+
+      # Too many failed image uploads
+      - alert: HighImageUploadFailures
+        expr: rate(ethiomarket_image_uploads_total{status="failure"}[5m]) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          service: ethiomarket-api
+        annotations:
+          summary: "High image upload failure rate"
+          description: "Image upload failures: {{ $value }} per second"
+          summary_am: "ከፍተኛ የምስል ሰቀላ ውድቀት መጠን"
+          description_am: "የምስል ሰቀላ ውድቀቶች፡ በሰከንድ {{ $value }}"
+
+      # Low search results rate
+      - alert: LowSearchResultsRate
+        expr: rate(ethiomarket_search_requests_total{has_results="false"}[10m]) / rate(ethiomarket_search_requests_total[10m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: ethiomarket-api
+        annotations:
+          summary: "High rate of empty search results"
+          description: "{{ $value | humanizePercentage }} of searches return no results"
+          summary_am: "ከፍተኛ ባዶ የፍለጋ ውጤት መጠን"
+          description_am: "{{ $value | humanizePercentage }} የፍለጋ ጥያቄዎች ምንም ውጤት አያመጡም"
+
+  - name: ethiomarket-business
+    rules:
+      # Low user activity
+      - alert: LowUserActivity
+        expr: rate(ethiomarket_http_requests_total{route=~"/api/listings.*"}[1h]) < 10
+        for: 30m
+        labels:
+          severity: warning
+          service: ethiomarket-api
+        annotations:
+          summary: "Low user activity detected"
+          description: "User activity is below normal levels"
+          summary_am: "ዝቅተኛ የተጠቃሚ እንቅስቃሴ ተገኝቷል"
+          description_am: "የተጠቃሚ እንቅስቃሴ ከተለመደው ደረጃ በታች ነው"
+
+      # Critical frontend errors
+      - alert: CriticalFrontendErrors
+        expr: rate(ethiomarket_errors_total{severity="critical",type="frontend"}[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+          service: ethiomarket-frontend
+        annotations:
+          summary: "Critical frontend errors detected"
+          description: "Critical errors in frontend application"
+          summary_am: "ወሳኝ የመጀመሪያ ገጽ ስህተቶች ተገኝተዋል"
+          description_am: "በመጀመሪያ ገጽ መተግበሪያ ውስጥ ወሳኝ ስህተቶች"

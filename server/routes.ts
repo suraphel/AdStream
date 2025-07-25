@@ -1,8 +1,13 @@
+
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { imageRoutes } from "./routes/imageRoutes";
+import { metricsMiddleware, metricsHandler } from "./monitoring/metrics";
+import { healthCheckHandler, readinessHandler, livenessHandler } from "./monitoring/healthCheck";
+import { frontendErrorHandler, errorAnalyticsHandler, recentErrorsHandler } from "./monitoring/errorTracking";
+import { Logger } from "./logging/Logger";
 import path from "path";
 import express from "express";
 import { insertListingSchema, insertListingImageSchema, insertCategorySchema } from "@shared/schema";
@@ -18,11 +23,25 @@ const searchSchema = z.object({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Add metrics middleware
+  app.use(metricsMiddleware);
+
   // Auth middleware
   await setupAuth(app);
 
   // Serve uploaded images statically
   app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
+  // Monitoring and health check routes
+  app.get('/metrics', metricsHandler);
+  app.get('/health', healthCheckHandler);
+  app.get('/health/ready', readinessHandler);
+  app.get('/health/live', livenessHandler);
+
+  // Error tracking routes
+  app.post('/api/errors/frontend', frontendErrorHandler);
+  app.get('/api/errors/analytics', isAuthenticated, errorAnalyticsHandler);
+  app.get('/api/errors/recent', isAuthenticated, recentErrorsHandler);
 
   // Image upload routes
   app.use('/api/images', imageRoutes);

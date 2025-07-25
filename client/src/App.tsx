@@ -15,9 +15,18 @@ import Category from "@/pages/Category";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminUsers from "@/pages/admin/Users";
 import AdminListings from "@/pages/admin/Listings";
+import errorTracker, { ErrorBoundary } from "./lib/errorTracking";
+import { useEffect } from "react";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
+
+  // Initialize error tracking with user context
+  useEffect(() => {
+    if (user && typeof user === 'object' && 'id' in user) {
+      errorTracker.initialize(user.id as string, 'en'); // Default to English, can be configured
+    }
+  }, [user]);
 
   return (
     <Switch>
@@ -53,8 +62,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <TooltipProvider>
-          <Toaster />
-          <Router />
+          <ErrorBoundary>
+            <Router />
+            <Toaster />
+          </ErrorBoundary>
         </TooltipProvider>
       </LanguageProvider>
     </QueryClientProvider>
