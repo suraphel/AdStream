@@ -1,0 +1,16 @@
+<svg width="600" height="400" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="dressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#EC4899;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#BE185D;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      <rect width="600" height="400" fill="#FDF2F8"/>
+      <path d="M220 80 L380 80 L420 120 L420 350 L180 350 L180 120 Z" fill="url(#dressGrad)"/>
+      <path d="M240 100 L360 100 L370 130 L230 130 Z" fill="#BE185D"/>
+      <rect x="285" y="80" width="30" height="15" rx="5" fill="#FCD34D"/>
+      <path d="M200 200 L400 200" stroke="#FCD34D" stroke-width="3"/>
+      <circle cx="210" r="8" cy="160" fill="#FCD34D"/>
+      <circle cx="390" r="8" cy="160" fill="#FCD34D"/>
+      <text x="300" y="380" text-anchor="middle" fill="#1F2937" font-family="Arial, sans-serif" font-size="18" font-weight="bold">Evening Dress</text>
+    </svg>

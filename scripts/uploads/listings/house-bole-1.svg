@@ -1,0 +1,16 @@
+<svg width="600" height="400" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="houseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#7C3AED;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#5B21B6;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      <rect width="600" height="400" fill="#E5E7EB"/>
+      <path d="M300 60 L480 180 L480 340 L120 340 L120 180 Z" fill="url(#houseGrad)"/>
+      <rect x="150" y="200" width="60" height="80" fill="#3B82F6" opacity="0.8"/>
+      <rect x="240" y="200" width="60" height="80" fill="#3B82F6" opacity="0.8"/>
+      <rect x="330" y="200" width="60" height="80" fill="#3B82F6" opacity="0.8"/>
+      <rect x="420" y="200" width="40" height="80" fill="#8B5CF6"/>
+      <rect x="260" y="300" width="80" height="40" fill="#A855F7"/>
+      <text x="300" y="380" text-anchor="middle" fill="#1F2937" font-family="Arial, sans-serif" font-size="20" font-weight="bold">3BR House - Bole</text>
+    </svg>
