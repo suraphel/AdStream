@@ -242,7 +242,7 @@ const seedData: SeedData = {
       contactPhone: '+251911123456',
       contactEmail: 'abebe@example.com',
       status: 'active',
-      images: ['iphone-14-pro-max-1.jpg', 'iphone-14-pro-max-2.jpg'],
+      images: ['iPhone.svg', 'iphone-14-pro-max-1.jpg', 'iphone-14-pro-max-2.jpg'],
     },
     {
       title: 'Gaming Laptop - ASUS ROG Strix',
@@ -257,6 +257,7 @@ const seedData: SeedData = {
       locationAm: 'አዲስ አበባ፣ ካዛንቺስ',
       contactPhone: '+251922234567',
       status: 'active',
+      images: ['gaming-laptop-1.jpg'],
     },
     
     // Vehicles
@@ -288,6 +289,7 @@ const seedData: SeedData = {
       locationAm: 'አዲስ አበባ፣ ፒያሳ',
       contactPhone: '+251944456789',
       status: 'active',
+      images: ['motorcycle-honda-1.jpg'],
     },
     
     // Real Estate
@@ -336,7 +338,7 @@ const seedData: SeedData = {
       locationAm: 'አዲስ አበባ፣ መርካቶ',
       contactPhone: '+251922234567',
       status: 'active',
-      images: ['habesha-kemis-1.jpg'],
+      images: ['traditional_dress.svg', 'habesha-kemis-1.jpg'],
     },
     
     // Home & Garden
@@ -353,7 +355,7 @@ const seedData: SeedData = {
       locationAm: 'አዲስ አበባ፣ 22 ማዞሪያ',
       contactPhone: '+251933345678',
       status: 'active',
-      images: ['sofa-set-1.jpg', 'sofa-set-2.jpg'],
+      images: ['sofa.svg', 'sofa-set-1.jpg'],
     },
     
     // Services
@@ -371,6 +373,7 @@ const seedData: SeedData = {
       contactPhone: '+251944456789',
       contactEmail: 'hanan@example.com',
       status: 'active',
+      images: ['webDevelopment.svg'],
     },
   ],
 };
