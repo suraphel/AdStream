@@ -23,8 +23,18 @@ export const companies = pgTable("companies", {
   phone: varchar("phone", { length: 20 }),
   address: text("address"),
   contactPerson: varchar("contact_person", { length: 100 }),
+  // Business registration fields
+  vatNumber: varchar("vat_number", { length: 50 }).unique(),
+  businessLicense: varchar("business_license", { length: 100 }),
+  tinNumber: varchar("tin_number", { length: 50 }).unique(), // Tax Identification Number
+  registrationNumber: varchar("registration_number", { length: 100 }),
+  businessType: varchar("business_type", { length: 100 }), // LLC, Share Company, etc.
+  establishedYear: integer("established_year"),
+  website: varchar("website", { length: 255 }),
+  // Authentication
   passwordHash: varchar("password_hash", { length: 255 }).notNull(),
   isActive: boolean("is_active").default(true),
+  isVerified: boolean("is_verified").default(false), // Admin verification status
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

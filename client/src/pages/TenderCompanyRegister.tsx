@@ -10,8 +10,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Building2, User, Mail, Phone, MapPin, Lock, Upload } from 'lucide-react';
+import { Building2, User, Mail, Phone, MapPin, Lock, Upload, FileText, Calendar, Globe, Receipt } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 
 const companyRegistrationSchema = z.object({
@@ -20,6 +21,14 @@ const companyRegistrationSchema = z.object({
   phone: z.string().min(10, 'Phone number must be at least 10 characters'),
   address: z.string().min(5, 'Address must be at least 5 characters'),
   contactPerson: z.string().min(2, 'Contact person name must be at least 2 characters'),
+  // Business registration fields
+  vatNumber: z.string().min(1, 'VAT registration number is required'),
+  businessLicense: z.string().min(1, 'Business license number is required'),
+  tinNumber: z.string().min(1, 'TIN number is required'),
+  registrationNumber: z.string().min(1, 'Company registration number is required'),
+  businessType: z.string().min(1, 'Business type is required'),
+  establishedYear: z.number().min(1900, 'Invalid year').max(new Date().getFullYear(), 'Year cannot be in the future'),
+  website: z.string().url('Please enter a valid website URL').optional().or(z.literal('')),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -41,6 +50,13 @@ const TenderCompanyRegister: React.FC = () => {
       phone: '',
       address: '',
       contactPerson: '',
+      vatNumber: '',
+      businessLicense: '',
+      tinNumber: '',
+      registrationNumber: '',
+      businessType: '',
+      establishedYear: 2020,
+      website: '',
       password: '',
       confirmPassword: '',
     },
@@ -185,6 +201,163 @@ const TenderCompanyRegister: React.FC = () => {
                     </FormItem>
                   )}
                 />
+
+                {/* Business Registration Information */}
+                <div className="border-t pt-6">
+                  <h3 className="text-lg font-semibold mb-4 text-gray-900 flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Business Registration Information
+                  </h3>
+                  
+                  {/* VAT Number and TIN Number */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <FormField
+                      control={form.control}
+                      name="vatNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2">
+                            <Receipt className="h-4 w-4" />
+                            VAT Registration Number
+                          </FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter VAT number" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="tinNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2">
+                            <FileText className="h-4 w-4" />
+                            TIN Number
+                          </FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter TIN number" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Business License and Registration Number */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <FormField
+                      control={form.control}
+                      name="businessLicense"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2">
+                            <FileText className="h-4 w-4" />
+                            Business License Number
+                          </FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter business license number" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="registrationNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2">
+                            <Building2 className="h-4 w-4" />
+                            Company Registration Number
+                          </FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter company reg. number" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Business Type and Established Year */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <FormField
+                      control={form.control}
+                      name="businessType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2">
+                            <Building2 className="h-4 w-4" />
+                            Business Type
+                          </FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select business type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Private Limited Company">Private Limited Company</SelectItem>
+                              <SelectItem value="Share Company">Share Company</SelectItem>
+                              <SelectItem value="Sole Proprietorship">Sole Proprietorship</SelectItem>
+                              <SelectItem value="Partnership">Partnership</SelectItem>
+                              <SelectItem value="Cooperative">Cooperative</SelectItem>
+                              <SelectItem value="NGO">NGO</SelectItem>
+                              <SelectItem value="Government Entity">Government Entity</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="establishedYear"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            Year Established
+                          </FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="2020" 
+                              min="1900"
+                              max={new Date().getFullYear()}
+                              {...field}
+                              onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Website */}
+                  <FormField
+                    control={form.control}
+                    name="website"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Globe className="h-4 w-4" />
+                          Company Website (Optional)
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://www.example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 {/* Password Fields */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
