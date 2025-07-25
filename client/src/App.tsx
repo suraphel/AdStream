@@ -25,6 +25,7 @@ import TenderCompanyRegister from "@/pages/TenderCompanyRegister";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminUsers from "@/pages/admin/Users";
 import AdminListings from "@/pages/admin/Listings";
+import Messages from "@/pages/Messages";
 import errorTracker, { ErrorBoundary } from "./lib/errorTracking";
 import { useEffect } from "react";
 
@@ -73,6 +74,7 @@ function Router() {
           <Route path="/categories" component={Category} />
           <Route path="/external" component={ExternalListings} />
           <Route path="/airline-tickets" component={AirlineTickets} />
+          <Route path="/messages" component={() => <div className="min-h-screen bg-gray-50 pt-16"><Messages /></div>} />
           <Route path="/admin/dashboard" component={AdminDashboard} />
           <Route path="/admin/users" component={AdminUsers} />
           <Route path="/admin/listings" component={AdminListings} />

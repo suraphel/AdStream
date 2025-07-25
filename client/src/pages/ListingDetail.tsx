@@ -21,7 +21,8 @@ import {
   User, 
   Calendar,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  MessageCircle
 } from 'lucide-react';
 import { formatRelativeTime, formatPrice } from '@/lib/i18n';
 import { useState } from 'react';
@@ -38,6 +39,42 @@ export default function ListingDetail() {
   const { data: listing, isLoading, error } = useQuery({
     queryKey: [`/api/listings/${id}`],
     enabled: !!id,
+  });
+
+  const contactSellerMutation = useMutation({
+    mutationFn: async (message: string) => {
+      return await apiRequest('/api/conversations', 'POST', {
+        otherUserId: listing?.userId,
+        listingId: listing?.id,
+        initialMessage: message,
+      });
+    },
+    onSuccess: (data: any) => {
+      toast({
+        title: "Message sent!",
+        description: "Your message has been sent to the seller.",
+      });
+      // Redirect to messages page with the conversation
+      window.location.href = '/messages';
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   const favoriteMutation = useMutation({
@@ -78,6 +115,15 @@ export default function ListingDetail() {
       return;
     }
     favoriteMutation.mutate();
+  };
+
+  const handleContactSeller = () => {
+    if (!isAuthenticated) {
+      window.location.href = '/api/login';
+      return;
+    }
+    const defaultMessage = `Hi! I'm interested in your listing "${listing?.title}". Is it still available?`;
+    contactSellerMutation.mutate(defaultMessage);
   };
 
   const nextImage = () => {
@@ -301,6 +347,14 @@ export default function ListingDetail() {
 
                 {user?.id !== listing.user.id && (
                   <div className="space-y-3">
+                    <Button 
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white" 
+                      onClick={handleContactSeller}
+                      disabled={contactSellerMutation.isPending}
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      {contactSellerMutation.isPending ? 'Sending...' : 'Contact Seller'}
+                    </Button>
                     {listing.user.phone && (
                       <Button className="w-full" variant="outline">
                         <Phone className="w-4 h-4 mr-2" />

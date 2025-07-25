@@ -105,6 +105,43 @@ export const favorites = pgTable("favorites", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Conversations table - for message threads between users
+export const conversations = pgTable("conversations", {
+  id: serial("id").primaryKey(),
+  listingId: integer("listing_id"), // Optional: link conversation to a specific listing
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Conversation participants - tracks who is in each conversation
+export const conversationParticipants = pgTable("conversation_participants", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id").notNull(),
+  userId: varchar("user_id").notNull(),
+  joinedAt: timestamp("joined_at").defaultNow(),
+  lastReadAt: timestamp("last_read_at"),
+}, (table) => [
+  index("idx_conversation_participants_conversation").on(table.conversationId),
+  index("idx_conversation_participants_user").on(table.userId),
+]);
+
+// Messages table - individual messages within conversations
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id").notNull(),
+  senderId: varchar("sender_id").notNull(),
+  content: text("content").notNull(),
+  messageType: varchar("message_type", { length: 20 }).default("text"), // text, image, file
+  attachmentUrl: varchar("attachment_url", { length: 500 }),
+  isRead: boolean("is_read").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_messages_conversation").on(table.conversationId),
+  index("idx_messages_sender").on(table.senderId),
+  index("idx_messages_created_at").on(table.createdAt),
+]);
+
 // External API configurations table
 export const externalApiConfigs = pgTable("external_api_configs", {
   id: serial("id").primaryKey(),
@@ -137,6 +174,8 @@ export const syncLogs = pgTable("sync_logs", {
 export const usersRelations = relations(users, ({ many }) => ({
   listings: many(listings),
   favorites: many(favorites),
+  conversationParticipants: many(conversationParticipants),
+  sentMessages: many(messages),
 }));
 
 export const categoriesRelations = relations(categories, ({ one, many }) => ({
@@ -159,6 +198,7 @@ export const listingsRelations = relations(listings, ({ one, many }) => ({
   }),
   images: many(listingImages),
   favorites: many(favorites),
+  conversations: many(conversations),
 }));
 
 export const listingImagesRelations = relations(listingImages, ({ one }) => ({
@@ -176,6 +216,38 @@ export const favoritesRelations = relations(favorites, ({ one }) => ({
   listing: one(listings, {
     fields: [favorites.listingId],
     references: [listings.id],
+  }),
+}));
+
+// Messaging relations
+export const conversationsRelations = relations(conversations, ({ one, many }) => ({
+  listing: one(listings, {
+    fields: [conversations.listingId],
+    references: [listings.id],
+  }),
+  participants: many(conversationParticipants),
+  messages: many(messages),
+}));
+
+export const conversationParticipantsRelations = relations(conversationParticipants, ({ one }) => ({
+  conversation: one(conversations, {
+    fields: [conversationParticipants.conversationId],
+    references: [conversations.id],
+  }),
+  user: one(users, {
+    fields: [conversationParticipants.userId],
+    references: [users.id],
+  }),
+}));
+
+export const messagesRelations = relations(messages, ({ one }) => ({
+  conversation: one(conversations, {
+    fields: [messages.conversationId],
+    references: [conversations.id],
+  }),
+  sender: one(users, {
+    fields: [messages.senderId],
+    references: [users.id],
   }),
 }));
 
@@ -197,6 +269,24 @@ export const insertFavoriteSchema = createInsertSchema(favorites).omit({
   createdAt: true 
 });
 
+// Messaging insert schemas
+export const insertConversationSchema = createInsertSchema(conversations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertConversationParticipantSchema = createInsertSchema(conversationParticipants).omit({
+  id: true,
+  joinedAt: true,
+});
+
+export const insertMessageSchema = createInsertSchema(messages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type UpsertUser = typeof users.$inferInsert;
@@ -207,6 +297,14 @@ export type InsertListing = z.infer<typeof insertListingSchema>;
 export type ListingImage = typeof listingImages.$inferSelect;
 export type InsertListingImage = z.infer<typeof insertListingImageSchema>;
 export type Favorite = typeof favorites.$inferSelect;
+
+// Messaging types
+export type Conversation = typeof conversations.$inferSelect;
+export type InsertConversation = z.infer<typeof insertConversationSchema>;
+export type ConversationParticipant = typeof conversationParticipants.$inferSelect;
+export type InsertConversationParticipant = z.infer<typeof insertConversationParticipantSchema>;
+export type Message = typeof messages.$inferSelect;
+export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
 
 // Extended types with relations

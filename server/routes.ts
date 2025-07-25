@@ -3,6 +3,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { registerMessagingRoutes } from "./messaging-routes";
 import { registerTenderRoutes } from "./tender-routes";
 import { registerExternalListingsRoutes } from "./routes/externalListings";
 import { featureToggleService } from "./services/FeatureToggleService";
@@ -398,6 +399,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       localization: config.localization,
     });
   });
+
+  // Register messaging routes
+  registerMessagingRoutes(app);
 
   // Register external listings routes
   registerExternalListingsRoutes(app);
