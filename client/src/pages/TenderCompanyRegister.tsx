@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Building2, User, Mail, Phone, MapPin, Lock, Upload, FileText, Calendar, Globe, Receipt } from 'lucide-react';
+import { Building2, User, Mail, Phone, MapPin, Lock, Upload, FileText, Calendar, Globe, Receipt, CreditCard, Hash, Shield, BookOpen, Factory } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 
 const companyRegistrationSchema = z.object({
@@ -205,7 +205,7 @@ const TenderCompanyRegister: React.FC = () => {
                 {/* Business Registration Information */}
                 <div className="border-t pt-6">
                   <h3 className="text-lg font-semibold mb-4 text-gray-900 flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
+                    <BookOpen className="h-5 w-5" />
                     Business Registration Information
                   </h3>
                   
@@ -234,7 +234,7 @@ const TenderCompanyRegister: React.FC = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex items-center gap-2">
-                            <FileText className="h-4 w-4" />
+                            <Hash className="h-4 w-4" />
                             TIN Number
                           </FormLabel>
                           <FormControl>
@@ -254,7 +254,7 @@ const TenderCompanyRegister: React.FC = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex items-center gap-2">
-                            <FileText className="h-4 w-4" />
+                            <Shield className="h-4 w-4" />
                             Business License Number
                           </FormLabel>
                           <FormControl>
@@ -271,7 +271,7 @@ const TenderCompanyRegister: React.FC = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex items-center gap-2">
-                            <Building2 className="h-4 w-4" />
+                            <CreditCard className="h-4 w-4" />
                             Company Registration Number
                           </FormLabel>
                           <FormControl>
@@ -291,7 +291,7 @@ const TenderCompanyRegister: React.FC = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex items-center gap-2">
-                            <Building2 className="h-4 w-4" />
+                            <Factory className="h-4 w-4" />
                             Business Type
                           </FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
