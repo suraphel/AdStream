@@ -15,6 +15,8 @@ import { ImageUploader, UploadedImage } from '@/components/ImageUploader';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
+import { AirlineTicketForm } from '@/components/AirlineTicketForm';
+import { AirlinePriceList } from '@/components/AirlinePriceList';
 
 const listingSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
@@ -24,6 +26,15 @@ const listingSchema = z.object({
   categoryId: z.number().min(1, 'Category is required'),
   location: z.string().min(2, 'Location is required'),
   condition: z.string().optional(),
+  // Airline ticket specific fields
+  departureCity: z.string().optional(),
+  arrivalCity: z.string().optional(),
+  departureDate: z.date().optional(),
+  returnDate: z.date().optional(),
+  airline: z.string().optional(),
+  flightClass: z.string().optional(),
+  tripType: z.string().optional(),
+  passengerCount: z.number().min(1).optional(),
 });
 
 type ListingFormData = z.infer<typeof listingSchema>;
@@ -126,10 +137,11 @@ const PostListing: React.FC = () => {
     queryKey: ['/api/categories'],
   });
 
-  // Categories that don't need condition field (houses, services, etc.)
-  const categoriesWithoutCondition = ['real-estate', 'services', 'jobs'];
+  // Categories that don't need condition field (houses, services, airline tickets, etc.)
+  const categoriesWithoutCondition = ['real-estate', 'services', 'jobs', 'airline-tickets'];
   const currentCategory = categories.find(cat => cat.id === parseInt(selectedCategoryId || '10'));
   const showConditionField = currentCategory ? !categoriesWithoutCondition.includes(currentCategory.slug) : true;
+  const isAirlineTicket = currentCategory?.slug === 'airline-tickets';
 
   const createListingMutation = useMutation({
     mutationFn: async (data: ListingFormData & { imageKeys: string[] }) => {
@@ -369,6 +381,14 @@ const PostListing: React.FC = () => {
                     </FormItem>
                   )}
                 />
+              )}
+
+              {/* Airline Ticket Specific Fields */}
+              {isAirlineTicket && (
+                <div className="border-t pt-6">
+                  <h3 className="text-lg font-semibold mb-4">Flight Details</h3>
+                  <AirlineTicketForm form={form} />
+                </div>
               )}
 
               {/* Images */}

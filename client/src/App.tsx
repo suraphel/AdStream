@@ -17,6 +17,7 @@ import Categories from "@/pages/Categories";
 import CategorySelect from "@/pages/CategorySelect";
 import Register from "@/pages/Register";
 import ExternalListings from "@/pages/ExternalListings";
+import AirlineTickets from "@/pages/AirlineTickets";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminUsers from "@/pages/admin/Users";
 import AdminListings from "@/pages/admin/Listings";
@@ -57,6 +58,7 @@ function Router() {
           <Route path="/category/:slug" component={Category} />
           <Route path="/categories" component={Category} />
           <Route path="/external" component={ExternalListings} />
+          <Route path="/airline-tickets" component={AirlineTickets} />
           <Route path="/admin/dashboard" component={AdminDashboard} />
           <Route path="/admin/users" component={AdminUsers} />
           <Route path="/admin/listings" component={AdminListings} />

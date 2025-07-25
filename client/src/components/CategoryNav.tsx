@@ -11,7 +11,8 @@ import {
   Smartphone,
   Camera,
   Bike,
-  Sofa
+  Sofa,
+  Plane
 } from 'lucide-react';
 import { formatNumber } from '@/lib/i18n';
 
@@ -26,6 +27,7 @@ const categoryIcons: Record<string, any> = {
   cameras: Camera,
   bikes: Bike,
   furniture: Sofa,
+  'airline-tickets': Plane,
 };
 
 export function CategoryNav() {
@@ -62,7 +64,7 @@ export function CategoryNav() {
                     {language === 'am' && category.nameAm ? category.nameAm : category.name}
                   </span>
                   <span className="text-xs text-secondary-600 mt-1">
-                    {formatNumber(category.listingCount, language)} {t('categories.ads')}
+                    {formatNumber(category.listingCount || 0, language)} {t('categories.ads')}
                   </span>
                 </div>
               </Link>

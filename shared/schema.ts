@@ -73,6 +73,16 @@ export const listings = pgTable("listings", {
   externalId: varchar("external_id", { length: 100 }), // External platform's listing ID
   externalUrl: varchar("external_url", { length: 500 }), // Direct link to original listing
   externalData: jsonb("external_data"), // Store additional platform-specific data
+  
+  // Airline ticket specific fields
+  departureCity: varchar("departure_city", { length: 100 }),
+  arrivalCity: varchar("arrival_city", { length: 100 }),
+  departureDate: timestamp("departure_date"),
+  returnDate: timestamp("return_date"), // For round trip tickets
+  airline: varchar("airline", { length: 50 }),
+  flightClass: varchar("flight_class", { length: 20 }), // economy, business, first
+  tripType: varchar("trip_type", { length: 20 }), // oneway, roundtrip, multicity
+  passengerCount: integer("passenger_count").default(1),
   lastSyncedAt: timestamp("last_synced_at"), // When data was last updated from external source
   syncStatus: varchar("sync_status", { length: 20 }).default("active"), // active, error, disabled
 });
