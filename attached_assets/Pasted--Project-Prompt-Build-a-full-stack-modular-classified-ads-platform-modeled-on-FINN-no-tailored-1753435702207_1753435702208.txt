@@ -1,0 +1,89 @@
+📌 Project Prompt:
+
+Build a full-stack, modular classified ads platform modeled on FINN.no, tailored for the Ethiopian market. The platform should support users creating accounts, logging in, posting listings with titles, prices, descriptions, categories, and images. The architecture must support full scalability and configurability—features can be enabled or disabled through settings or flags.
+
+Frontend:
+Use React with TypeScript. Structure the UI with reusable components and pages for item listings, item detail, user profiles, login/signup, and admin tools. Use Context API or Redux for state management, Axios for API calls, and error reporting for observability.
+
+Backend:
+Use ASP.NET Core Web API, following clean architecture principles. Implement JWT-based authentication, role-based access control (user, seller, admin), and modular services for users, listings, categories, and payments. Integrate with Entity Framework Core and SQL Server Express or LocalDB.
+
+Admin Tools:
+Create a secure backend office (OBO) for administrators to manage users, listings, flagged items, and view metrics or logs. Permissions should be managed via RBAC.
+
+Image Uploads:
+Enable users to upload multiple images per listing. Store images either locally or via cloud storage (like Azure Blob or AWS S3), behind a service layer that supports future flexibility.
+
+Payments:
+Prepare for Telebirr API integration using an abstracted payment service with mock methods initially.
+
+Observability:
+
+Use Serilog in the backend to handle structured logging.
+
+Forward logs to a centralized logging service.
+
+Integrate Prometheus and Grafana for system metrics and real-time dashboards.
+
+Frontend should send critical errors to a backend logging endpoint.
+
+🛠️ Tasks Breakdown:
+
+Frontend (React):
+
+Scaffold app with routing and layout structure
+
+Create reusable components: ListingCard, ImageUploader, CategorySelector
+
+Build pages: Home, Listing Detail, Post New Listing, Login/Register, Profile
+
+Implement state management (Context or Redux)
+
+Add form validation, error handling
+
+Implement role-based UI for admin features (toggle visibility)
+
+Prepare error logging for sending to backend
+
+Backend (ASP.NET Core):
+
+Set up API project with clean architecture
+
+Define database schema (Users, Listings, Images, Categories)
+
+Configure EF Core with SQL Server
+
+Build controllers for Auth, Listings, Users, Categories
+
+Add JWT-based Auth, RBAC middleware
+
+Add image upload endpoint, abstracted storage handler
+
+Scaffold payment service with Telebirr mock integration
+
+Create admin endpoints for moderation and stats
+
+DevOps & Monitoring:
+
+Set up Serilog for structured logging
+
+Configure logging sinks (console, file, centralized)
+
+Deploy Prometheus and Grafana stack
+
+Define basic dashboards: API response time, error rates, active users
+
+Instrument backend with Prometheus metrics (via middleware)
+
+Setup environments (dev/staging/production) with feature toggles
+
+Optional Phase Later:
+
+Add messaging system
+
+Add map-based search
+
+Add listing promotion (paid)
+
+Add email/notification system
+

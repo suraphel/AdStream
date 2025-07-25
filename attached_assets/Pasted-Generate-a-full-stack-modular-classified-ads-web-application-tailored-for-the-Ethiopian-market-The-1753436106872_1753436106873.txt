@@ -1,0 +1,76 @@
+Generate a full-stack, modular classified ads web application tailored for the Ethiopian market. The architecture must support clean separation of concerns, modular design, and future scalability. Features should be configurable and toggleable. All components, services, and infrastructure must be production-grade and ready for CI/CD.
+
+🔹 Architecture Overview:
+
+Frontend: React with TypeScript
+
+Pages: Home, Listings, Listing Detail, Post New Listing, User Profile, Admin Dashboard
+
+Components: ListingCard, CategorySelector, ImageUploader, SearchBar, Pagination
+
+State Management: Context API or Redux
+
+API Communication: Axios
+
+Error Handling: Centralized error boundary
+
+Logging: Frontend errors routed to backend
+
+Backend: ASP.NET Core Web API (.NET 8)
+
+Clean architecture (Controllers → Services → Repositories)
+
+JWT-based authentication
+
+Role-based access control (User, Admin, Moderator)
+
+Entity Framework Core with SQL Server Express or LocalDB
+
+Services: Users, Listings, Categories, Images, Payments, Admin
+
+Image upload support: Store via local disk or cloud (abstracted)
+
+Payment Integration: Prepare for Telebirr (interface + mock service)
+
+Feature toggles for optional modules (e.g., chat, map search, promotions)
+
+Admin Interface:
+
+Manage users, listings, categories, flagged content
+
+Dashboard with metrics
+
+Protected routes behind admin roles
+
+🔹 Observability & Monitoring:
+
+Backend Logging: Serilog (structured logging)
+
+Metrics Collection: Prometheus
+
+Visualization: Grafana dashboards
+
+Logs forwarded to centralized sink (file, console, or custom endpoint)
+
+Frontend exception tracking sent to backend log collector
+
+🔹 Expected Output Structure:
+
+/frontend: React project with routing, layouts, reusable UI components, and services
+
+/backend: .NET 8 Web API with layered architecture, unit tests, and configuration
+
+/infrastructure: Docker compose or deployment scripts for Prometheus, Grafana, DB setup
+
+/docs: Setup instructions, feature toggle flags, Grafana dashboards
+
+🔹 Additional Requirements:
+
+Modular and pluggable design for future features like messaging, map-based search, and promotions
+
+Environments: Dev, staging, and production config separation
+
+Seed data for initial listings and users
+
+Ready-to-run with minimal manual configuration
+
