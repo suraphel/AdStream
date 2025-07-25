@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, FileText, Calendar, Building2, DollarSign, Eye } from 'lucide-react';
+import { Search, FileText, Calendar, Building2, DollarSign, Eye, User } from 'lucide-react';
 import { Link } from 'wouter';
 
 interface TenderDocument {
@@ -79,11 +79,47 @@ const TenderHome: React.FC = () => {
             Access comprehensive tender documents from verified companies
           </p>
           
-          {/* Info Text */}
+          {/* Tender Registration Section for Authenticated Users */}
           <div className="text-center mb-8">
-            <p className="text-lg text-gray-600">
-              Please login to your marketplace account first, then register for tender services
+            <p className="text-lg text-gray-600 mb-6">
+              Register for tender services to access and upload documents
             </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6 text-center">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <User className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2">Register as User</h3>
+                  <p className="text-gray-600 mb-4">
+                    Purchase and download tender documents from verified companies
+                  </p>
+                  <Link href="/tender/register-user">
+                    <Button className="w-full">
+                      Register for Document Access
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+              
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6 text-center">
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Building2 className="w-6 h-6 text-green-600" />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2">Register as Company</h3>
+                  <p className="text-gray-600 mb-4">
+                    Upload and sell your tender documents to interested buyers
+                  </p>
+                  <Link href="/tender/register-company">
+                    <Button variant="outline" className="w-full">
+                      Register Company Account
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
 

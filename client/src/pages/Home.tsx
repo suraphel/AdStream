@@ -1,16 +1,15 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useLocation, Link } from 'wouter';
+import { useLocation } from 'wouter';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Layout } from '@/components/Layout';
 import { SearchHero } from '@/components/SearchHero';
 import { CategoryNav } from '@/components/CategoryNav';
 import { ListingCard } from '@/components/ListingCard';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatNumber } from '@/lib/i18n';
-import { Plus, FileText, Building2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 export default function Home() {
   const { language, t } = useLanguage();
@@ -122,49 +121,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Tender Services Section */}
-        <section className="bg-blue-50 rounded-xl p-8 mb-12">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">TenderFloat Services</h2>
-            <p className="text-gray-600">Access professional tender document services</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <FileText className="w-6 h-6 text-blue-600" />
-                </div>
-                <h3 className="font-semibold text-lg mb-2">Register as User</h3>
-                <p className="text-gray-600 mb-4">
-                  Purchase and download tender documents from verified companies
-                </p>
-                <Link href="/tender/register-user">
-                  <Button className="w-full">
-                    Register for Tender Access
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-            
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Building2 className="w-6 h-6 text-green-600" />
-                </div>
-                <h3 className="font-semibold text-lg mb-2">Register as Company</h3>
-                <p className="text-gray-600 mb-4">
-                  Upload and sell your tender documents to interested buyers
-                </p>
-                <Link href="/tender/register-company">
-                  <Button variant="outline" className="w-full">
-                    Register Company Account
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
+
 
         {/* Stats Section */}
         <section className="bg-gradient-to-r from-primary to-primary/80 rounded-xl p-8 text-white mb-12">
