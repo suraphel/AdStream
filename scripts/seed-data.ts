@@ -588,11 +588,43 @@ async function seedDatabase(): Promise<void> {
     
     // Seed listings
     Logger.info('Seeding listings...');
+    
+    // Get category mappings from database (since they have auto-generated IDs)
+    const seededCategories = await db.select().from(categories);
+    const categoryMap = new Map<string, number>();
+    seededCategories.forEach(cat => {
+      categoryMap.set(cat.slug, cat.id);
+    });
+
     const insertedListings = await db.insert(listings).values(
       seedData.listings.map(listing => {
         const { images, ...listingData } = listing;
+        
+        // Map old category IDs to new ones based on category content
+        let correctCategoryId = listingData.categoryId;
+        
+        // Map based on the original seeding order
+        const categoryIdMapping: Record<number, string> = {
+          2: 'smartphones',     // Smartphones 
+          3: 'laptops',         // Laptops & Computers
+          5: 'cars',            // Cars
+          6: 'motorcycles',     // Motorcycles  
+          8: 'apartments',      // Apartments
+          9: 'houses',          // Houses
+          11: 'mens-clothing',  // Men's Clothing
+          12: 'womens-clothing', // Women's Clothing
+          14: 'home-garden',    // Home & Garden
+          15: 'services',       // Services
+        };
+        
+        const targetSlug = categoryIdMapping[listingData.categoryId];
+        if (targetSlug && categoryMap.has(targetSlug)) {
+          correctCategoryId = categoryMap.get(targetSlug)!;
+        }
+        
         return {
           ...listingData,
+          categoryId: correctCategoryId,
           price: listingData.price.toString(), // Convert to string as required by schema
           createdAt: new Date(),
           updatedAt: new Date(),
