@@ -15,7 +15,7 @@ import Profile from "@/pages/Profile";
 import Category from "@/pages/Category";
 import Categories from "@/pages/Categories";
 import CategorySelect from "@/pages/CategorySelect";
-import Register from "@/pages/Register";
+
 import ExternalListings from "@/pages/ExternalListings";
 import AirlineTickets from "@/pages/AirlineTickets";
 import TenderHome from "@/pages/TenderHome";
@@ -46,7 +46,7 @@ function Router() {
           <Route path="/listing/:id" component={ListingDetail} />
           <Route path="/categories" component={Categories} />
           <Route path="/category/:slug" component={Category} />
-          <Route path="/register" component={Register} />
+
           {/* Tender routes available to all */}
           <Route path="/tender" component={TenderHome} />
           <Route path="/tender/register-user" component={TenderUserRegister} />
