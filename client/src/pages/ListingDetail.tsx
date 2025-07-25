@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { isUnauthorizedError } from '@/lib/authUtils';
+import { requiresAuthForContact, getAuthRequiredMessage } from '@/lib/categoryUtils';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,7 +23,8 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
-  MessageCircle
+  MessageCircle,
+  Lock
 } from 'lucide-react';
 import { formatRelativeTime, formatPrice } from '@/lib/i18n';
 import { useState } from 'react';
@@ -346,26 +348,66 @@ export default function ListingDetail() {
                 </div>
 
                 {user?.id !== listing.user.id && (
-                  <div className="space-y-3">
-                    <Button 
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white" 
-                      onClick={handleContactSeller}
-                      disabled={contactSellerMutation.isPending}
-                    >
-                      <MessageCircle className="w-4 h-4 mr-2" />
-                      {contactSellerMutation.isPending ? 'Sending...' : 'Contact Seller'}
-                    </Button>
-                    {listing.user.phone && (
-                      <Button className="w-full" variant="outline">
+                  /* Contact Section - Authentication Required for P2P Categories */
+                  requiresAuthForContact(listing.category.slug) && !isAuthenticated ? (
+                    <div className="space-y-3">
+                      {/* Restricted Access Message */}
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Lock className="w-4 h-4 text-gray-500" />
+                          <span className="text-sm font-medium text-gray-700">
+                            Sign in to contact seller
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-600">
+                          {getAuthRequiredMessage(listing.category.slug, language)}
+                        </p>
+                      </div>
+
+                      {/* Show Contact Info Button */}
+                      <Button
+                        className="w-full"
+                        variant="outline"
+                        onClick={() => window.location.href = '/api/login'}
+                      >
                         <Phone className="w-4 h-4 mr-2" />
-                        {t('common.phone')}
+                        Show Contact Info
                       </Button>
-                    )}
-                    <Button className="w-full" variant="outline">
-                      <Mail className="w-4 h-4 mr-2" />
-                      {t('common.email')}
-                    </Button>
-                  </div>
+                      
+                      {/* Start Chat Button */}
+                      <Button
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                        onClick={() => window.location.href = '/api/login'}
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Start Chat
+                      </Button>
+                    </div>
+                  ) : (
+                    /* Full Access - User is authenticated or category is public */
+                    <div className="space-y-3">
+                      <Button 
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white" 
+                        onClick={handleContactSeller}
+                        disabled={contactSellerMutation.isPending}
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        {contactSellerMutation.isPending ? 'Sending...' : 'Contact Seller'}
+                      </Button>
+                      {listing.user.phone && (
+                        <Button className="w-full" variant="outline">
+                          <Phone className="w-4 h-4 mr-2" />
+                          {listing.user.phone}
+                        </Button>
+                      )}
+                      {listing.user.email && (
+                        <Button className="w-full" variant="outline">
+                          <Mail className="w-4 h-4 mr-2" />
+                          {listing.user.email}
+                        </Button>
+                      )}
+                    </div>
+                  )
                 )}
               </CardContent>
             </Card>
