@@ -82,12 +82,12 @@ export function Header() {
               </button>
             </div>
 
-            {/* Post Ad Button */}
+            {/* Post New Listing Button */}
             {isAuthenticated && (
               <Link href="/select-category">
                 <Button className="bg-primary text-white hover:bg-primary/90">
                   <Plus className="w-4 h-4 mr-2" />
-                  {t('header.postAd')}
+                  Post New Listing
                 </Button>
               </Link>
             )}
