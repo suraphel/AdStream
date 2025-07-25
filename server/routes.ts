@@ -3,6 +3,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { registerExternalListingsRoutes } from "./routes/externalListings";
 import { featureToggleService } from "./services/FeatureToggleService";
 import { config } from "./config";
 import { imageRoutes } from "./routes/imageRoutes";
@@ -357,6 +358,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       localization: config.localization,
     });
   });
+
+  // Register external listings routes
+  registerExternalListingsRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;

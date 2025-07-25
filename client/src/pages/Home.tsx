@@ -71,7 +71,7 @@ export default function Home() {
                 </div>
               ))
             ) : (
-              featuredListings?.map((listing: any) => (
+              (featuredListings as any)?.map((listing: any) => (
                 <ListingCard key={listing.id} listing={listing} featured />
               ))
             )}
@@ -108,7 +108,7 @@ export default function Home() {
                 </div>
               ))
             ) : (
-              recentListings?.map((listing: any) => (
+              (recentListings as any)?.map((listing: any) => (
                 <ListingCard key={listing.id} listing={listing} />
               ))
             )}

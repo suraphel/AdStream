@@ -68,6 +68,13 @@ export const listings = pgTable("listings", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   expiresAt: timestamp("expires_at"),
+  // External listing integration fields
+  externalSource: varchar("external_source", { length: 50 }), // 'airbnb', 'booking', 'expedia', 'rentcast', etc.
+  externalId: varchar("external_id", { length: 100 }), // External platform's listing ID
+  externalUrl: varchar("external_url", { length: 500 }), // Direct link to original listing
+  externalData: jsonb("external_data"), // Store additional platform-specific data
+  lastSyncedAt: timestamp("last_synced_at"), // When data was last updated from external source
+  syncStatus: varchar("sync_status", { length: 20 }).default("active"), // active, error, disabled
 });
 
 // Listing images table
@@ -86,6 +93,34 @@ export const favorites = pgTable("favorites", {
   userId: varchar("user_id").notNull(),
   listingId: integer("listing_id").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+// External API configurations table
+export const externalApiConfigs = pgTable("external_api_configs", {
+  id: serial("id").primaryKey(),
+  provider: varchar("provider", { length: 50 }).notNull().unique(), // 'rentcast', 'hasdata_zillow', 'opentrip'
+  apiKey: varchar("api_key", { length: 200 }), // Encrypted API key
+  baseUrl: varchar("base_url", { length: 200 }).notNull(),
+  isActive: boolean("is_active").default(true),
+  dailyLimit: integer("daily_limit").default(1000),
+  usageCount: integer("usage_count").default(0),
+  lastResetAt: timestamp("last_reset_at").defaultNow(),
+  configuration: jsonb("configuration"), // Provider-specific config
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Sync logs table to track external data imports
+export const syncLogs = pgTable("sync_logs", {
+  id: serial("id").primaryKey(),
+  provider: varchar("provider", { length: 50 }).notNull(),
+  operation: varchar("operation", { length: 50 }).notNull(), // 'import', 'update', 'delete'
+  status: varchar("status", { length: 20 }).notNull(), // 'success', 'error', 'partial'
+  recordsProcessed: integer("records_processed").default(0),
+  errorMessage: text("error_message"),
+  metadata: jsonb("metadata"), // Additional sync details
+  startedAt: timestamp("started_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
 });
 
 // Relations
