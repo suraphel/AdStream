@@ -114,20 +114,31 @@ export default function Category() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {categories?.map((category: any) => (
-                <Card key={category.id} className="hover:shadow-lg transition-shadow">
-                  <CardContent className="p-6 text-center">
-                    <a href={`/category/${category.slug}`}>
-                      <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
-                        <div className="w-8 h-8 bg-primary/20 rounded"></div>
+                <Card key={category.id} className="hover:shadow-lg transition-shadow overflow-hidden">
+                  <a href={`/category/${category.slug}`} className="block">
+                    <div className="relative">
+                      {category.icon ? (
+                        <img 
+                          src={category.icon} 
+                          alt={category.name}
+                          className="w-full h-32 object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-32 bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
+                          <div className="w-12 h-12 bg-white/20 rounded-lg"></div>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-black/20 hover:bg-black/30 transition-colors"></div>
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                        <h3 className="font-semibold text-lg text-white mb-1">
+                          {language === 'am' && category.nameAm ? category.nameAm : category.name}
+                        </h3>
+                        <p className="text-sm text-white/80">
+                          {formatNumber(category.listingCount || 0, language)} {t('categories.ads')}
+                        </p>
                       </div>
-                      <h3 className="font-semibold text-lg text-gray-900 mb-2">
-                        {language === 'am' && category.nameAm ? category.nameAm : category.name}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {formatNumber(category.listingCount, language)} {t('categories.ads')}
-                      </p>
-                    </a>
-                  </CardContent>
+                    </div>
+                  </a>
                 </Card>
               ))}
             </div>
@@ -184,12 +195,34 @@ export default function Category() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Category Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {language === 'am' && category.nameAm ? category.nameAm : category.name}
-          </h1>
-          <p className="text-lg text-gray-600">
-            {formatNumber(listings?.length || 0, language)} listings found
-          </p>
+          {category.icon && (
+            <div className="relative mb-6 rounded-lg overflow-hidden">
+              <img 
+                src={category.icon} 
+                alt={category.name}
+                className="w-full h-40 object-cover"
+              />
+              <div className="absolute inset-0 bg-black/40"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <h1 className="text-3xl font-bold text-white mb-2">
+                  {language === 'am' && category.nameAm ? category.nameAm : category.name}
+                </h1>
+                <p className="text-lg text-white/90">
+                  {formatNumber(listings?.length || 0, language)} listings found
+                </p>
+              </div>
+            </div>
+          )}
+          {!category.icon && (
+            <div className="mb-6">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {language === 'am' && category.nameAm ? category.nameAm : category.name}
+              </h1>
+              <p className="text-lg text-gray-600">
+                {formatNumber(listings?.length || 0, language)} listings found
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Filters */}
