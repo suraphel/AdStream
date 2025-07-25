@@ -49,9 +49,9 @@ function Router() {
           <Route path="/register" component={Register} />
           {/* Tender routes available to all */}
           <Route path="/tender" component={TenderHome} />
-          <Route path="/tender/:id" component={TenderDetail} />
           <Route path="/tender/register-user" component={TenderUserRegister} />
           <Route path="/tender/register-company" component={TenderCompanyRegister} />
+          <Route path="/tender/:id" component={TenderDetail} />
         </>
       ) : (
         <>
@@ -64,9 +64,9 @@ function Router() {
           <Route path="/profile" component={Profile} />
           {/* Tender routes available to all */}
           <Route path="/tender" component={TenderHome} />
-          <Route path="/tender/:id" component={TenderDetail} />
           <Route path="/tender/register-user" component={TenderUserRegister} />
           <Route path="/tender/register-company" component={TenderCompanyRegister} />
+          <Route path="/tender/:id" component={TenderDetail} />
           <Route path="/my-ads" component={Profile} />
           <Route path="/favorites" component={Profile} />
           <Route path="/category/:slug" component={Category} />
