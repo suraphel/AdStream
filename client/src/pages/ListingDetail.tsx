@@ -344,10 +344,15 @@ export default function ListingDetail() {
                   </Avatar>
                   <div>
                     <p className="font-medium">
-                      {listing.user.firstName || listing.user.lastName
-                        ? `${listing.user.firstName || ''} ${listing.user.lastName || ''}`.trim()
-                        : 'User'
-                      }
+                      {requiresAuthForContact(listing.category.slug) && !isAuthenticated ? (
+                        // Hide full name for unauthenticated users in P2P categories
+                        listing.user.firstName ? `${listing.user.firstName.charAt(0)}***` : 'Seller'
+                      ) : (
+                        // Show full name for authenticated users or public categories
+                        listing.user.firstName || listing.user.lastName
+                          ? `${listing.user.firstName || ''} ${listing.user.lastName || ''}`.trim()
+                          : 'User'
+                      )}
                     </p>
                     <p className="text-sm text-gray-600">
                       Member since {new Date(listing.user.createdAt!).getFullYear()}
@@ -364,7 +369,7 @@ export default function ListingDetail() {
                         <div className="flex items-center space-x-2 mb-2">
                           <Lock className="w-4 h-4 text-gray-500" />
                           <span className="text-sm font-medium text-gray-700">
-                            Sign in to contact seller
+                            Sign in to view full seller details
                           </span>
                         </div>
                         <p className="text-xs text-gray-600">

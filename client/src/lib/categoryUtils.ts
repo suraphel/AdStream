@@ -65,14 +65,14 @@ export function isPublicCategory(categorySlug: string): boolean {
 export function getAuthRequiredMessage(categorySlug: string, language: 'en' | 'am' = 'en'): string {
   const messages = {
     en: {
-      contact: "Sign in to view seller's contact information",
+      contact: "Sign in to view seller's contact information and full details",
       chat: "Sign in to message the seller",
-      default: "Sign in to contact the seller"
+      default: "Sign in to contact the seller and view full details"
     },
     am: {
-      contact: "የሻጩን የግንኙነት መረጃ ለማየት ይግቡ",
+      contact: "የሻጩን የግንኙነት መረጃ እና ሙሉ ዝርዝሮች ለማየት ይግቡ",
       chat: "ለሻጩ መልእክት ለመላክ ይግቡ",
-      default: "ሻጩን ለመገናኘት ይግቡ"
+      default: "ሻጩን ለመገናኘት እና ሙሉ ዝርዝሮች ለማየት ይግቡ"
     }
   };
   

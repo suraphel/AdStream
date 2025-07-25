@@ -164,6 +164,12 @@ Preferred communication style: Simple, everyday language.
   - **Fixed Route Conflicts**: Resolved tender registration routing conflicts by reordering routes
   - **Simplified Authentication**: Changed "Get Started" to "Login" buttons for clarity
   - **Separation of Systems**: Clear separation between marketplace authentication and tender registration
+- **Authentication-Based Access Control for P2P Categories**: Implemented comprehensive privacy controls
+  - **Category-Based Restrictions**: Created P2P category restrictions (electronics, vehicles, housing, etc.) while keeping tenders and airline tickets public
+  - **Contact Information Privacy**: Hide seller's full name and contact details from unauthenticated users in P2P categories
+  - **Authentication Prompts**: Added "Show Contact Info" and "Start Chat" buttons that redirect to login for unauthenticated users
+  - **Messaging System Database**: Fixed missing conversations tables and indexes for proper messaging functionality
+  - **Privacy Protection**: Seller names shown as "J***" for unauthenticated users, full details visible only after login
 - **Comprehensive Messaging System**: Implemented user-to-user communication similar to finn.no
   - **Database Schema**: Added conversations and messages tables with proper user relations
   - **Messaging API**: Created REST endpoints for conversation management and message sending
