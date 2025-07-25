@@ -12,20 +12,27 @@ import {
   Camera,
   Bike,
   Sofa,
-  Plane
+  Plane,
+  Zap,
+  Truck
 } from 'lucide-react';
 import { formatNumber } from '@/lib/i18n';
 
 const categoryIcons: Record<string, any> = {
   electronics: Laptop,
   vehicles: Car,
+  motorcycles: Zap,
+  'motor-vehicles': Car,
+  cars: Car,
+  trucks: Truck,
+  bikes: Bike,
   'real-estate': Home,
   jobs: Briefcase,
   fashion: Shirt,
+  'fashion-clothing': Shirt,
   services: Gamepad2,
   phones: Smartphone,
   cameras: Camera,
-  bikes: Bike,
   furniture: Sofa,
   'airline-tickets': Plane,
 };

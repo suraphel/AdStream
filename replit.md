@@ -164,6 +164,15 @@ Preferred communication style: Simple, everyday language.
   - **Fixed Route Conflicts**: Resolved tender registration routing conflicts by reordering routes
   - **Simplified Authentication**: Changed "Get Started" to "Login" buttons for clarity
   - **Separation of Systems**: Clear separation between marketplace authentication and tender registration
+- **Comprehensive Messaging System**: Implemented user-to-user communication similar to finn.no
+  - **Database Schema**: Added conversations and messages tables with proper user relations
+  - **Messaging API**: Created REST endpoints for conversation management and message sending
+  - **Messages UI**: Built dedicated Messages page with conversation list and chat interface
+  - **Contact Seller**: Added "Contact Seller" button on listing details to initiate conversations
+  - **Real-time Features**: Message sending, receiving, and conversation history management
+- **Category Icon Fix**: Resolved motorcycle category showing computer icon
+  - **Icon Mapping**: Added proper icon mappings for motorcycles (Zap), cars (Car), trucks (Truck)
+  - **Visual Consistency**: Ensured all vehicle categories display appropriate icons instead of fallback laptop icon
 
 ### Future Enhancements Prepared
 - **Payment Integration**: Mock Telebirr service ready for real integration with feature toggle control
