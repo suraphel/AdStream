@@ -2,6 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { imageRoutes } from "./routes/imageRoutes";
+import path from "path";
+import express from "express";
 import { insertListingSchema, insertListingImageSchema, insertCategorySchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -17,6 +20,12 @@ const searchSchema = z.object({
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
+
+  // Serve uploaded images statically
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
+  // Image upload routes
+  app.use('/api/images', imageRoutes);
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {

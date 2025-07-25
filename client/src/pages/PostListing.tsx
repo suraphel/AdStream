@@ -1,239 +1,257 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/hooks/useAuth';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { apiRequest } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
-import { isUnauthorizedError } from '@/lib/authUtils';
-import { Layout } from '@/components/Layout';
-import { Button } from '@/components/ui/button';
+import { useLocation } from 'wouter';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { insertListingSchema } from '@shared/schema';
-import { z } from 'zod';
-import { Upload, X, Plus } from 'lucide-react';
-import { useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ImageUploader, UploadedImage } from '@/components/ImageUploader';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2, ArrowLeft } from 'lucide-react';
+import { apiRequest } from '@/lib/queryClient';
 
-const formSchema = insertListingSchema.extend({
-  images: z.array(z.string()).optional(),
+const listingSchema = z.object({
+  title: z.string().min(3, 'Title must be at least 3 characters'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  price: z.string().min(1, 'Price is required'),
+  currency: z.string().default('ETB'),
+  categoryId: z.string().min(1, 'Category is required'),
+  location: z.string().min(2, 'Location is required'),
+  condition: z.string().optional(),
 });
 
-type FormData = z.infer<typeof formSchema>;
+type ListingFormData = z.infer<typeof listingSchema>;
 
-export default function PostListing() {
-  const { isAuthenticated, isLoading } = useAuth();
-  const { language, t } = useLanguage();
+interface Category {
+  id: number;
+  name: string;
+  nameAm?: string;
+  slug: string;
+}
+
+const PostListing: React.FC = () => {
+  const [images, setImages] = useState<UploadedImage[]>([]);
+  const [language, setLanguage] = useState<'en' | 'am'>('en');
+  const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [images, setImages] = useState<string[]>([]);
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+  const translations = {
+    en: {
+      title: 'Post New Listing',
+      backToHome: 'Back to Home',
+      listingTitle: 'Title',
+      listingTitlePlaceholder: 'Enter listing title',
+      description: 'Description',
+      descriptionPlaceholder: 'Describe your item in detail',
+      price: 'Price',
+      pricePlaceholder: 'Enter price',
+      currency: 'Currency',
+      category: 'Category',
+      categoryPlaceholder: 'Select a category',
+      location: 'Location',
+      locationPlaceholder: 'Enter your location',
+      condition: 'Condition',
+      conditionPlaceholder: 'Select condition',
+      images: 'Images',
+      imagesDescription: 'Upload up to 10 images of your item',
+      postListing: 'Post Listing',
+      posting: 'Posting...',
+      cancel: 'Cancel',
+      success: 'Listing posted successfully!',
+      error: 'Failed to post listing',
+      conditionNew: 'New',
+      conditionUsed: 'Used',
+      conditionRefurbished: 'Refurbished',
+      toggleLanguage: 'Switch to Amharic'
+    },
+    am: {
+      title: 'አዲስ ዕቃ ለሽያጭ ያስቀምጡ',
+      backToHome: 'ወደ ቤት ተመለስ',
+      listingTitle: 'ርዕስ',
+      listingTitlePlaceholder: 'የዕቃው ርዕስ ያስገቡ',
+      description: 'መግለጫ',
+      descriptionPlaceholder: 'የዕቃውን ዝርዝር መግለጫ ያስገቡ',
+      price: 'ዋጋ',
+      pricePlaceholder: 'ዋጋ ያስገቡ',
+      currency: 'ምንዛሬ',
+      category: 'ምድብ',
+      categoryPlaceholder: 'ምድብ ይምረጡ',
+      location: 'አድራሻ',
+      locationPlaceholder: 'የእርስዎን አድራሻ ያስገቡ',
+      condition: 'ሁኔታ',
+      conditionPlaceholder: 'ሁኔታ ይምረጡ',
+      images: 'ምስሎች',
+      imagesDescription: 'እስከ 10 ምስሎች ያስቀምጡ',
+      postListing: 'ዕቃ ለሽያጭ አስቀምጥ',
+      posting: 'እየተለጠፈ...',
+      cancel: 'ይቅር',
+      success: 'ዕቃ በተሳካ ሁኔታ ተለጠፈ!',
+      error: 'ዕቃ መለጠፍ አልተሳካም',
+      conditionNew: 'አዲስ',
+      conditionUsed: 'ተጠቅሟል',
+      conditionRefurbished: 'ታድሷል',
+      toggleLanguage: 'ወደ እንግሊዝኛ ቀይር'
+    }
+  };
+
+  const t = translations[language];
+
+  const form = useForm<ListingFormData>({
+    resolver: zodResolver(listingSchema),
     defaultValues: {
       title: '',
       description: '',
-      price: '0',
+      price: '',
       currency: 'ETB',
-      categoryId: 0,
+      categoryId: '',
       location: '',
-      condition: 'used',
-      images: [],
+      condition: '',
     },
   });
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 500);
-      return;
-    }
-  }, [isAuthenticated, isLoading, toast]);
-
-  const { data: categories } = useQuery({
+  // Fetch categories
+  const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
   });
 
   const createListingMutation = useMutation({
-    mutationFn: async (data: FormData) => {
-      const response = await apiRequest('POST', '/api/listings', data);
-      return response.json();
-    },
-    onSuccess: (listing) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/listings'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/my-listings'] });
-      toast({
-        title: "Success",
-        description: "Your listing has been created successfully!",
+    mutationFn: async (data: ListingFormData & { imageKeys: string[] }) => {
+      const response = await fetch('/api/listings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          ...data,
+          categoryId: parseInt(data.categoryId),
+          price: parseFloat(data.price),
+          images: data.imageKeys,
+        }),
       });
-      // Redirect to the new listing
-      window.location.href = `/listing/${listing.id}`;
-    },
-    onError: (error) => {
-      if (isUnauthorizedError(error as Error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to create listing');
       }
+
+      return await response.json();
+    },
+    onSuccess: () => {
       toast({
-        title: "Error",
-        description: "Failed to create listing. Please try again.",
-        variant: "destructive",
+        title: t.success,
+        description: language === 'am' ? 'ዕቃዎ በተሳካ ሁኔታ ተለጠፈ' : 'Your listing has been posted successfully',
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/listings'] });
+      navigate('/');
+    },
+    onError: (error: any) => {
+      toast({
+        title: t.error,
+        description: error.message,
+        variant: 'destructive',
       });
     },
   });
 
-  const onSubmit = (data: FormData) => {
-    createListingMutation.mutate({
-      ...data,
-      price: data.price.toString(),
-      images,
-    });
+  const onSubmit = (data: ListingFormData) => {
+    const imageKeys = images.map(img => img.key);
+    createListingMutation.mutate({ ...data, imageKeys });
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-
-    // In a real app, you would upload to a cloud service like Cloudinary or AWS S3
-    // For now, we'll create mock URLs
-    const newImages = Array.from(files).map((file, index) => 
-      `https://via.placeholder.com/400x300?text=Image+${images.length + index + 1}`
-    );
-    
-    setImages(prev => [...prev, ...newImages]);
+  const handleImagesChange = (uploadedImages: UploadedImage[]) => {
+    setImages(uploadedImages);
   };
-
-  const removeImage = (index: number) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const locations = [
-    { value: 'addis-ababa', label: t('cities.addisAbaba') },
-    { value: 'dire-dawa', label: t('cities.direDawa') },
-    { value: 'bahir-dar', label: t('cities.bahirDar') },
-    { value: 'gondar', label: t('cities.gondar') },
-    { value: 'hawassa', label: t('cities.hawassa') },
-    { value: 'mekelle', label: t('cities.mekelle') },
-    { value: 'jimma', label: t('cities.jimma') },
-    { value: 'adama', label: t('cities.adama') },
-    { value: 'dessie', label: t('cities.dessie') },
-    { value: 'debre-markos', label: t('cities.debreMarkos') },
-  ];
-
-  const conditions = [
-    { value: 'new', label: t('form.condition.new') },
-    { value: 'used', label: t('form.condition.used') },
-    { value: 'refurbished', label: t('form.condition.refurbished') },
-  ];
-
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">Loading...</div>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return null; // Will redirect in useEffect
-  }
 
   return (
-    <Layout>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">
-              {t('header.postAd')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                {/* Title */}
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('form.title')}</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Enter a descriptive title for your item"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/')}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            {t.backToHome}
+          </Button>
+          <h1 className="text-2xl font-bold">{t.title}</h1>
+        </div>
+        
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setLanguage(language === 'en' ? 'am' : 'en')}
+        >
+          {t.toggleLanguage}
+        </Button>
+      </div>
 
-                {/* Description */}
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('form.description')}</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Provide details about your item's condition, features, etc."
-                          rows={4}
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.title}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              {/* Title */}
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t.listingTitle}</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder={t.listingTitlePlaceholder} 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Price */}
+              {/* Description */}
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t.description}</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder={t.descriptionPlaceholder} 
+                        rows={4}
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Price and Currency */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
                   <FormField
                     control={form.control}
                     name="price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t('form.price')} (ETB)</FormLabel>
+                        <FormLabel>{t.price}</FormLabel>
                         <FormControl>
                           <Input 
                             type="number"
-                            min="0"
-                            step="0.01"
-                            placeholder="0.00"
+                            placeholder={t.pricePlaceholder} 
                             {...field} 
                           />
                         </FormControl>
@@ -241,170 +259,145 @@ export default function PostListing() {
                       </FormItem>
                     )}
                   />
-
-                  {/* Category */}
-                  <FormField
-                    control={form.control}
-                    name="categoryId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('form.category')}</FormLabel>
-                        <Select 
-                          onValueChange={(value) => field.onChange(parseInt(value))}
-                          value={field.value?.toString()}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a category" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {categories && categories.length > 0 ? (
-                              categories.map((category: any) => (
-                                <SelectItem key={category.id} value={category.id.toString()}>
-                                  {category.name}
-                                </SelectItem>
-                              ))
-                            ) : (
-                              <SelectItem value="loading" disabled>
-                                Loading categories...
-                              </SelectItem>
-                            )}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </div>
+                
+                <FormField
+                  control={form.control}
+                  name="currency"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t.currency}</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="ETB">ETB</SelectItem>
+                          <SelectItem value="USD">USD</SelectItem>
+                          <SelectItem value="EUR">EUR</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Location */}
-                  <FormField
-                    control={form.control}
-                    name="location"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('form.location')}</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select your location" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {locations.map((location) => (
-                              <SelectItem key={location.value} value={location.value || "unknown"}>
-                                {location.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+              {/* Category and Location */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="categoryId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t.category}</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={t.categoryPlaceholder} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem key={category.id} value={category.id.toString()}>
+                              {language === 'am' && category.nameAm ? category.nameAm : category.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  {/* Condition */}
-                  <FormField
-                    control={form.control}
-                    name="condition"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('form.condition')}</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select condition" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {conditions.map((condition) => (
-                              <SelectItem key={condition.value} value={condition.value}>
-                                {condition.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t.location}</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder={t.locationPlaceholder} 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-                {/* Images */}
-                <div>
-                  <FormLabel>{t('form.images')}</FormLabel>
-                  <div className="mt-2">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {images.map((image, index) => (
-                        <div key={index} className="relative">
-                          <img
-                            src={image}
-                            alt={`Upload ${index + 1}`}
-                            className="w-full h-24 object-cover rounded-lg border border-gray-200"
-                          />
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="icon"
-                            className="absolute -top-2 -right-2 w-6 h-6"
-                            onClick={() => removeImage(index)}
-                          >
-                            <X className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      ))}
-                      
-                      {images.length < 8 && (
-                        <label className="w-full h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-400 transition-colors">
-                          <div className="text-center">
-                            <Plus className="w-6 h-6 mx-auto text-gray-400 mb-1" />
-                            <span className="text-xs text-gray-500">Add Photo</span>
-                          </div>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            className="hidden"
-                            onChange={handleImageUpload}
-                          />
-                        </label>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-500 mt-2">
-                      You can upload up to 8 images. First image will be the main photo.
-                    </p>
-                  </div>
-                </div>
+              {/* Condition */}
+              <FormField
+                control={form.control}
+                name="condition"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t.condition}</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={t.conditionPlaceholder} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="new">{t.conditionNew}</SelectItem>
+                        <SelectItem value="used">{t.conditionUsed}</SelectItem>
+                        <SelectItem value="refurbished">{t.conditionRefurbished}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <div className="flex justify-end space-x-4">
-                  <Button type="button" variant="outline" asChild>
-                    <a href="/">{t('form.cancel')}</a>
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    disabled={createListingMutation.isPending}
-                    className="bg-primary text-white hover:bg-primary/90"
-                  >
-                    {createListingMutation.isPending ? (
-                      <>
-                        <Upload className="w-4 h-4 mr-2 animate-spin" />
-                        Creating...
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="w-4 h-4 mr-2" />
-                        {t('form.submit')}
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
-    </Layout>
+              {/* Images */}
+              <div className="space-y-2">
+                <FormLabel>{t.images}</FormLabel>
+                <p className="text-sm text-muted-foreground">{t.imagesDescription}</p>
+                <ImageUploader
+                  onImagesChange={handleImagesChange}
+                  initialImages={images}
+                  maxImages={10}
+                  language={language}
+                  className="mt-2"
+                />
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="flex gap-4 pt-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/')}
+                  disabled={createListingMutation.isPending}
+                >
+                  {t.cancel}
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={createListingMutation.isPending}
+                  className="flex-1"
+                >
+                  {createListingMutation.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      {t.posting}
+                    </>
+                  ) : (
+                    t.postListing
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
   );
-}
+};
+
+export default PostListing;
