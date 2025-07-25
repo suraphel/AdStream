@@ -18,7 +18,7 @@ import {
   type CategoryWithCount,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, asc, and, or, ilike, count, sql } from "drizzle-orm";
+import { eq, desc, asc, and, or, ilike, count, sql, inArray } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -165,7 +165,7 @@ export class DatabaseStorage implements IStorage {
         or(
           ilike(listings.title, `%${search}%`),
           ilike(listings.description, `%${search}%`)
-        )
+        )!
       );
     }
 
@@ -196,7 +196,7 @@ export class DatabaseStorage implements IStorage {
     // Get images for each listing
     const listingIds = results.map(r => r.listing.id);
     const images = listingIds.length > 0 
-      ? await db.select().from(listingImages).where(sql`${listingImages.listingId} = ANY(${listingIds})`)
+      ? await db.select().from(listingImages).where(inArray(listingImages.listingId, listingIds))
       : [];
 
     const imagesByListingId = images.reduce((acc, img) => {

@@ -40,22 +40,28 @@ export default function Category() {
   // Check if this is the categories overview page
   const isOverview = location === '/categories' || !slug;
 
-  const { data: categories, isLoading: categoriesLoading } = useQuery({
+  const { data: categories, isLoading: categoriesLoading } = useQuery<any[]>({
     queryKey: ['/api/categories'],
   });
 
-  const { data: category, isLoading: categoryLoading } = useQuery({
+  const { data: category, isLoading: categoryLoading } = useQuery<any>({
     queryKey: ['/api/categories', slug],
     enabled: !!slug && !isOverview,
   });
 
   const { data: listings, isLoading: listingsLoading } = useQuery({
-    queryKey: ['/api/listings', {
-      category: category?.id,
-      search: searchTerm || undefined,
-      location: selectedLocation || undefined,
-      sort: sortBy,
-    }],
+    queryKey: ['/api/listings', category?.id, searchTerm, selectedLocation, sortBy],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (category?.id) params.append('category', category.id.toString());
+      if (searchTerm) params.append('search', searchTerm);
+      if (selectedLocation && selectedLocation !== 'all') params.append('location', selectedLocation);
+      params.append('sort', sortBy);
+      
+      const response = await fetch(`/api/listings?${params.toString()}`);
+      if (!response.ok) throw new Error('Failed to fetch listings');
+      return response.json();
+    },
     enabled: !isOverview && !!category,
   });
 
