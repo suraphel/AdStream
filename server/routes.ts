@@ -11,6 +11,7 @@ import { config } from "./config";
 import { imageRoutes } from "./routes/imageRoutes";
 import { metricsMiddleware, metricsHandler } from "./monitoring/metrics";
 import { healthCheckHandler, readinessHandler, livenessHandler } from "./monitoring/healthCheck";
+import { shopRoutes } from "./shop-routes";
 import { frontendErrorHandler, errorAnalyticsHandler, recentErrorsHandler } from "./monitoring/errorTracking";
 import { Logger } from "./logging/Logger";
 import path from "path";
@@ -50,6 +51,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Image upload routes
   app.use('/api/images', imageRoutes);
+
+  // Shop routes
+  app.use(shopRoutes);
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {

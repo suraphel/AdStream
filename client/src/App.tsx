@@ -26,6 +26,8 @@ import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminUsers from "@/pages/admin/Users";
 import AdminListings from "@/pages/admin/Listings";
 import Messages from "@/pages/Messages";
+import ShopDashboard from "@/pages/shop/ShopDashboard";
+import ShopRegistration from "@/pages/shop/ShopRegistration";
 import errorTracker, { ErrorBoundary } from "./lib/errorTracking";
 import { useEffect } from "react";
 
@@ -78,6 +80,10 @@ function Router() {
           <Route path="/admin/dashboard" component={AdminDashboard} />
           <Route path="/admin/users" component={AdminUsers} />
           <Route path="/admin/listings" component={AdminListings} />
+          
+          {/* Shop routes for authenticated users */}
+          <Route path="/shop/dashboard" component={ShopDashboard} />
+          <Route path="/shop/register" component={ShopRegistration} />
         </>
       )}
       {/* Fallback to 404 */}

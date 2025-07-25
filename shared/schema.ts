@@ -321,3 +321,6 @@ export type CategoryWithCount = Category & {
 
 // Import tender schema for complete system
 export * from './tender-schema';
+
+// Export shop-related types and schemas
+export * from './shop-schema';
