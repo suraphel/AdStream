@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
-  <rect width="400" height="300" fill="#1e40af"/>
-  <rect x="150" y="50" width="100" height="180" rx="20" fill="#000"/>
-  <rect x="155" y="70" width="90" height="140" fill="#fff"/>
-  <circle cx="200" cy="240" r="15" fill="#333"/>
-  <text x="200" y="280" text-anchor="middle" fill="#fff" font-family="Arial" font-size="14">iPhone 14 Pro Max</text>
-</svg>
