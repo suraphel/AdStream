@@ -21,11 +21,11 @@ export default function Home() {
   });
 
   const { data: featuredListings, isLoading: featuredLoading } = useQuery({
-    queryKey: ['/api/listings', { featured: true, limit: 4 }],
+    queryKey: ['/api/listings?featured=true&limit=4'],
   });
 
   const { data: recentListings, isLoading: recentLoading } = useQuery({
-    queryKey: ['/api/listings', { limit: 8, ...searchParams }],
+    queryKey: [`/api/listings?limit=8${searchParams.search ? `&search=${encodeURIComponent(searchParams.search)}` : ''}${searchParams.category ? `&category=${searchParams.category}` : ''}${searchParams.location ? `&location=${encodeURIComponent(searchParams.location)}` : ''}`],
   });
 
   const handleSearch = (params: typeof searchParams) => {

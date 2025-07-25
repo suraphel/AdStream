@@ -123,6 +123,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/listings/:id', async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
+      
+      // Validate that id is a valid number
+      if (isNaN(id) || id <= 0) {
+        return res.status(400).json({ message: "Invalid listing ID" });
+      }
+      
       const userId = req.user?.claims?.sub;
       
       const listing = await storage.getListingById(id, userId);

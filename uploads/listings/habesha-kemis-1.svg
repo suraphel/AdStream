@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#7c3aed"/>
+  <path d="M150 80 L250 80 L250 220 L200 240 L150 220 Z" fill="#fbbf24"/>
+  <rect x="180" y="100" width="40" height="10" fill="#dc2626"/>
+  <rect x="170" y="120" width="60" height="80" fill="#fff"/>
+  <text x="200" y="280" text-anchor="middle" fill="#fff" font-family="Arial" font-size="14">Habesha Kemis</text>
+</svg>

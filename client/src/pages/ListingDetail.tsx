@@ -36,7 +36,7 @@ export default function ListingDetail() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const { data: listing, isLoading, error } = useQuery({
-    queryKey: ['/api/listings', id],
+    queryKey: [`/api/listings/${id}`],
     enabled: !!id,
   });
 

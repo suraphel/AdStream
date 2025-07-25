@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#059669"/>
+  <rect x="100" y="120" width="200" height="120" fill="#8b5cf6"/>
+  <polygon points="100,120 200,60 300,120" fill="#dc2626"/>
+  <rect x="130" y="160" width="40" height="80" fill="#92400e"/>
+  <rect x="180" y="160" width="30" height="30" fill="#fbbf24"/>
+  <text x="200" y="280" text-anchor="middle" fill="#fff" font-family="Arial" font-size="14">Villa in Bole Atlas</text>
+</svg>
