@@ -1,0 +1,50 @@
+Create a monolithic web application for managing and hosting tender documents, called **TenderFloatingBindingApplication**. The system should allow companies to upload tender documents, enable users to view basic details of the tenders (without logging in), and allow **paid users** to download the full documents. The system should have an easy-to-use interface for both the tender uploaders (companies) and the users. Here's the feature breakdown:
+
+1. **Tender Document Upload:**
+   - Companies can register, log in, and upload tender documents.
+   - Each tender document should contain a title, description, upload date, and a downloadable file.
+   - **Tender document visibility:** Only the title and a brief description should be visible to all users (without needing to log in). Full tender documents will be available only to **paid users**.
+   
+2. **User Registration & Payment System:**
+   - Users must register their companies before they can purchase and download tender documents.
+   - Only **paid users** will be able to download tender documents securely after completing payment.
+   - Payment transactions should be logged, and users should receive a confirmation email once they have successfully purchased a document.
+
+3. **Admin Panel for Tender Uploading Companies:**
+   - Each company that uploads tenders should have an **admin panel** where they can view and manage their own tender documents.
+   - The admin panel should allow companies to see how many users have purchased their documents and have basic statistics on downloads.
+   
+4. **Database Design:**
+   - Create a separate database specifically for **tender documents**. The database should include tables for:
+     - **TenderDocuments:** storing the title, description, upload date, price, and file path.
+     - **TenderPurchases:** tracking who has purchased each document, the purchase date, and user info.
+     - **Users:** storing registered company information, including contact details and payment status.
+   
+5. **Security & Document Download:**
+   - Ensure that the system is **secure** for document downloads. Only authorized (paid) users should be able to download the full tender documents.
+   - Implement a way to track and log who downloads a document to ensure traceability.
+
+6. **Email Notifications:**
+   - Send an **email to the company** who uploaded the tender document when a user purchases their document. This will notify them of the transaction.
+   - Send **confirmation emails** to the users who successfully purchase a document.
+
+7. **Future-Ready Modular Structure (Optional):**
+   - Although this is a monolithic application for now, structure the **tender module** in a way that it can be easily separated into its own service later on.
+   
+---
+
+**Tech Stack:**
+- **Frontend:** React (Mobile-first, clean UI)
+- **Backend:** Node.js with Express
+- **Database:** PostgreSQL (Separate database for Tender and User info)
+- **Payment Gateway Integration:** Use a simple payment service like Stripe for handling payments.
+- **Email Service:** SendGrid for email notifications.
+- **Security:** JWT Authentication for user registration and paid document access.
+
+---
+
+This setup should cover all the necessary features for hosting tender documents securely and providing a smooth experience for both tender uploaders and users. The database design is focused on ensuring that tender data is separated into its own entity, which simplifies the initial implementation and allows future expansion.
+
+---
+
+Would you like to proceed with this structure, or do you need any additional tweaks or features?

@@ -220,3 +220,6 @@ export type ListingWithDetails = Listing & {
 export type CategoryWithCount = Category & {
   listingCount: number;
 };
+
+// Import tender schema for complete system
+export * from './tender-schema';

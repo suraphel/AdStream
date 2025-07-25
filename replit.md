@@ -1,8 +1,8 @@
-# EthioMarket - Ethiopian Classified Ads Platform
+# TenderFloatingBindingApplication - Tender Document Management System
 
 ## Overview
 
-EthioMarket is a full-stack classified ads platform designed for the Ethiopian market, similar to FINN.no. The application supports JWT authentication, listing creation and management, category browsing, favorites, and multi-language support (English and Amharic). It's built with a modern React frontend and ASP.NET Core backend, with SQL Server as the database. The backend follows Clean Architecture principles for maintainability and scalability.
+TenderFloatingBindingApplication is a monolithic web application for managing and hosting tender documents. The system allows companies to upload tender documents, enables users to view basic details (title/description) without logging in, and provides full document downloads only to paid users. It features secure document access, payment integration, email notifications, and comprehensive admin panels for tender management.
 
 ## User Preferences
 
@@ -149,15 +149,16 @@ Preferred communication style: Simple, everyday language.
 - **Environment Setup**: One-command setup for development, staging, and production environments
 
 ### Recent Updates (July 25, 2025)
-- **External Listings Integration**: Added comprehensive system to import listings from external platforms
-  - **Database Schema**: Extended listings table with external source tracking, sync status, and metadata storage
-  - **Service Layer**: Created ExternalIntegrationsService for API management and rate limiting
-  - **API Routes**: Added `/api/external/*` endpoints for importing and managing external listings
-  - **Frontend Interface**: Built ExternalListings page with provider selection and import controls
-  - **Supported Providers**: RentCast (real estate), HasData Zillow (property data), OpenTrip (travel/tourism)
-  - **Rate Limiting**: Daily API usage tracking and limits per provider
-  - **Error Handling**: Comprehensive sync logging and error tracking
-  - **Navigation**: Added external listings to authenticated user navigation
+- **TenderFloatingBindingApplication System**: Built complete tender document management system
+  - **Database Schema**: Created comprehensive tender schema with companies, users, documents, purchases, and logs
+  - **Authentication**: JWT-based authentication for both companies and users with separate login systems
+  - **Document Management**: Secure file upload, storage, and download with access control
+  - **Payment Integration**: Purchase system with email notifications and download tracking
+  - **User Interfaces**: Built TenderHome, TenderDetail, TenderUserRegister, TenderCompanyRegister pages
+  - **Security Features**: Download logging, purchase verification, and file access protection
+  - **Admin Features**: Company dashboard with sales analytics and purchase tracking
+  - **Email System**: Automated notifications for purchases and company alerts
+  - **Navigation**: Added TenderFloat navigation link accessible to all users
 
 ### Future Enhancements Prepared
 - **Payment Integration**: Mock Telebirr service ready for real integration with feature toggle control
