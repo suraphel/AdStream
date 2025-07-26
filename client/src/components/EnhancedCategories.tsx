@@ -59,48 +59,37 @@ export function EnhancedCategories() {
           <p className="text-gray-600">Find exactly what you're looking for</p>
         </div>
 
-        {/* Category Groups with FINN.no Style */}
-        <div className="space-y-12">
+        {/* Category Groups - Clean Minimal Layout */}
+        <div className="space-y-16">
           {Object.entries(CATEGORY_GROUPS).map(([groupKey, group]) => {
             const groupCategories = groupedCategories[groupKey as CategoryGroupKey] || [];
             
             if (groupCategories.length === 0) return null;
 
-            const GroupIcon = group.icon;
             const colorClass = getGroupColor(groupKey as CategoryGroupKey);
 
             return (
-              <div key={groupKey} className="space-y-6">
-                {/* Group Header */}
-                <div className="flex items-center space-x-4">
-                  <div className={`p-3 bg-${colorClass}-100 rounded-xl w-fit`}>
-                    <GroupIcon className={`h-6 w-6 text-${colorClass}-600`} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900">{group.name}</h3>
-                    <p className="text-gray-600 text-sm">{group.nameAm}</p>
-                  </div>
+              <div key={groupKey} className="space-y-8">
+                {/* Group Header - Minimal */}
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{group.name}</h3>
+                  <div className="w-16 h-0.5 bg-gray-300 mx-auto"></div>
                 </div>
 
-                {/* Categories Grid - FINN.no Style */}
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6">
-                  {groupCategories.slice(0, 8).map((category) => {
+                {/* Categories Grid - Clean Minimal Layout */}
+                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-8">
+                  {groupCategories.slice(0, 10).map((category) => {
                     const IconComponent = getCategoryIcon(category.slug);
                     
                     return (
                       <Link key={category.id} href={`/category/${category.slug}`}>
-                        <div className="flex flex-col items-center p-4 bg-white rounded-lg hover:shadow-md transition-all duration-200 group cursor-pointer border border-gray-100 hover:border-blue-200">
-                          <div className={`w-12 h-12 bg-${colorClass}-100 rounded-lg flex items-center justify-center mb-3 group-hover:bg-${colorClass}-200 transition-colors`}>
-                            <IconComponent className={`w-6 h-6 text-${colorClass}-600`} />
+                        <div className="flex flex-col items-center text-center group cursor-pointer">
+                          <div className={`w-14 h-14 bg-${colorClass}-100 rounded-2xl flex items-center justify-center mb-3 group-hover:bg-${colorClass}-200 transition-all duration-200 group-hover:scale-105`}>
+                            <IconComponent className={`w-7 h-7 text-${colorClass}-600`} />
                           </div>
-                          <span className="text-sm font-medium text-gray-900 text-center leading-tight group-hover:text-blue-600 transition-colors">
+                          <span className="text-xs font-medium text-gray-700 leading-tight group-hover:text-blue-600 transition-colors max-w-16">
                             {category.name}
                           </span>
-                          {category.listingCount !== undefined && (
-                            <span className="text-xs text-gray-500 mt-1">
-                              {category.listingCount} ads
-                            </span>
-                          )}
                         </div>
                       </Link>
                     );

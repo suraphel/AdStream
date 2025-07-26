@@ -69,58 +69,48 @@ export default function Categories() {
           </div>
         </div>
 
-        {/* Organized Category Groups - FINN.no Style */}
+        {/* Organized Category Groups - Clean Minimal Layout */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="space-y-16">
+          <div className="space-y-20">
             {Object.entries(CATEGORY_GROUPS).map(([groupKey, group]) => {
               const groupCategories = groupedCategories[groupKey as CategoryGroupKey] || [];
               
               if (groupCategories.length === 0) return null;
 
-              const GroupIcon = group.icon;
               const colorClass = getGroupColor(groupKey as CategoryGroupKey);
 
               return (
-                <div key={groupKey} className="space-y-8">
-                  {/* Group Header */}
-                  <div className="flex items-center space-x-4">
-                    <div className={`p-4 bg-${colorClass}-100 rounded-xl w-fit`}>
-                      <GroupIcon className={`h-8 w-8 text-${colorClass}-600`} />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-900">{group.name}</h2>
-                      <p className="text-gray-600">{group.nameAm}</p>
-                    </div>
+                <div key={groupKey} className="space-y-10">
+                  {/* Group Header - Clean Minimal */}
+                  <div className="text-center">
+                    <h2 className="text-xl font-bold text-gray-800 mb-3">{group.name}</h2>
+                    <p className="text-sm text-gray-600 mb-4">{group.nameAm}</p>
+                    <div className="w-20 h-0.5 bg-gray-300 mx-auto"></div>
                   </div>
 
-                  {/* Categories Grid for this Group */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
+                  {/* Categories Grid - Clean Minimal Layout */}
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-10">
                     {groupCategories.map((category) => {
                       const IconComponent = getCategoryIcon(category.slug);
                       
                       return (
                         <Link key={category.id} href={`/category/${category.slug}`}>
-                          <div className="flex flex-col items-center p-6 bg-white rounded-xl hover:shadow-xl transition-all duration-300 group cursor-pointer border border-gray-100 hover:border-blue-200 hover:-translate-y-1">
-                            {/* Icon Container */}
-                            <div className={`w-16 h-16 bg-${colorClass}-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-${colorClass}-200 transition-colors`}>
+                          <div className="flex flex-col items-center text-center group cursor-pointer">
+                            {/* Icon Container - Minimal */}
+                            <div className={`w-16 h-16 bg-${colorClass}-100 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-${colorClass}-200 transition-all duration-200 group-hover:scale-105`}>
                               <IconComponent className={`w-8 h-8 text-${colorClass}-600`} />
                             </div>
                             
                             {/* Category Name */}
-                            <h3 className="text-sm font-semibold text-gray-900 text-center mb-1 group-hover:text-blue-600 transition-colors leading-tight">
+                            <h3 className="text-sm font-medium text-gray-700 text-center leading-tight group-hover:text-blue-600 transition-colors max-w-20">
                               {category.name}
                             </h3>
                             
-                            {/* Amharic Name */}
-                            {category.nameAm && (
-                              <p className="text-xs text-gray-500 text-center mb-3 leading-tight">{category.nameAm}</p>
-                            )}
-                            
-                            {/* Listing Count */}
+                            {/* Listing Count - Subtle */}
                             {category.listingCount !== undefined && (
-                              <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">
-                                {category.listingCount} ads
-                              </Badge>
+                              <p className="text-xs text-gray-400 mt-1">
+                                {category.listingCount}
+                              </p>
                             )}
                           </div>
                         </Link>
