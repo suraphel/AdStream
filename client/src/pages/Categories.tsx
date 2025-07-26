@@ -103,30 +103,7 @@ export default function Categories() {
           </div>
         </div>
 
-        {/* Category Groups Summary */}
-        <div className="bg-gray-50 py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold text-gray-900 text-center mb-12">Browse by Category Group</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-8">
-              {Object.entries(CATEGORY_GROUPS).map(([groupKey, group]) => {
-                const groupCategories = groupedCategories[groupKey as CategoryGroupKey] || [];
-                const totalListings = groupCategories.reduce((sum, cat) => sum + (cat.listingCount || 0), 0);
-                const GroupIcon = group.icon;
-                const colorClass = getGroupColor(groupKey as CategoryGroupKey);
 
-                return (
-                  <div key={groupKey} className="text-center p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                    <div className={`p-4 bg-${colorClass}-100 rounded-xl w-fit mx-auto mb-4`}>
-                      <GroupIcon className={`h-6 w-6 text-${colorClass}-600`} />
-                    </div>
-                    <h3 className="font-semibold text-sm text-gray-900 mb-1">{group.name}</h3>
-                    <p className="text-xs text-gray-500">{totalListings} items</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
 
         {/* Empty State */}
         {categories.length === 0 && !isLoading && (

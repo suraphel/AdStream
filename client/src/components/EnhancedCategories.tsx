@@ -59,26 +59,30 @@ export function EnhancedCategories() {
           <p className="text-gray-600">Find exactly what you're looking for</p>
         </div>
 
-        {/* Clean Grid Layout - No Group Headers */}
-        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-8">
-          {categories.map((category) => {
-            const IconComponent = getCategoryIcon(category.slug);
-            const groupKey = getCategoryGroup(category.slug) || 'services';
-            const colorClass = getGroupColor(groupKey as CategoryGroupKey);
-            
-            return (
-              <Link key={category.id} href={`/category/${category.slug}`}>
-                <div className="flex flex-col items-center text-center group cursor-pointer">
-                  <div className={`w-14 h-14 bg-${colorClass}-100 rounded-2xl flex items-center justify-center mb-3 group-hover:bg-${colorClass}-200 transition-all duration-200 group-hover:scale-105`}>
-                    <IconComponent className={`w-7 h-7 text-${colorClass}-600`} />
+        {/* Browse by Category Group */}
+        <div className="text-center mb-10">
+          <h3 className="text-xl font-bold text-gray-800 mb-8">Browse by Category Group</h3>
+          
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-8">
+            {Object.entries(CATEGORY_GROUPS).map(([groupKey, group]) => {
+              const groupCategories = groupedCategories[groupKey as CategoryGroupKey] || [];
+              const totalListings = groupCategories.reduce((sum, cat) => sum + (cat.listingCount || 0), 0);
+              const GroupIcon = group.icon;
+              const colorClass = getGroupColor(groupKey as CategoryGroupKey);
+
+              return (
+                <div key={groupKey} className="flex flex-col items-center text-center group cursor-pointer">
+                  <div className={`w-16 h-16 bg-${colorClass}-100 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-${colorClass}-200 transition-all duration-200 group-hover:scale-105`}>
+                    <GroupIcon className={`w-8 h-8 text-${colorClass}-600`} />
                   </div>
-                  <span className="text-xs font-medium text-gray-700 leading-tight group-hover:text-blue-600 transition-colors max-w-16">
-                    {category.name}
-                  </span>
+                  <h4 className="text-sm font-semibold text-gray-800 mb-1 group-hover:text-blue-600 transition-colors">
+                    {group.name}
+                  </h4>
+                  <p className="text-xs text-gray-500">{totalListings} items</p>
                 </div>
-              </Link>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
         {/* View All Categories Link */}
