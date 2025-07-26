@@ -139,7 +139,7 @@ const PostListing: React.FC = () => {
       description: "",
       price: "0",
       currency: "ETB",
-      categoryId: selectedCategoryId ? parseInt(selectedCategoryId) : 10,
+      categoryId: selectedCategoryId ? parseInt(selectedCategoryId) : 85,
       location: "",
       condition: "new",
     },
@@ -158,7 +158,7 @@ const PostListing: React.FC = () => {
     "airline-tickets",
   ];
   const currentCategory = categories.find(
-    (cat) => cat.id === parseInt(selectedCategoryId || "10"),
+    (cat) => cat.id === parseInt(selectedCategoryId || "85"),
   );
   const showConditionField = currentCategory
     ? !categoriesWithoutCondition.includes(currentCategory.slug)
