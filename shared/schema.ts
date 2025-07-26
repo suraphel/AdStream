@@ -54,6 +54,7 @@ export const categories = pgTable("categories", {
   slug: varchar("slug", { length: 100 }).notNull().unique(),
   icon: varchar("icon", { length: 50 }), // Font Awesome icon class
   parentId: integer("parent_id"),
+  groupName: varchar("group_name", { length: 50 }), // vehicles, property, electronics, etc.
   isActive: boolean("is_active").default(true),
   sortOrder: integer("sort_order").default(0),
   createdAt: timestamp("created_at").defaultNow(),
@@ -93,6 +94,26 @@ export const listings = pgTable("listings", {
   passengerCount: integer("passenger_count").default(1),
   lastSyncedAt: timestamp("last_synced_at"), // When data was last updated from external source
   syncStatus: varchar("sync_status", { length: 20 }).default("active"), // active, error, disabled
+  
+  // Vehicle-specific fields
+  modelYear: integer("model_year"),
+  mileage: integer("mileage"), // in kilometers
+  doors: integer("doors"),
+  gearboxType: varchar("gearbox_type", { length: 20 }), // manual, automatic, cvt
+  fuelType: varchar("fuel_type", { length: 20 }), // petrol, diesel, electric, hybrid
+  
+  // Electronics-specific fields
+  cpu: varchar("cpu", { length: 100 }),
+  ram: varchar("ram", { length: 50 }),
+  gpu: varchar("gpu", { length: 100 }),
+  motherboard: varchar("motherboard", { length: 100 }),
+  storageType: varchar("storage_type", { length: 20 }), // ssd, hdd, hybrid
+  storageSize: varchar("storage_size", { length: 50 }),
+  
+  // Premium features
+  isBoosted: boolean("is_boosted").default(false),
+  boostedUntil: timestamp("boosted_until"),
+  boostLevel: integer("boost_level").default(0), // 1-3 for different boost tiers
 });
 
 // Listing images table
@@ -121,8 +142,51 @@ export const favorites = pgTable("favorites", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").notNull(),
   listingId: integer("listing_id").notNull(),
+  notifyOnMatch: boolean("notify_on_match").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+// Seller verification table
+export const sellerVerifications = pgTable("seller_verifications", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().unique(),
+  verificationType: varchar("verification_type", { length: 20 }).notNull(), // id_card, passport, business_license
+  documentUrl: varchar("document_url", { length: 500 }),
+  status: varchar("status", { length: 20 }).default("pending"), // pending, approved, rejected
+  submittedAt: timestamp("submitted_at").defaultNow(),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewedBy: varchar("reviewed_by"),
+  rejectionReason: text("rejection_reason"),
+});
+
+// Boost purchases table
+export const boostPurchases = pgTable("boost_purchases", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  listingId: integer("listing_id").notNull(),
+  boostLevel: integer("boost_level").notNull(), // 1-3
+  duration: integer("duration").notNull(), // in days
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).default("ETB"),
+  paymentStatus: varchar("payment_status", { length: 20 }).default("pending"),
+  stripePaymentIntentId: varchar("stripe_payment_intent_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+  activatedAt: timestamp("activated_at"),
+  expiresAt: timestamp("expires_at"),
+});
+
+// NSFW image moderation logs
+export const moderationLogs = pgTable("moderation_logs", {
+  id: serial("id").primaryKey(),
+  imageId: integer("image_id").notNull(),
+  moderationType: varchar("moderation_type", { length: 20 }).notNull(), // nsfw, violence, spam
+  score: decimal("score", { precision: 5, scale: 4 }), // 0-1 confidence
+  action: varchar("action", { length: 20 }).notNull(), // approved, flagged, removed
+  moderatedAt: timestamp("moderated_at").defaultNow(),
+  moderatedBy: varchar("moderated_by"), // system or admin user id
+});
+
+
 
 // Conversations table - for message threads between users
 export const conversations = pgTable("conversations", {
@@ -425,6 +489,7 @@ export const insertOtpRateLimitSchema = createInsertSchema(otpRateLimits).omit({
 });
 
 // Types
+export type User = typeof users.$inferSelect;
 export type UpsertUser = typeof users.$inferInsert;
 export type Category = typeof categories.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;

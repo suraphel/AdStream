@@ -30,6 +30,9 @@ import { Loader2, ArrowLeft } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { AirlineTicketForm } from "@/components/AirlineTicketForm";
 import { AirlinePriceList } from "@/components/AirlinePriceList";
+import { VehicleFields } from "@/components/VehicleFields";
+import { ElectronicsFields } from "@/components/ElectronicsFields";
+import { isVehicleCategory, isElectronicsCategory } from "@/lib/categoryGroups";
 
 const listingSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -48,6 +51,19 @@ const listingSchema = z.object({
   flightClass: z.string().optional(),
   tripType: z.string().optional(),
   passengerCount: z.number().min(1).optional(),
+  // Vehicle specific fields
+  modelYear: z.number().min(1900).max(new Date().getFullYear() + 1).optional(),
+  mileage: z.number().min(0).optional(),
+  doors: z.number().min(2).max(5).optional(),
+  gearboxType: z.string().optional(),
+  fuelType: z.string().optional(),
+  // Electronics specific fields
+  cpu: z.string().optional(),
+  ram: z.string().optional(),
+  gpu: z.string().optional(),
+  motherboard: z.string().optional(),
+  storageType: z.string().optional(),
+  storageSize: z.string().optional(),
 });
 
 type ListingFormData = z.infer<typeof listingSchema>;
@@ -149,6 +165,9 @@ const PostListing: React.FC = () => {
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
   });
+
+  // Find selected category for specialized fields
+  const selectedCategory = categories.find(cat => cat.id === form.watch('categoryId'));
 
   // Categories that don't need condition field (houses, services, airline tickets, etc.)
   const categoriesWithoutCondition = [
@@ -404,6 +423,12 @@ const PostListing: React.FC = () => {
                     )}
                   />
                 </div>
+
+                {/* Vehicle-specific fields */}
+                <VehicleFields control={form.control} categorySlug={selectedCategory?.slug} />
+
+                {/* Electronics-specific fields */}
+                <ElectronicsFields control={form.control} categorySlug={selectedCategory?.slug} />
 
                 {/* Condition - Only show for relevant categories */}
                 {showConditionField && (

@@ -29,6 +29,7 @@ import AdminUsers from "@/pages/admin/Users";
 import AdminListings from "@/pages/admin/Listings";
 import ImageModeration from "@/pages/admin/ImageModeration";
 import Messages from "@/pages/Messages";
+import EnhancedCategories from "@/components/EnhancedCategories";
 import ShopDashboard from "@/pages/shop/ShopDashboard";
 import ShopRegistration from "@/pages/shop/ShopRegistration";
 import errorTracker, { ErrorBoundary } from "./lib/errorTracking";
@@ -68,6 +69,7 @@ function Router() {
           <Route path="/post" component={PostListing} />
           <Route path="/edit/:id" component={EditListing} />
           <Route path="/select-category" component={CategorySelect} />
+          <Route path="/categories/enhanced" component={EnhancedCategories} />
           <Route path="/profile" component={Profile} />
           {/* Tender routes available to all */}
           <Route path="/tender" component={TenderHome} />

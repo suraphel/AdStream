@@ -1,295 +1,263 @@
-import { db } from '../db';
+import { db } from "../db";
 import { 
-  favorites, 
-  listings, 
-  users, 
   notificationPreferences, 
-  notificationLogs,
-  categories,
-  type InsertNotificationLog,
-  type NotificationPreference
-} from '@shared/schema';
-import { eq, and, inArray, desc } from 'drizzle-orm';
+  notificationLogs, 
+  listings, 
+  categories, 
+  users, 
+  favorites 
+} from "@shared/schema";
+import { eq, and, ne, ilike } from "drizzle-orm";
+import type { InsertListing, Listing } from "@shared/schema";
 
 export interface NotificationMatch {
   userId: string;
+  phoneNumber: string;
   favoriteListingId: number;
   newListingId: number;
-  userPhone?: string;
-  favoriteTitle: string;
-  newListingTitle: string;
-  newListingPrice: string;
-  newListingLocation: string;
-  categoryName: string;
+  matchReason: string;
 }
 
 export class NotificationService {
-  /**
-   * Check for listing matches based on category and send notifications
-   */
-  async checkAndNotifyForNewListing(newListingId: number): Promise<void> {
+  // Check for favorite matches when a new listing is created
+  static async checkFavoriteMatches(newListing: Listing): Promise<NotificationMatch[]> {
     try {
-      console.log(`Checking notification matches for listing ${newListingId}`);
-      
-      // Get the new listing details
-      const [newListing] = await db
+      // Get all users with notification preferences enabled
+      const usersWithNotifications = await db
         .select({
-          id: listings.id,
-          title: listings.title,
-          price: listings.price,
-          currency: listings.currency,
-          location: listings.location,
-          categoryId: listings.categoryId,
-          userId: listings.userId,
+          userId: notificationPreferences.userId,
+          phoneNumber: notificationPreferences.phoneNumber,
         })
-        .from(listings)
-        .leftJoin(categories, eq(listings.categoryId, categories.id))
-        .where(eq(listings.id, newListingId));
-
-      if (!newListing) {
-        console.log(`New listing ${newListingId} not found`);
-        return;
-      }
-
-      // Find users who have favorited items in the same category
-      const matches = await db
-        .select({
-          userId: favorites.userId,
-          favoriteListingId: favorites.listingId,
-          favoriteTitle: listings.title,
-          userPhone: users.phone,
-          categoryName: categories.name,
-          textNotificationsEnabled: users.textNotificationsEnabled,
-        })
-        .from(favorites)
-        .innerJoin(listings, eq(favorites.listingId, listings.id))
-        .innerJoin(users, eq(favorites.userId, users.id))
-        .innerJoin(categories, eq(listings.categoryId, categories.id))
-        .where(
-          and(
-            eq(listings.categoryId, newListing.categoryId),
-            eq(users.textNotificationsEnabled, true)
-          )
-        );
-
-      console.log(`Found ${matches.length} potential notification matches`);
-
-      // Get notification preferences for matched users
-      const userIds = matches.map(match => match.userId);
-      if (userIds.length === 0) return;
-
-      const preferences = await db
-        .select()
         .from(notificationPreferences)
         .where(
           and(
-            inArray(notificationPreferences.userId, userIds),
-            eq(notificationPreferences.favoriteMatchNotifications, true)
+            eq(notificationPreferences.favoriteMatchNotifications, true),
+            eq(notificationPreferences.smsNotifications, true)
           )
         );
 
-      const preferencesMap = new Map(
-        preferences.map(pref => [pref.userId, pref])
-      );
-
-      // Filter matches to only include users with notification preferences enabled
-      const eligibleMatches = matches.filter(match => 
-        preferencesMap.has(match.userId) && match.userPhone
-      );
-
-      console.log(`${eligibleMatches.length} users eligible for notifications`);
-
-      // Send notifications to eligible users
-      for (const match of eligibleMatches) {
-        await this.sendMatchNotification({
-          userId: match.userId,
-          favoriteListingId: match.favoriteListingId,
-          newListingId: newListing.id,
-          userPhone: match.userPhone!,
-          favoriteTitle: match.favoriteTitle,
-          newListingTitle: newListing.title,
-          newListingPrice: `${newListing.price} ${newListing.currency}`,
-          newListingLocation: newListing.location,
-          categoryName: match.categoryName,
-        });
+      if (usersWithNotifications.length === 0) {
+        return [];
       }
+
+      const matches: NotificationMatch[] = [];
+
+      // Check each user's favorites for matches
+      for (const user of usersWithNotifications) {
+        // Skip if it's the user's own listing
+        if (user.userId === newListing.userId) {
+          continue;
+        }
+
+        // Get user's favorites in the same category
+        const userFavorites = await db
+          .select({
+            favorite: favorites,
+            listing: listings,
+            category: categories,
+          })
+          .from(favorites)
+          .innerJoin(listings, eq(favorites.listingId, listings.id))
+          .innerJoin(categories, eq(listings.categoryId, categories.id))
+          .where(
+            and(
+              eq(favorites.userId, user.userId),
+              eq(listings.categoryId, newListing.categoryId)
+            )
+          );
+
+        // Check for matches
+        for (const favorite of userFavorites) {
+          const matchReasons: string[] = [];
+
+          // 1. Same category (already filtered above)
+          matchReasons.push(`Same category: ${favorite.category.name}`);
+
+          // 2. Similar location (case-insensitive partial match)
+          if (favorite.listing.location && newListing.location) {
+            const favoriteLocation = favorite.listing.location.toLowerCase();
+            const newLocation = newListing.location.toLowerCase();
+            
+            if (favoriteLocation.includes(newLocation) || newLocation.includes(favoriteLocation)) {
+              matchReasons.push(`Similar location: ${newListing.location}`);
+            }
+          }
+
+          // 3. Price range matching (within 20% of favorited item price)
+          if (favorite.listing.price && newListing.price) {
+            const favoritePrice = parseFloat(favorite.listing.price);
+            const newPrice = parseFloat(newListing.price);
+            
+            if (!isNaN(favoritePrice) && !isNaN(newPrice)) {
+              const priceDifference = Math.abs(newPrice - favoritePrice) / favoritePrice;
+              if (priceDifference <= 0.2) { // Within 20%
+                matchReasons.push(`Similar price: ${newListing.price} ${newListing.currency || 'ETB'}`);
+              }
+            }
+          }
+
+          // 4. Vehicle-specific matching
+          if (favorite.listing.modelYear && newListing.modelYear) {
+            const yearDiff = Math.abs(newListing.modelYear - favorite.listing.modelYear);
+            if (yearDiff <= 2) {
+              matchReasons.push(`Similar model year: ${newListing.modelYear}`);
+            }
+          }
+
+          if (favorite.listing.fuelType && newListing.fuelType === favorite.listing.fuelType) {
+            matchReasons.push(`Same fuel type: ${newListing.fuelType}`);
+          }
+
+          // 5. Electronics-specific matching
+          if (favorite.listing.cpu && newListing.cpu && 
+              favorite.listing.cpu.toLowerCase().includes(newListing.cpu.toLowerCase().split(' ')[0])) {
+            matchReasons.push(`Similar CPU: ${newListing.cpu}`);
+          }
+
+          if (favorite.listing.ram && newListing.ram === favorite.listing.ram) {
+            matchReasons.push(`Same RAM: ${newListing.ram}`);
+          }
+
+          // If we have at least 2 matching criteria, it's a good match
+          if (matchReasons.length >= 2 && user.phoneNumber) {
+            matches.push({
+              userId: user.userId,
+              phoneNumber: user.phoneNumber,
+              favoriteListingId: favorite.listing.id,
+              newListingId: newListing.id,
+              matchReason: matchReasons.join(', ')
+            });
+          }
+        }
+      }
+
+      return matches;
     } catch (error) {
-      console.error('Error checking notification matches:', error);
+      console.error("Error checking favorite matches:", error);
+      return [];
     }
   }
 
-  /**
-   * Send notification to a user about a matching listing
-   */
-  private async sendMatchNotification(match: NotificationMatch): Promise<void> {
+  // Send SMS notification (mock implementation for development)
+  static async sendSMSNotification(
+    phoneNumber: string, 
+    message: string, 
+    userId: string,
+    newListingId: number,
+    favoriteListingId?: number
+  ): Promise<boolean> {
     try {
-      // Check if we already sent a notification for this combination
-      const existingNotification = await db
-        .select()
-        .from(notificationLogs)
-        .where(
-          and(
-            eq(notificationLogs.userId, match.userId),
-            eq(notificationLogs.listingId, match.newListingId),
-            eq(notificationLogs.favoriteListingId, match.favoriteListingId)
-          )
-        )
-        .limit(1);
+      // In development, just log the SMS
+      console.log(`SMS to ${phoneNumber}: ${message}`);
 
-      if (existingNotification.length > 0) {
-        console.log(`Notification already sent for user ${match.userId}, listing ${match.newListingId}`);
-        return;
-      }
-
-      // Create notification message
-      const message = this.createNotificationMessage(match);
-      
-      // For now, we'll log the notification (in production, integrate with SMS service)
-      console.log(`NOTIFICATION TO ${match.userPhone}: ${message}`);
-      
-      // In production, you would integrate with an SMS service like Twilio here:
-      // const smsResult = await this.sendSMS(match.userPhone, message);
-      
       // Log the notification
-      const notificationLog: InsertNotificationLog = {
-        userId: match.userId,
-        listingId: match.newListingId,
-        favoriteListingId: match.favoriteListingId,
-        notificationType: 'sms',
-        status: 'sent', // In production, this would be based on SMS service response
-        message: message,
+      await db.insert(notificationLogs).values({
+        userId,
+        notificationType: 'favorite_match',
+        newListingId,
+        favoriteListingId: favoriteListingId || null,
+        messageContent: message,
+        deliveryStatus: 'sent', // In production, this would be determined by the SMS service
         sentAt: new Date(),
-      };
+      });
 
-      await db.insert(notificationLogs).values(notificationLog);
-      
-      console.log(`Notification logged for user ${match.userId}`);
+      return true;
     } catch (error) {
-      console.error('Error sending notification:', error);
+      console.error("Error sending SMS notification:", error);
       
       // Log failed notification
-      const failedLog: InsertNotificationLog = {
-        userId: match.userId,
-        listingId: match.newListingId,
-        favoriteListingId: match.favoriteListingId,
-        notificationType: 'sms',
-        status: 'failed',
-        message: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      };
-
-      await db.insert(notificationLogs).values(failedLog);
-    }
-  }
-
-  /**
-   * Create notification message text
-   */
-  private createNotificationMessage(match: NotificationMatch): string {
-    const baseUrl = process.env.BASE_URL || 'https://yourapp.replit.app';
-    const listingUrl = `${baseUrl}/listing/${match.newListingId}`;
-    
-    return `🔔 New ${match.categoryName} listing matches your favorite "${match.favoriteTitle}"!\n\n` +
-           `📋 ${match.newListingTitle}\n` +
-           `💰 ${match.newListingPrice}\n` +
-           `📍 ${match.newListingLocation}\n\n` +
-           `View listing: ${listingUrl}\n\n` +
-           `To stop these notifications, visit your favorites page and disable notifications.`;
-  }
-
-  /**
-   * Get user's notification preferences
-   */
-  async getUserNotificationPreferences(userId: string): Promise<NotificationPreference | null> {
-    const [preferences] = await db
-      .select()
-      .from(notificationPreferences)
-      .where(eq(notificationPreferences.userId, userId))
-      .limit(1);
-    
-    return preferences || null;
-  }
-
-  /**
-   * Update user's notification preferences
-   */
-  async updateNotificationPreferences(
-    userId: string, 
-    preferences: Partial<NotificationPreference>
-  ): Promise<NotificationPreference> {
-    // Check if preferences exist
-    const existing = await this.getUserNotificationPreferences(userId);
-    
-    if (existing) {
-      // Update existing preferences
-      const [updated] = await db
-        .update(notificationPreferences)
-        .set({ ...preferences, updatedAt: new Date() })
-        .where(eq(notificationPreferences.userId, userId))
-        .returning();
-      
-      return updated;
-    } else {
-      // Create new preferences
-      const [created] = await db
-        .insert(notificationPreferences)
-        .values({
+      try {
+        await db.insert(notificationLogs).values({
           userId,
-          favoriteMatchNotifications: preferences.favoriteMatchNotifications ?? false,
-          emailNotifications: preferences.emailNotifications ?? true,
-          smsNotifications: preferences.smsNotifications ?? false,
-        })
-        .returning();
-      
-      return created;
+          notificationType: 'favorite_match',
+          newListingId,
+          favoriteListingId: favoriteListingId || null,
+          messageContent: message,
+          deliveryStatus: 'failed',
+          sentAt: new Date(),
+          errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        });
+      } catch (logError) {
+        console.error("Error logging failed notification:", logError);
+      }
+
+      return false;
     }
   }
 
-  /**
-   * Get notification history for a user
-   */
-  async getNotificationHistory(userId: string, limit: number = 20) {
-    return await db
-      .select({
-        id: notificationLogs.id,
-        listingTitle: listings.title,
-        notificationType: notificationLogs.notificationType,
-        status: notificationLogs.status,
-        sentAt: notificationLogs.sentAt,
-        createdAt: notificationLogs.createdAt,
-      })
-      .from(notificationLogs)
-      .leftJoin(listings, eq(notificationLogs.listingId, listings.id))
-      .where(eq(notificationLogs.userId, userId))
-      .orderBy(desc(notificationLogs.createdAt))
-      .limit(limit);
+  // Process favorite matches and send notifications
+  static async processFavoriteMatches(newListing: Listing): Promise<void> {
+    try {
+      const matches = await this.checkFavoriteMatches(newListing);
+      
+      for (const match of matches) {
+        const message = `New ${newListing.title} available in ${newListing.location} - similar to your favorited item. Price: ${newListing.price} ${newListing.currency || 'ETB'}. View: https://ethiomarket.com/listing/${newListing.id}`;
+        
+        await this.sendSMSNotification(
+          match.phoneNumber,
+          message,
+          match.userId,
+          match.newListingId,
+          match.favoriteListingId
+        );
+
+        // Add small delay between notifications
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      if (matches.length > 0) {
+        console.log(`Processed ${matches.length} favorite match notifications for listing ${newListing.id}`);
+      }
+    } catch (error) {
+      console.error("Error processing favorite matches:", error);
+    }
   }
 
-  /**
-   * Enable text notifications for user (updates user profile)
-   */
-  async enableTextNotifications(userId: string, phone: string): Promise<void> {
-    await db
-      .update(users)
-      .set({ 
-        textNotificationsEnabled: true, 
-        phone: phone,
-        updatedAt: new Date() 
-      })
-      .where(eq(users.id, userId));
-  }
+  // Get notification statistics for admin dashboard
+  static async getNotificationStats(days: number = 30): Promise<{
+    totalSent: number;
+    successRate: number;
+    averagePerDay: number;
+    topNotificationTypes: { type: string; count: number }[];
+  }> {
+    try {
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - days);
 
-  /**
-   * Disable text notifications for user
-   */
-  async disableTextNotifications(userId: string): Promise<void> {
-    await db
-      .update(users)
-      .set({ 
-        textNotificationsEnabled: false,
-        updatedAt: new Date() 
-      })
-      .where(eq(users.id, userId));
+      // This would need proper SQL aggregation - simplified for now
+      const logs = await db.select().from(notificationLogs);
+      const recentLogs = logs.filter(log => new Date(log.sentAt) >= cutoffDate);
+
+      const totalSent = recentLogs.length;
+      const successfulSent = recentLogs.filter(log => log.deliveryStatus === 'sent').length;
+      const successRate = totalSent > 0 ? (successfulSent / totalSent) * 100 : 0;
+      const averagePerDay = totalSent / days;
+
+      // Count notification types
+      const typeCounts = recentLogs.reduce((acc, log) => {
+        acc[log.notificationType] = (acc[log.notificationType] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      const topNotificationTypes = Object.entries(typeCounts)
+        .map(([type, count]) => ({ type, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+
+      return {
+        totalSent,
+        successRate,
+        averagePerDay,
+        topNotificationTypes,
+      };
+    } catch (error) {
+      console.error("Error getting notification stats:", error);
+      return {
+        totalSent: 0,
+        successRate: 0,
+        averagePerDay: 0,
+        topNotificationTypes: [],
+      };
+    }
   }
 }
-
-export const notificationService = new NotificationService();

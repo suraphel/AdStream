@@ -3,6 +3,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { registerNotificationRoutes } from "./routes/notification-routes";
+import { NotificationService } from "./services/NotificationService";
 import { registerMessagingRoutes } from "./messaging-routes";
 import { registerTenderRoutes } from "./tender-routes";
 import { registerExternalListingsRoutes } from "./routes/externalListings";
@@ -19,7 +21,7 @@ import path from "path";
 import express from "express";
 import { insertListingSchema, insertListingImageSchema, insertCategorySchema } from "@shared/schema";
 import { z } from "zod";
-import { notificationService } from "./services/NotificationService";
+
 
 const searchSchema = z.object({
   search: z.string().optional(),
@@ -525,6 +527,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register tender management routes
   registerTenderRoutes(app);
+  
+  // Register notification routes  
+  registerNotificationRoutes(app);
   
   // OTP routes
   app.use('/api/otp', otpRoutes);
