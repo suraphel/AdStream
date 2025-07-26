@@ -1,7 +1,11 @@
 import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import { ImageService } from '../services/ImageService';
+import { imageModerationService } from '../services/ImageModerationService';
 import { isAuthenticated } from '../replitAuth';
+import { db } from '../db';
+import { listingImages } from '@shared/schema';
+import { count } from 'drizzle-orm';
 
 const router = Router();
 const imageService = new ImageService();
@@ -59,13 +63,25 @@ router.post('/upload', isAuthenticated, upload.array('images', 10), async (req: 
 
     const results = await imageService.uploadImages(uploadRequests, folder);
 
+    // Moderate uploaded images (non-blocking)
+    results.forEach(async (result, index) => {
+      try {
+        const imagePath = result.localPath || result.url;
+        await imageModerationService.moderateImage(imagePath, result.id);
+      } catch (error) {
+        console.error(`Failed to moderate image ${result.id}:`, error);
+      }
+    });
+
     // Return uploaded image information
     const response = results.map((result, index) => ({
+      id: result.id,
       url: result.url,
       key: result.key,
       size: result.size,
       mimeType: result.mimeType,
       originalName: files[index].originalname,
+      moderationStatus: 'pending', // All new uploads start as pending
       variants: imageService.getImageVariants(result.key)
     }));
 
@@ -220,4 +236,101 @@ function getAmharicErrorMessage(englishError: string): string {
   return errorMap[englishError] || englishError;
 }
 
+// Admin moderation endpoints
+router.get('/admin/flagged', isAuthenticated, async (req: any, res: Response) => {
+  try {
+    // Check if user is admin
+    const userRole = req.user?.role || 'user';
+    if (userRole !== 'admin' && userRole !== 'moderator') {
+      return res.status(403).json({ 
+        message: 'Access denied. Admin privileges required.',
+        messageAm: 'መዳረሻ ውድቅ። የአስተዳዳሪ ፈቃድ ያስፈልጋል።'
+      });
+    }
+
+    const limit = parseInt(req.query.limit as string) || 50;
+    const flaggedImages = await imageModerationService.getFlaggedImages(limit);
+    
+    res.json({
+      message: 'Flagged images retrieved successfully',
+      messageAm: 'የተሰየሙ ምስሎች በተሳካ ሁኔታ ተመልሰዋል',
+      images: flaggedImages
+    });
+  } catch (error) {
+    console.error('Error fetching flagged images:', error);
+    res.status(500).json({ 
+      message: 'Failed to fetch flagged images',
+      messageAm: 'የተሰየሙ ምስሎችን ማምጣት አልተሳካም'
+    });
+  }
+});
+
+router.post('/admin/review/:imageId', isAuthenticated, async (req: any, res: Response) => {
+  try {
+    // Check if user is admin
+    const userRole = req.user?.role || 'user';
+    if (userRole !== 'admin' && userRole !== 'moderator') {
+      return res.status(403).json({ 
+        message: 'Access denied. Admin privileges required.',
+        messageAm: 'መዳረሻ ውድቅ። የአስተዳዳሪ ፈቃድ ያስፈልጋል።'
+      });
+    }
+
+    const imageId = parseInt(req.params.imageId);
+    const { action, reason } = req.body; // action: 'approve' | 'reject'
+    const adminUserId = req.user.claims.sub;
+
+    if (!['approve', 'reject'].includes(action)) {
+      return res.status(400).json({ 
+        message: 'Invalid action. Must be "approve" or "reject".',
+        messageAm: 'የተሳሳተ ድርጊት። "ይፈቀድ" ወይም "ይከለከል" መሆን አለበት።'
+      });
+    }
+
+    await imageModerationService.manualReview(imageId, action, adminUserId, reason);
+    
+    res.json({
+      message: `Image ${action}ed successfully`,
+      messageAm: `ምስል በተሳካ ሁኔታ ${action === 'approve' ? 'ፀድቋል' : 'ተከልክሏል'}`,
+      action,
+      imageId
+    });
+  } catch (error) {
+    console.error('Error reviewing image:', error);
+    res.status(500).json({ 
+      message: 'Failed to review image',
+      messageAm: 'ምስልን መገምገም አልተሳካም'
+    });
+  }
+});
+
+router.post('/admin/remoderate/:imageId', isAuthenticated, async (req: any, res: Response) => {
+  try {
+    // Check if user is admin
+    const userRole = req.user?.role || 'user';
+    if (userRole !== 'admin' && userRole !== 'moderator') {
+      return res.status(403).json({ 
+        message: 'Access denied. Admin privileges required.',
+        messageAm: 'መዳረሻ ውድቅ። የአስተዳዳሪ ፈቃድ ያስፈልጋል።'
+      });
+    }
+
+    const imageId = parseInt(req.params.imageId);
+    const result = await imageModerationService.reModerateImage(imageId);
+    
+    res.json({
+      message: 'Image remoderated successfully',
+      messageAm: 'ምስል እንደገና በተሳካ ሁኔታ ተገምግሟል',
+      result
+    });
+  } catch (error) {
+    console.error('Error remoderating image:', error);
+    res.status(500).json({ 
+      message: 'Failed to remoderate image',
+      messageAm: 'ምስልን እንደገና መግመግም አልተሳካም'
+    });
+  }
+});
+
 export { router as imageRoutes };
+export default router;

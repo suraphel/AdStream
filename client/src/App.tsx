@@ -26,6 +26,7 @@ import TenderCompanyRegister from "@/pages/TenderCompanyRegister";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminUsers from "@/pages/admin/Users";
 import AdminListings from "@/pages/admin/Listings";
+import ImageModeration from "@/pages/admin/ImageModeration";
 import Messages from "@/pages/Messages";
 import ShopDashboard from "@/pages/shop/ShopDashboard";
 import ShopRegistration from "@/pages/shop/ShopRegistration";
@@ -83,6 +84,7 @@ function Router() {
           <Route path="/admin/dashboard" component={AdminDashboard} />
           <Route path="/admin/users" component={AdminUsers} />
           <Route path="/admin/listings" component={AdminListings} />
+          <Route path="/admin/image-moderation" component={ImageModeration} />
           
           {/* Shop routes for authenticated users */}
           <Route path="/shop/dashboard" component={ShopDashboard} />

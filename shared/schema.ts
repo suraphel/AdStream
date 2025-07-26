@@ -95,8 +95,19 @@ export const listingImages = pgTable("listing_images", {
   imageUrl: varchar("image_url", { length: 500 }).notNull(),
   isPrimary: boolean("is_primary").default(false),
   sortOrder: integer("sort_order").default(0),
+  moderationStatus: varchar("moderation_status", { length: 20 }).default("pending"), // pending, approved, rejected, flagged
+  moderationScore: decimal("moderation_score", { precision: 5, scale: 4 }), // confidence score 0-1
+  moderationReason: text("moderation_reason"), // reason for rejection/flagging
+  moderatedAt: timestamp("moderated_at"),
+  moderatedBy: varchar("moderated_by"), // admin user ID who reviewed
+  originalFilename: varchar("original_filename", { length: 255 }),
+  mimeType: varchar("mime_type", { length: 100 }),
+  fileSize: integer("file_size"),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_listing_images_listing_id").on(table.listingId),
+  index("idx_listing_images_moderation_status").on(table.moderationStatus),
+]);
 
 // Favorites table
 export const favorites = pgTable("favorites", {
