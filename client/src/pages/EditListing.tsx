@@ -17,7 +17,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Save, X } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Save, X, Upload, Trash2, Star, StarOff, Image as ImageIcon } from 'lucide-react';
 import type { z } from 'zod';
 
 type EditListingFormData = z.infer<typeof insertListingSchema>;
@@ -57,6 +58,15 @@ export default function EditListing() {
     queryKey: ['/api/categories'],
     enabled: isAuthenticated,
   });
+
+  // Fetch listing images
+  const { data: images, isLoading: imagesLoading } = useQuery({
+    queryKey: ['/api/listings', listingId, 'images'],
+    enabled: isAuthenticated && !isNaN(listingId),
+  });
+
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imageError, setImageError] = useState<Record<number, boolean>>({});
 
   const form = useForm<EditListingFormData>({
     resolver: zodResolver(insertListingSchema.omit({ userId: true })),
@@ -120,8 +130,122 @@ export default function EditListing() {
     },
   });
 
+  // Image upload mutation
+  const uploadImageMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('imageUrl', `/uploads/listings/${file.name}`);
+      formData.append('altText', file.name);
+      
+      await apiRequest('POST', `/api/listings/${listingId}/images`, formData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/listings', listingId, 'images'] });
+      setUploadingImage(false);
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully!",
+      });
+    },
+    onError: (error) => {
+      setUploadingImage(false);
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to upload image. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Image delete mutation
+  const deleteImageMutation = useMutation({
+    mutationFn: async (imageId: number) => {
+      await apiRequest('DELETE', `/api/listings/${listingId}/images/${imageId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/listings', listingId, 'images'] });
+      toast({
+        title: "Success",
+        description: "Image deleted successfully!",
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to delete image. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Set primary image mutation
+  const setPrimaryImageMutation = useMutation({
+    mutationFn: async (imageId: number) => {
+      await apiRequest('PUT', `/api/listings/${listingId}/images/${imageId}/primary`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/listings', listingId, 'images'] });
+      toast({
+        title: "Success",
+        description: "Primary image updated!",
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to set primary image. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = (data: EditListingFormData) => {
     updateListingMutation.mutate(data);
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setUploadingImage(true);
+      uploadImageMutation.mutate(file);
+    }
+  };
+
+  const handleImageError = (imageId: number) => {
+    setImageError(prev => ({ ...prev, [imageId]: true }));
   };
 
   if (isLoading || listingLoading) {
@@ -190,6 +314,14 @@ export default function EditListing() {
       cancel: 'Cancel',
       saving: 'Saving...',
       selectCategory: 'Select a category',
+      images: 'Images',
+      addImage: 'Add Image',
+      uploading: 'Uploading...',
+      primary: 'Primary',
+      setPrimary: 'Set as Primary',
+      deleteImage: 'Delete Image',
+      noImages: 'No images yet',
+      addFirstImage: 'Add your first image to make your listing more attractive',
     },
     am: {
       editListing: 'ዕቃ አርም',
@@ -207,6 +339,14 @@ export default function EditListing() {
       cancel: 'ይቅር',
       saving: 'እየተቀመጠ...',
       selectCategory: 'ምድብ ይምረጡ',
+      images: 'ምስሎች',
+      addImage: 'ምስል ጨምር',
+      uploading: 'እየተጫነ...',
+      primary: 'ዋና',
+      setPrimary: 'እንደ ዋና አድርግ',
+      deleteImage: 'ምስል ደምስስ',
+      noImages: 'አሁንም ምስሎች የሉም',
+      addFirstImage: 'የመጀመሪያ ምስልዎን ጨምረው ዝርዝርዎን የበለጠ ማራኪ ያድርጉት',
     },
   };
 
@@ -369,6 +509,110 @@ export default function EditListing() {
                     </FormItem>
                   )}
                 />
+
+                {/* Image Management Section */}
+                <div className="space-y-4">
+                  <FormLabel>{tr.images}</FormLabel>
+                  
+                  {imagesLoading ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <Skeleton key={i} className="aspect-square rounded-lg" />
+                      ))}
+                    </div>
+                  ) : images && images.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {images.map((image: any) => (
+                        <div key={image.id} className="relative group">
+                          <div className="aspect-square rounded-lg overflow-hidden border-2 border-gray-200">
+                            <img
+                              src={imageError[image.id] ? '/uploads/listings/placeholder.svg' : image.imageUrl}
+                              alt={image.altText || 'Listing image'}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                              onError={() => handleImageError(image.id)}
+                            />
+                          </div>
+                          
+                          {/* Image Actions */}
+                          <div className="absolute top-2 right-2 flex gap-1">
+                            {image.isPrimary ? (
+                              <Badge variant="default" className="bg-yellow-500 text-white">
+                                <Star className="w-3 h-3 mr-1" />
+                                {tr.primary}
+                              </Badge>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                className="h-6 px-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => setPrimaryImageMutation.mutate(image.id)}
+                                disabled={setPrimaryImageMutation.isPending}
+                              >
+                                <StarOff className="w-3 h-3 mr-1" />
+                                {tr.setPrimary}
+                              </Button>
+                            )}
+                          </div>
+                          
+                          <div className="absolute bottom-2 right-2">
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="h-6 px-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => deleteImageMutation.mutate(image.id)}
+                              disabled={deleteImageMutation.isPending}
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {/* Add Image Button */}
+                      <div className="aspect-square">
+                        <label className="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            {uploadingImage ? (
+                              <>
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                                <p className="mb-2 text-sm text-gray-500 mt-2">{tr.uploading}</p>
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="w-8 h-8 mb-2 text-gray-400" />
+                                <p className="mb-2 text-sm text-gray-500">{tr.addImage}</p>
+                              </>
+                            )}
+                          </div>
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            disabled={uploadingImage}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
+                      <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">{tr.noImages}</h3>
+                      <p className="text-gray-500 mb-6">{tr.addFirstImage}</p>
+                      <label className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 cursor-pointer">
+                        <Upload className="w-4 h-4 mr-2" />
+                        {uploadingImage ? tr.uploading : tr.addImage}
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          disabled={uploadingImage}
+                        />
+                      </label>
+                    </div>
+                  )}
+                </div>
 
                 <div className="flex gap-4">
                   <Button
