@@ -1,213 +1,272 @@
-import { useState, useEffect } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { Bell, Phone, AlertCircle, CheckCircle2 } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import React, { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
+import { Bell, Phone, AlertCircle, CheckCircle } from 'lucide-react';
 
 interface NotificationPreferences {
   favoriteMatchNotifications: boolean;
-  emailNotifications: boolean;
   smsNotifications: boolean;
+  phoneNumber?: string;
 }
 
-interface NotificationData {
-  preferences: NotificationPreferences;
-  hasPhone: boolean;
-  phone?: string;
+interface NotificationStats {
+  totalNotifications: number;
+  last30Days: number;
+  notificationsEnabled: boolean;
+  smsEnabled: boolean;
+  deliverySuccess: number;
+  deliveryFailed: number;
 }
 
 export function NotificationSettings() {
-  const [phone, setPhone] = useState("");
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: notificationData, isLoading } = useQuery<NotificationData>({
-    queryKey: ["/api/notifications/preferences"],
+  // Fetch current preferences
+  const { data: preferences, isLoading } = useQuery<NotificationPreferences>({
+    queryKey: ['/api/notifications/preferences'],
   });
 
-  const updateMutation = useMutation({
-    mutationFn: async (data: { favoriteMatchNotifications: boolean; phone?: string }) => {
-      const response = await fetch("/api/notifications/preferences", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
+  // Fetch notification stats
+  const { data: stats } = useQuery<NotificationStats>({
+    queryKey: ['/api/notifications/stats'],
+  });
+
+  // Update preferences mutation
+  const updatePreferencesMutation = useMutation({
+    mutationFn: async (newPreferences: Partial<NotificationPreferences>) => {
+      await apiRequest('POST', '/api/notifications/preferences', newPreferences);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/notifications/preferences"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications/preferences'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications/stats'] });
       toast({
         title: "Settings Updated",
         description: "Your notification preferences have been saved.",
       });
     },
     onError: (error) => {
-      console.error("Error updating preferences:", error);
       toast({
-        title: "Error",
-        description: "Failed to update notification preferences. Please try again.",
+        title: "Update Failed",
+        description: error.message || "Failed to update notification settings",
         variant: "destructive",
       });
     },
   });
 
-  useEffect(() => {
-    if (notificationData) {
-      setNotificationsEnabled(notificationData.preferences.favoriteMatchNotifications);
-      setPhone(notificationData.phone || "");
-    }
-  }, [notificationData]);
+  // Test SMS mutation
+  const testSMSMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest('POST', '/api/notifications/test-sms', { 
+        phoneNumber: phoneNumber || preferences?.phoneNumber 
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Test SMS Sent",
+        description: "Check the console for the test message content.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Test Failed",
+        description: error.message || "Failed to send test SMS",
+        variant: "destructive",
+      });
+    },
+  });
 
-  const handleSaveSettings = () => {
-    if (notificationsEnabled && !phone.trim()) {
+  const handleToggleFavoriteNotifications = (enabled: boolean) => {
+    updatePreferencesMutation.mutate({
+      favoriteMatchNotifications: enabled,
+    });
+  };
+
+  const handleToggleSMSNotifications = (enabled: boolean) => {
+    const phone = phoneNumber || preferences?.phoneNumber;
+    if (enabled && (!phone || !phone.startsWith('+251'))) {
       toast({
         title: "Phone Number Required",
-        description: "Please enter your phone number to enable notifications.",
+        description: "Please enter a valid Ethiopian phone number (+251XXXXXXXXX) to enable SMS notifications.",
         variant: "destructive",
       });
       return;
     }
 
-    updateMutation.mutate({
-      favoriteMatchNotifications: notificationsEnabled,
-      phone: notificationsEnabled ? phone.trim() : undefined,
+    updatePreferencesMutation.mutate({
+      smsNotifications: enabled,
+      phoneNumber: phone,
+    });
+  };
+
+  const handleUpdatePhoneNumber = () => {
+    if (!phoneNumber.startsWith('+251')) {
+      toast({
+        title: "Invalid Phone Number",
+        description: "Please enter a valid Ethiopian phone number starting with +251",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    updatePreferencesMutation.mutate({
+      phoneNumber,
+      smsNotifications: preferences?.smsNotifications || false,
     });
   };
 
   if (isLoading) {
     return (
       <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center space-x-2">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
-            <span>Loading notification settings...</span>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Bell className="h-5 w-5" />
+            Notification Settings
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="h-12 bg-gray-200 animate-pulse rounded" />
+            <div className="h-12 bg-gray-200 animate-pulse rounded" />
+            <div className="h-16 bg-gray-200 animate-pulse rounded" />
           </div>
         </CardContent>
       </Card>
     );
   }
 
-  const isPhoneValid = phone.trim().length >= 10; // Basic validation
-  const canEnableNotifications = !notificationsEnabled || isPhoneValid;
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Bell className="h-5 w-5" />
-          Notification Settings
-        </CardTitle>
-        <CardDescription>
-          Get notified when new listings match your favorited items
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Notification Toggle */}
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label htmlFor="favorite-notifications" className="text-base font-medium">
-              Favorite Match Notifications
-            </Label>
-            <p className="text-sm text-muted-foreground">
-              Receive SMS when new listings match your favorites
-            </p>
-          </div>
-          <Switch
-            id="favorite-notifications"
-            checked={notificationsEnabled}
-            onCheckedChange={setNotificationsEnabled}
-          />
-        </div>
-
-        {/* Phone Number Input */}
-        {notificationsEnabled && (
-          <div className="space-y-2">
-            <Label htmlFor="phone" className="flex items-center gap-2">
-              <Phone className="h-4 w-4" />
-              Phone Number
-            </Label>
-            <Input
-              id="phone"
-              type="tel"
-              placeholder="+251 911 234 567"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className={!isPhoneValid && phone.trim() ? "border-red-500" : ""}
-            />
-            {!isPhoneValid && phone.trim() && (
-              <p className="text-sm text-red-500">
-                Please enter a valid phone number (at least 10 digits)
+    <div className="space-y-6">
+      {/* Main Settings Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Bell className="h-5 w-5" />
+            Notification Settings
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Favorite Match Notifications */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <Label className="text-base font-medium">Favorite Match Alerts</Label>
+              <p className="text-sm text-muted-foreground">
+                Get notified when new listings similar to your favorites are posted
               </p>
-            )}
-            <p className="text-sm text-muted-foreground">
-              Include country code (e.g., +251 for Ethiopia)
-            </p>
+            </div>
+            <Switch
+              checked={preferences?.favoriteMatchNotifications || false}
+              onCheckedChange={handleToggleFavoriteNotifications}
+              disabled={updatePreferencesMutation.isPending}
+            />
           </div>
-        )}
 
-        {/* How it works info */}
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            <strong>How it works:</strong> When you favorite a listing, we'll notify you by SMS when 
-            similar items are posted in the same category and location. You can disable this anytime.
-          </AlertDescription>
-        </Alert>
-
-        {/* Current status */}
-        {notificationData?.hasPhone && (
-          <Alert>
-            <CheckCircle2 className="h-4 w-4" />
-            <AlertDescription>
-              <strong>Current status:</strong> {notificationData.preferences.favoriteMatchNotifications 
-                ? "Notifications are enabled" 
-                : "Notifications are disabled"
-              }
-              {notificationData.phone && ` for ${notificationData.phone}`}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Save Button */}
-        <div className="flex justify-end">
-          <Button
-            onClick={handleSaveSettings}
-            disabled={updateMutation.isPending || !canEnableNotifications}
-            className="min-w-[120px]"
-          >
-            {updateMutation.isPending ? (
-              <div className="flex items-center gap-2">
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                Saving...
+          {/* SMS Notifications */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label className="text-base font-medium">SMS Notifications</Label>
+                <p className="text-sm text-muted-foreground">
+                  Receive notifications via SMS to your phone
+                </p>
               </div>
-            ) : (
-              "Save Settings"
-            )}
-          </Button>
-        </div>
+              <Switch
+                checked={preferences?.smsNotifications || false}
+                onCheckedChange={handleToggleSMSNotifications}
+                disabled={updatePreferencesMutation.isPending}
+              />
+            </div>
 
-        {/* Help text */}
-        <div className="text-sm text-muted-foreground pt-4 border-t">
-          <p className="font-medium mb-2">💡 Pro tip:</p>
-          <ul className="space-y-1 text-xs">
-            <li>• Add items to your favorites to get notified about similar listings</li>
-            <li>• We only send notifications for items in the same category and general location</li>
-            <li>• You can turn off notifications anytime by visiting this page</li>
-          </ul>
-        </div>
-      </CardContent>
-    </Card>
+            {/* Phone Number Input */}
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="phone"
+                  placeholder="+251912345678"
+                  value={phoneNumber || preferences?.phoneNumber || ''}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="flex-1"
+                />
+                <Button
+                  onClick={handleUpdatePhoneNumber}
+                  disabled={updatePreferencesMutation.isPending || !phoneNumber}
+                  variant="outline"
+                >
+                  Update
+                </Button>
+              </div>
+              {preferences?.phoneNumber && (
+                <p className="text-xs text-muted-foreground">
+                  Current: {preferences.phoneNumber}
+                </p>
+              )}
+            </div>
+
+            {/* Test SMS Button */}
+            {preferences?.smsNotifications && preferences?.phoneNumber && (
+              <Button
+                onClick={() => testSMSMutation.mutate()}
+                disabled={testSMSMutation.isPending}
+                variant="outline"
+                className="w-full"
+              >
+                <Phone className="h-4 w-4 mr-2" />
+                {testSMSMutation.isPending ? 'Sending...' : 'Send Test SMS'}
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Statistics Card */}
+      {stats && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Notification Statistics</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="text-2xl font-bold">{stats.totalNotifications}</div>
+                <div className="text-sm text-muted-foreground">Total Notifications</div>
+              </div>
+              <div className="space-y-2">
+                <div className="text-2xl font-bold">{stats.last30Days}</div>
+                <div className="text-sm text-muted-foreground">Last 30 Days</div>
+              </div>
+              <div className="space-y-2">
+                <Badge variant={stats.smsEnabled ? "default" : "secondary"}>
+                  {stats.smsEnabled ? (
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                  ) : (
+                    <AlertCircle className="h-3 w-3 mr-1" />
+                  )}
+                  SMS {stats.smsEnabled ? 'Enabled' : 'Disabled'}
+                </Badge>
+              </div>
+              <div className="space-y-2">
+                <div className="text-sm">
+                  Success Rate: {stats.totalNotifications > 0 
+                    ? Math.round((stats.deliverySuccess / stats.totalNotifications) * 100)
+                    : 0}%
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {stats.deliverySuccess} sent, {stats.deliveryFailed} failed
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }

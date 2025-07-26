@@ -21,7 +21,8 @@ export function Header() {
 
   const navigation = [
     { name: t('header.home'), href: '/', current: location === '/' },
-    { name: t('header.categories'), href: '/categories', current: location.startsWith('/categories') },
+    { name: t('header.categories'), href: '/categories', current: location === '/categories' },
+    { name: 'Enhanced Categories', href: '/categories/enhanced', current: location === '/categories/enhanced' },
     { name: 'TenderFloat', href: '/tender', current: location.startsWith('/tender') },
     { name: t('header.myAds'), href: '/my-ads', current: location === '/my-ads', auth: true },
     { name: t('header.messages'), href: '/messages', current: location === '/messages', auth: true },
