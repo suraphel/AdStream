@@ -1,265 +1,236 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
-import { isUnauthorizedError } from '@/lib/authUtils';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Zap, TrendingUp, Star, Clock } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
+import { Zap, Star, TrendingUp, Eye, Clock, CheckCircle } from 'lucide-react';
 
 interface BoostListingModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   listingId: number;
   listingTitle: string;
 }
 
-const BOOST_PLANS = [
+const BOOST_PACKAGES = [
   {
-    level: 1,
+    id: 'basic',
     name: 'Basic Boost',
     price: 50,
-    duration: 7,
+    duration: '3 days',
     features: [
-      'Show in featured section for 7 days',
-      '2x more visibility in search results',
-      'Priority in category listings',
-      'Boost badge on listing'
+      'Featured in search results',
+      '3x more visibility',
+      'Highlighted border',
+      'Top category placement'
     ],
+    icon: Star,
     color: 'blue',
-    recommended: false
+    description: 'Get your listing noticed with basic promotion'
   },
   {
-    level: 2,
+    id: 'premium',
     name: 'Premium Boost',
     price: 120,
-    duration: 14,
+    duration: '7 days',
     features: [
-      'Show in featured section for 14 days',
-      '5x more visibility in search results',
-      'Top position in category listings',
-      'Premium boost badge',
-      'Email notifications on views',
-      'Priority customer support'
+      'Homepage featured section',
+      '5x more visibility',
+      'Premium badge display',
+      'Top search results',
+      'Social media promotion',
+      'Email newsletter inclusion'
     ],
+    icon: TrendingUp,
     color: 'purple',
-    recommended: true
+    description: 'Maximum exposure for your listing',
+    popular: true
   },
   {
-    level: 3,
-    name: 'Ultimate Boost',
-    price: 200,
-    duration: 30,
+    id: 'express',
+    name: 'Express Boost',
+    price: 25,
+    duration: '24 hours',
     features: [
-      'Show in featured section for 30 days',
-      '10x more visibility in search results',
-      'Homepage featured placement',
-      'Ultimate boost badge',
-      'Email notifications on views',
-      'Priority customer support',
-      'Social media promotion',
-      'WhatsApp marketing reach'
+      'Urgent listing badge',
+      '2x visibility boost',
+      'Priority placement'
     ],
+    icon: Zap,
     color: 'orange',
-    recommended: false
+    description: 'Quick visibility boost for urgent sales'
   }
 ];
 
-export function BoostListingModal({ isOpen, onClose, listingId, listingTitle }: BoostListingModalProps) {
-  const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
+export function BoostListingModal({ open, onOpenChange, listingId, listingTitle }: BoostListingModalProps) {
+  const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const boostMutation = useMutation({
-    mutationFn: async (planLevel: number) => {
-      const plan = BOOST_PLANS.find(p => p.level === planLevel);
-      if (!plan) throw new Error('Invalid plan selected');
-
-      // Create boost purchase with Stripe payment intent
-      const response = await apiRequest('POST', '/api/boost/purchase', {
+    mutationFn: async (packageId: string) => {
+      const packageData = BOOST_PACKAGES.find(p => p.id === packageId);
+      return await apiRequest('POST', '/api/listings/boost', {
         listingId,
-        boostLevel: plan.level,
-        duration: plan.duration,
-        amount: plan.price
+        packageId,
+        amount: packageData?.price
       });
-      
-      return response.json();
     },
-    onSuccess: (data) => {
-      if (data.paymentUrl) {
-        // Redirect to Stripe checkout
-        window.location.href = data.paymentUrl;
-      } else {
-        toast({
-          title: "Boost Activated!",
-          description: "Your listing boost has been activated successfully.",
-        });
-        queryClient.invalidateQueries({ queryKey: [`/api/listings/${listingId}`] });
-        onClose();
-      }
-    },
-    onError: (error) => {
-      if (isUnauthorizedError(error as Error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
+    onSuccess: () => {
       toast({
-        title: "Error",
-        description: "Failed to create boost. Please try again.",
+        title: "Listing Boosted Successfully!",
+        description: "Your listing is now promoted and will receive increased visibility.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/listings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/my-listings'] });
+      onOpenChange(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Boost Failed",
+        description: error.message || "Failed to boost listing. Please try again.",
         variant: "destructive",
       });
     },
   });
 
   const handleBoost = () => {
-    if (selectedPlan) {
-      boostMutation.mutate(selectedPlan);
-    }
+    if (!selectedPackage) return;
+    boostMutation.mutate(selectedPackage);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
+          <DialogTitle className="flex items-center gap-2">
             <Zap className="h-5 w-5 text-yellow-500" />
-            <span>Boost Your Listing</span>
+            Boost Your Listing
           </DialogTitle>
           <DialogDescription>
-            Increase visibility and get more potential buyers for "{listingTitle}"
+            Increase visibility and get more views for "{listingTitle}"
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Benefits Overview */}
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Why Boost Your Listing?</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center space-x-3">
-                <TrendingUp className="h-8 w-8 text-green-600" />
-                <div>
-                  <p className="font-medium text-gray-900">More Views</p>
-                  <p className="text-sm text-gray-600">Up to 10x visibility</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Star className="h-8 w-8 text-yellow-600" />
-                <div>
-                  <p className="font-medium text-gray-900">Featured Placement</p>
-                  <p className="text-sm text-gray-600">Top of search results</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Clock className="h-8 w-8 text-blue-600" />
-                <div>
-                  <p className="font-medium text-gray-900">Faster Sales</p>
-                  <p className="text-sm text-gray-600">Sell 3x faster</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Boost Plans */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {BOOST_PLANS.map((plan) => (
-              <Card
-                key={plan.level}
-                className={`cursor-pointer transition-all duration-200 ${
-                  selectedPlan === plan.level
-                    ? 'ring-2 ring-primary border-primary'
-                    : 'hover:shadow-lg border-gray-200'
-                } ${plan.recommended ? 'ring-2 ring-purple-500 border-purple-500' : ''}`}
-                onClick={() => setSelectedPlan(plan.level)}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+          {BOOST_PACKAGES.map((pkg) => {
+            const IconComponent = pkg.icon;
+            const isSelected = selectedPackage === pkg.id;
+            
+            return (
+              <Card 
+                key={pkg.id}
+                className={`cursor-pointer transition-all relative ${
+                  isSelected 
+                    ? 'ring-2 ring-primary bg-primary/5' 
+                    : 'hover:shadow-md'
+                } ${pkg.popular ? 'border-primary' : ''}`}
+                onClick={() => setSelectedPackage(pkg.id)}
               >
-                <CardHeader className="text-center">
-                  {plan.recommended && (
-                    <Badge className="w-fit mx-auto mb-2 bg-purple-500">
-                      Most Popular
-                    </Badge>
-                  )}
-                  <CardTitle className={`text-xl text-${plan.color}-600`}>
-                    {plan.name}
-                  </CardTitle>
-                  <CardDescription>
-                    <span className="text-3xl font-bold text-gray-900">
-                      {plan.price} ETB
-                    </span>
-                    <span className="text-gray-600"> / {plan.duration} days</span>
-                  </CardDescription>
+                {pkg.popular && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-primary text-white">Most Popular</Badge>
+                  </div>
+                )}
+                
+                <CardHeader className="text-center pb-3">
+                  <div className={`w-12 h-12 mx-auto rounded-full bg-${pkg.color}-100 flex items-center justify-center mb-2`}>
+                    <IconComponent className={`h-6 w-6 text-${pkg.color}-600`} />
+                  </div>
+                  <CardTitle className="text-lg">{pkg.name}</CardTitle>
+                  <div className="flex items-center justify-center gap-1">
+                    <span className="text-2xl font-bold">{pkg.price}</span>
+                    <span className="text-sm text-muted-foreground">ETB</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{pkg.duration}</p>
                 </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {plan.features.map((feature, index) => (
-                      <li key={index} className="flex items-start space-x-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm text-gray-700">{feature}</span>
-                      </li>
+                
+                <CardContent className="pt-0">
+                  <p className="text-sm text-center text-muted-foreground mb-4">
+                    {pkg.description}
+                  </p>
+                  
+                  <div className="space-y-2">
+                    {pkg.features.map((feature, index) => (
+                      <div key={index} className="flex items-center gap-2 text-sm">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span>{feature}</span>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </CardContent>
+                
+                {isSelected && (
+                  <div className="absolute inset-0 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <CheckCircle className="h-8 w-8 text-primary" />
+                  </div>
+                )}
               </Card>
-            ))}
-          </div>
+            );
+          })}
+        </div>
 
-          {/* Payment Information */}
-          {selectedPlan && (
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 mb-2">Payment Information</h4>
-              <p className="text-sm text-gray-600 mb-4">
-                Secure payment powered by Stripe. You'll be redirected to complete your payment.
-              </p>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-gray-900">
-                    {BOOST_PLANS.find(p => p.level === selectedPlan)?.name}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {BOOST_PLANS.find(p => p.level === selectedPlan)?.duration} days boost
-                  </p>
-                </div>
-                <p className="text-2xl font-bold text-primary">
-                  {BOOST_PLANS.find(p => p.level === selectedPlan)?.price} ETB
-                </p>
-              </div>
+        <Separator />
+
+        <div className="bg-muted/50 rounded-lg p-4">
+          <h4 className="font-semibold mb-2 flex items-center gap-2">
+            <Eye className="h-4 w-4" />
+            Boost Benefits
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-green-600" />
+              <span>Increased visibility</span>
             </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="flex justify-end space-x-3">
-            <Button variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleBoost}
-              disabled={!selectedPlan || boostMutation.isPending}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-            >
-              {boostMutation.isPending ? (
-                'Processing...'
-              ) : (
-                <>
-                  <Zap className="h-4 w-4 mr-2" />
-                  Boost Listing
-                </>
-              )}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Star className="h-4 w-4 text-yellow-600" />
+              <span>Premium placement</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-blue-600" />
+              <span>Faster sales</span>
+            </div>
           </div>
         </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleBoost}
+            disabled={!selectedPackage || boostMutation.isPending}
+            className="bg-primary hover:bg-primary/90"
+          >
+            {boostMutation.isPending ? (
+              <>
+                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <Zap className="h-4 w-4 mr-2" />
+                Boost Listing
+                {selectedPackage && (
+                  <span className="ml-1">
+                    ({BOOST_PACKAGES.find(p => p.id === selectedPackage)?.price} ETB)
+                  </span>
+                )}
+              </>
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
