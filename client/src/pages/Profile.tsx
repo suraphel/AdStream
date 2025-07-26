@@ -10,6 +10,7 @@ import { Layout } from '@/components/Layout';
 import { ListingCard } from '@/components/ListingCard';
 import { MyListingCard } from '@/components/MyListingCard';
 import { DeleteListingModal } from '@/components/DeleteListingModal';
+import { NotificationSettings } from '@/components/NotificationSettings';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -28,7 +29,8 @@ import {
   Grid,
   List,
   Trash2,
-  MoreVertical
+  MoreVertical,
+  Bell
 } from 'lucide-react';
 import { formatRelativeTime } from '@/lib/i18n';
 
@@ -43,7 +45,8 @@ export default function Profile() {
   const [listingToDelete, setListingToDelete] = useState<any>(null);
 
   // Determine which tab to show based on URL
-  const currentTab = location === '/favorites' ? 'favorites' : 'listings';
+  const currentTab = location === '/favorites' ? 'favorites' : 
+                     location === '/notifications' ? 'notifications' : 'listings';
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -199,7 +202,7 @@ export default function Profile() {
         {/* Content Tabs */}
         <Tabs value={currentTab} className="space-y-6">
           <div className="flex items-center justify-between">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsList className="grid w-full max-w-lg grid-cols-3">
               <TabsTrigger 
                 value="listings"
                 onClick={() => window.history.pushState({}, '', '/my-ads')}
@@ -212,6 +215,13 @@ export default function Profile() {
               >
                 <Heart className="w-4 h-4 mr-2" />
                 Favorites
+              </TabsTrigger>
+              <TabsTrigger 
+                value="notifications"
+                onClick={() => window.history.pushState({}, '', '/notifications')}
+              >
+                <Bell className="w-4 h-4 mr-2" />
+                Notifications
               </TabsTrigger>
             </TabsList>
 
@@ -342,6 +352,14 @@ export default function Profile() {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="notifications" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold">Notification Settings</h2>
+            </div>
+            
+            <NotificationSettings />
           </TabsContent>
         </Tabs>
 

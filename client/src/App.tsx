@@ -74,6 +74,7 @@ function Router() {
           <Route path="/tender/:id" component={TenderDetail} />
           <Route path="/my-ads" component={Profile} />
           <Route path="/favorites" component={Profile} />
+          <Route path="/notifications" component={Profile} />
           <Route path="/category/:slug" component={Category} />
           <Route path="/categories" component={Category} />
           <Route path="/external" component={ExternalListings} />

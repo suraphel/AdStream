@@ -34,6 +34,7 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   phone: varchar("phone"),
+  textNotificationsEnabled: boolean("text_notifications_enabled").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -123,6 +124,37 @@ export const conversationParticipants = pgTable("conversation_participants", {
 }, (table) => [
   index("idx_conversation_participants_conversation").on(table.conversationId),
   index("idx_conversation_participants_user").on(table.userId),
+]);
+
+// Notification preferences table - tracks user preferences for different types of notifications
+export const notificationPreferences = pgTable("notification_preferences", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  favoriteMatchNotifications: boolean("favorite_match_notifications").default(false),
+  emailNotifications: boolean("email_notifications").default(true),
+  smsNotifications: boolean("sms_notifications").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_notification_preferences_user").on(table.userId),
+]);
+
+// Notification logs table - tracks sent notifications to prevent duplicates
+export const notificationLogs = pgTable("notification_logs", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  listingId: integer("listing_id").notNull(),
+  favoriteListingId: integer("favorite_listing_id").notNull(), // The favorited listing that triggered this notification
+  notificationType: varchar("notification_type", { length: 20 }).notNull(), // 'sms', 'email', 'push'
+  status: varchar("status", { length: 20 }).default("pending"), // 'pending', 'sent', 'failed'
+  message: text("message"),
+  externalMessageId: varchar("external_message_id", { length: 100 }), // SMS service message ID
+  sentAt: timestamp("sent_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_notification_logs_user").on(table.userId),
+  index("idx_notification_logs_listing").on(table.listingId),
+  index("idx_notification_logs_status").on(table.status),
 ]);
 
 // Messages table - individual messages within conversations
@@ -251,6 +283,29 @@ export const messagesRelations = relations(messages, ({ one }) => ({
   }),
 }));
 
+// Notification relations
+export const notificationPreferencesRelations = relations(notificationPreferences, ({ one }) => ({
+  user: one(users, {
+    fields: [notificationPreferences.userId],
+    references: [users.id],
+  }),
+}));
+
+export const notificationLogsRelations = relations(notificationLogs, ({ one }) => ({
+  user: one(users, {
+    fields: [notificationLogs.userId],
+    references: [users.id],
+  }),
+  listing: one(listings, {
+    fields: [notificationLogs.listingId],
+    references: [listings.id],
+  }),
+  favoriteListing: one(listings, {
+    fields: [notificationLogs.favoriteListingId],
+    references: [listings.id],
+  }),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users);
 export const insertCategorySchema = createInsertSchema(categories).omit({ id: true, createdAt: true });
@@ -290,6 +345,18 @@ export const insertMessageSchema = createInsertSchema(messages).omit({
   updatedAt: true,
 });
 
+// Notification insert schemas
+export const insertNotificationPreferenceSchema = createInsertSchema(notificationPreferences).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertNotificationLogSchema = createInsertSchema(notificationLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type UpsertUser = typeof users.$inferInsert;
@@ -309,6 +376,12 @@ export type InsertConversationParticipant = z.infer<typeof insertConversationPar
 export type Message = typeof messages.$inferSelect;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
+
+// Notification types
+export type NotificationPreference = typeof notificationPreferences.$inferSelect;
+export type InsertNotificationPreference = z.infer<typeof insertNotificationPreferenceSchema>;
+export type NotificationLog = typeof notificationLogs.$inferSelect;
+export type InsertNotificationLog = z.infer<typeof insertNotificationLogSchema>;
 
 // Extended types with relations
 export type ListingWithDetails = Listing & {

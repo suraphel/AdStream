@@ -4,6 +4,8 @@ import {
   listings,
   listingImages,
   favorites,
+  notificationPreferences,
+  notificationLogs,
   type User,
   type UpsertUser,
   type Category,
@@ -14,6 +16,10 @@ import {
   type InsertListingImage,
   type Favorite,
   type InsertFavorite,
+  type NotificationPreference,
+  type InsertNotificationPreference,
+  type NotificationLog,
+  type InsertNotificationLog,
   type ListingWithDetails,
   type CategoryWithCount,
 } from "@shared/schema";
@@ -57,6 +63,11 @@ export interface IStorage {
   addFavorite(favorite: InsertFavorite): Promise<Favorite>;
   removeFavorite(userId: string, listingId: number): Promise<boolean>;
   isFavorited(userId: string, listingId: number): Promise<boolean>;
+
+  // Notification operations
+  getNotificationPreferences(userId: string): Promise<NotificationPreference | undefined>;
+  upsertNotificationPreferences(userId: string, preferences: Partial<InsertNotificationPreference>): Promise<NotificationPreference>;
+  updateUserPhone(userId: string, phone: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -368,6 +379,56 @@ export class DatabaseStorage implements IStorage {
       .from(favorites)
       .where(and(eq(favorites.userId, userId), eq(favorites.listingId, listingId)));
     return !!favorite;
+  }
+
+  // Notification operations
+  async getNotificationPreferences(userId: string): Promise<NotificationPreference | undefined> {
+    const [preferences] = await db
+      .select()
+      .from(notificationPreferences)
+      .where(eq(notificationPreferences.userId, userId))
+      .limit(1);
+    
+    return preferences;
+  }
+
+  async upsertNotificationPreferences(userId: string, preferences: Partial<InsertNotificationPreference>): Promise<NotificationPreference> {
+    // Check if preferences exist
+    const existing = await this.getNotificationPreferences(userId);
+    
+    if (existing) {
+      // Update existing preferences
+      const [updated] = await db
+        .update(notificationPreferences)
+        .set({ ...preferences, updatedAt: new Date() })
+        .where(eq(notificationPreferences.userId, userId))
+        .returning();
+      
+      return updated;
+    } else {
+      // Create new preferences
+      const [created] = await db
+        .insert(notificationPreferences)
+        .values({
+          userId,
+          favoriteMatchNotifications: preferences.favoriteMatchNotifications ?? false,
+          emailNotifications: preferences.emailNotifications ?? true,
+          smsNotifications: preferences.smsNotifications ?? false,
+        })
+        .returning();
+      
+      return created;
+    }
+  }
+
+  async updateUserPhone(userId: string, phone: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ 
+        phone: phone,
+        updatedAt: new Date() 
+      })
+      .where(eq(users.id, userId));
   }
 }
 

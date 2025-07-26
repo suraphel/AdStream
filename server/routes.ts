@@ -18,6 +18,7 @@ import path from "path";
 import express from "express";
 import { insertListingSchema, insertListingImageSchema, insertCategorySchema } from "@shared/schema";
 import { z } from "zod";
+import { notificationService } from "./services/NotificationService";
 
 const searchSchema = z.object({
   search: z.string().optional(),
@@ -198,6 +199,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const listingData = insertListingSchema.parse({ ...req.body, userId });
       
       const listing = await storage.createListing(listingData);
+      
+      // Trigger notification check for matching favorites (non-blocking)
+      notificationService.checkAndNotifyForNewListing(listing.id).catch(error => {
+        console.error('Error checking notifications for new listing:', error);
+      });
+      
       res.status(201).json(listing);
     } catch (error) {
       console.error("Error creating listing:", error);
@@ -404,6 +411,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
       },
       localization: config.localization,
     });
+  });
+
+  // Notification preference routes
+  app.get('/api/notifications/preferences', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const preferences = await storage.getNotificationPreferences(userId);
+      
+      // Get user profile for phone number
+      const user = await storage.getUser(userId);
+      
+      res.json({
+        preferences: preferences || {
+          favoriteMatchNotifications: false,
+          emailNotifications: true,
+          smsNotifications: false,
+        },
+        hasPhone: !!user?.phone,
+        phone: user?.phone,
+      });
+    } catch (error) {
+      console.error("Error fetching notification preferences:", error);
+      res.status(500).json({ message: "Failed to fetch notification preferences" });
+    }
+  });
+
+  app.put('/api/notifications/preferences', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { favoriteMatchNotifications, phone } = req.body;
+      
+      // Update notification preferences
+      const preferences = await storage.upsertNotificationPreferences(userId, {
+        favoriteMatchNotifications: !!favoriteMatchNotifications,
+      });
+      
+      // Update phone number if provided
+      if (phone && phone.trim()) {
+        await storage.updateUserPhone(userId, phone.trim());
+      }
+      
+      res.json(preferences);
+    } catch (error) {
+      console.error("Error updating notification preferences:", error);
+      res.status(500).json({ message: "Failed to update notification preferences" });
+    }
+  });
+
+  app.get('/api/notifications/history', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const history = await notificationService.getNotificationHistory(userId);
+      res.json(history);
+    } catch (error) {
+      console.error("Error fetching notification history:", error);
+      res.status(500).json({ message: "Failed to fetch notification history" });
+    }
   });
 
   // Register messaging routes

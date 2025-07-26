@@ -187,6 +187,15 @@ Preferred communication style: Simple, everyday language.
   - **Icon Mapping**: Added comprehensive icon mapping for all categories (smartphones, cars, motorcycles, real estate, etc.)
   - **Visual Consistency**: Categories now show appropriate icons instead of generic package icons
   - **Better Navigation**: Improved visual hierarchy and category recognition for users
+- **Text Notification System**: Implemented comprehensive SMS notification system for favorited item matches
+  - **Database Schema**: Created notification_preferences and notification_logs tables with proper indexing
+  - **NotificationService**: Built sophisticated matching logic based on category, location, and price range (20% tolerance)
+  - **Smart Matching**: Notifications triggered when new listings match user's favorited items in same category
+  - **User Control**: Added notification preferences tab in Profile page with phone number management
+  - **Opt-in System**: Users can enable/disable notifications and provide phone numbers for SMS delivery
+  - **Notification History**: Comprehensive logging of all sent notifications with status tracking
+  - **Integration**: Automatic notification checking on new listing creation with non-blocking execution
+  - **UI Components**: Created NotificationSettings component with real-time preference management
 - **Data Type Consistency Fix**: Resolved price field validation error in listing creation
   - **Schema Validation**: Updated insertListingSchema to handle both string and number price inputs with proper transformation
   - **Form Handling**: Fixed price field in PostListing component to use string values consistently
