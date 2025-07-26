@@ -187,6 +187,11 @@ Preferred communication style: Simple, everyday language.
   - **Icon Mapping**: Added comprehensive icon mapping for all categories (smartphones, cars, motorcycles, real estate, etc.)
   - **Visual Consistency**: Categories now show appropriate icons instead of generic package icons
   - **Better Navigation**: Improved visual hierarchy and category recognition for users
+- **Data Type Consistency Fix**: Resolved price field validation error in listing creation
+  - **Schema Validation**: Updated insertListingSchema to handle both string and number price inputs with proper transformation
+  - **Form Handling**: Fixed price field in PostListing component to use string values consistently
+  - **Error Resolution**: Eliminated "Expected string, received number" validation errors during listing creation
+  - **Database Compliance**: Ensured price field properly stores as decimal while accepting flexible input types
 - **Comprehensive Messaging System**: Implemented user-to-user communication similar to finn.no
   - **Database Schema**: Added conversations and messages tables with proper user relations
   - **Messaging API**: Created REST endpoints for conversation management and message sending

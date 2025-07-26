@@ -34,9 +34,9 @@ import { AirlinePriceList } from "@/components/AirlinePriceList";
 const listingSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
   description: z.string().min(10, "Description must be at least 10 characters"),
-  price: z.number().min(0, "Price must be non-negative"),
+  price: z.union([z.string(), z.number()]).transform((val) => String(val)),
   currency: z.string().default("ETB"),
-  categoryId: z.number().min(1, "Category is required"),
+  categoryId: z.union([z.string(), z.number()]).transform((val) => Number(val)),
   location: z.string().min(2, "Location is required"),
   condition: z.string().optional(),
   // Airline ticket specific fields
@@ -137,7 +137,7 @@ const PostListing: React.FC = () => {
     defaultValues: {
       title: "",
       description: "",
-      price: 0,
+      price: "0",
       currency: "ETB",
       categoryId: selectedCategoryId ? parseInt(selectedCategoryId) : 10,
       location: "",
@@ -310,7 +310,7 @@ const PostListing: React.FC = () => {
                               placeholder={t.pricePlaceholder}
                               value={field.value}
                               onChange={(e) =>
-                                field.onChange(parseFloat(e.target.value) || 0)
+                                field.onChange(e.target.value)
                               }
                             />
                           </FormControl>

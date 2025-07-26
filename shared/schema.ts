@@ -259,6 +259,9 @@ export const insertListingSchema = createInsertSchema(listings).omit({
   createdAt: true, 
   updatedAt: true,
   viewCount: true 
+}).extend({
+  price: z.union([z.string(), z.number()]).transform((val) => String(val)),
+  categoryId: z.union([z.string(), z.number()]).transform((val) => Number(val)),
 });
 export const insertListingImageSchema = createInsertSchema(listingImages).omit({ 
   id: true, 
