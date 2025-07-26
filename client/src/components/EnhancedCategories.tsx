@@ -71,15 +71,17 @@ export function EnhancedCategories() {
               const colorClass = getGroupColor(groupKey as CategoryGroupKey);
 
               return (
-                <div key={groupKey} className="flex flex-col items-center text-center group cursor-pointer">
-                  <div className={`w-16 h-16 bg-${colorClass}-100 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-${colorClass}-200 transition-all duration-200 group-hover:scale-105`}>
-                    <GroupIcon className={`w-8 h-8 text-${colorClass}-600`} />
+                <Link key={groupKey} href="/categories">
+                  <div className="flex flex-col items-center text-center group cursor-pointer">
+                    <div className={`w-16 h-16 bg-${colorClass}-100 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-${colorClass}-200 transition-all duration-200 group-hover:scale-105`}>
+                      <GroupIcon className={`w-8 h-8 text-${colorClass}-600`} />
+                    </div>
+                    <h4 className="text-sm font-semibold text-gray-800 mb-1 group-hover:text-blue-600 transition-colors">
+                      {group.name}
+                    </h4>
+                    <p className="text-xs text-gray-500">{totalListings} items</p>
                   </div>
-                  <h4 className="text-sm font-semibold text-gray-800 mb-1 group-hover:text-blue-600 transition-colors">
-                    {group.name}
-                  </h4>
-                  <p className="text-xs text-gray-500">{totalListings} items</p>
-                </div>
+                </Link>
               );
             })}
           </div>
