@@ -34,7 +34,14 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   phone: varchar("phone"),
+  phoneNumber: varchar("phone_number"), // Normalized phone for OTP
+  password: varchar("password"), // Hashed password for local auth
+  region: varchar("region"),
+  city: varchar("city"),
+  isVerified: boolean("is_verified").default(false),
+  phoneVerified: boolean("phone_verified").default(false),
   textNotificationsEnabled: boolean("text_notifications_enabled").default(false),
+  preferences: text("preferences"), // JSON string for user preferences
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -183,6 +190,42 @@ export const messages = pgTable("messages", {
   index("idx_messages_conversation").on(table.conversationId),
   index("idx_messages_sender").on(table.senderId),
   index("idx_messages_created_at").on(table.createdAt),
+]);
+
+// OTP verification table
+export const otpVerifications = pgTable("otp_verifications", {
+  id: serial("id").primaryKey(),
+  phoneNumber: varchar("phone_number", { length: 20 }).notNull(),
+  otpCode: varchar("otp_code", { length: 6 }).notNull(), // 4-6 digit OTP
+  hashedOtp: varchar("hashed_otp", { length: 255 }).notNull(), // Hashed OTP for security
+  expiresAt: timestamp("expires_at").notNull(),
+  isUsed: boolean("is_used").default(false),
+  attempts: integer("attempts").default(0),
+  maxAttempts: integer("max_attempts").default(3),
+  verificationType: varchar("verification_type", { length: 20 }).notNull(), // 'registration', 'password_reset', 'phone_verification'
+  userId: varchar("user_id"), // Optional: link to user for tracking
+  metadata: jsonb("metadata"), // Additional data like registration details
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_otp_phone_number").on(table.phoneNumber),
+  index("idx_otp_expires_at").on(table.expiresAt),
+  index("idx_otp_verification_type").on(table.verificationType),
+]);
+
+// OTP rate limiting table
+export const otpRateLimits = pgTable("otp_rate_limits", {
+  id: serial("id").primaryKey(),
+  phoneNumber: varchar("phone_number", { length: 20 }).notNull(),
+  requestCount: integer("request_count").default(1),
+  firstRequestAt: timestamp("first_request_at").defaultNow(),
+  lastRequestAt: timestamp("last_request_at").defaultNow(),
+  blockedUntil: timestamp("blocked_until"), // Temporary block for excessive requests
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_otp_rate_limit_phone").on(table.phoneNumber),
+  index("idx_otp_rate_limit_blocked").on(table.blockedUntil),
 ]);
 
 // External API configurations table
@@ -368,8 +411,20 @@ export const insertNotificationLogSchema = createInsertSchema(notificationLogs).
   createdAt: true,
 });
 
+// OTP insert schemas
+export const insertOtpVerificationSchema = createInsertSchema(otpVerifications).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertOtpRateLimitSchema = createInsertSchema(otpRateLimits).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
-export type User = typeof users.$inferSelect;
 export type UpsertUser = typeof users.$inferInsert;
 export type Category = typeof categories.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
@@ -378,6 +433,12 @@ export type InsertListing = z.infer<typeof insertListingSchema>;
 export type ListingImage = typeof listingImages.$inferSelect;
 export type InsertListingImage = z.infer<typeof insertListingImageSchema>;
 export type Favorite = typeof favorites.$inferSelect;
+
+// OTP types
+export type OtpVerification = typeof otpVerifications.$inferSelect;
+export type InsertOtpVerification = z.infer<typeof insertOtpVerificationSchema>;
+export type OtpRateLimit = typeof otpRateLimits.$inferSelect;
+export type InsertOtpRateLimit = z.infer<typeof insertOtpRateLimitSchema>;
 
 // Messaging types
 export type Conversation = typeof conversations.$inferSelect;

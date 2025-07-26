@@ -9,6 +9,7 @@ import { registerExternalListingsRoutes } from "./routes/externalListings";
 import { featureToggleService } from "./services/FeatureToggleService";
 import { config } from "./config";
 import { imageRoutes } from "./routes/imageRoutes";
+import otpRoutes from "./routes/otpRoutes";
 import { metricsMiddleware, metricsHandler } from "./monitoring/metrics";
 import { healthCheckHandler, readinessHandler, livenessHandler } from "./monitoring/healthCheck";
 import { shopRoutes } from "./shop-routes";
@@ -53,6 +54,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Image upload routes
   app.use('/api/images', imageRoutes);
 
+  // OTP routes
+  app.use('/api/otp', otpRoutes);
+
   // Shop routes
   app.use(shopRoutes);
 
@@ -68,7 +72,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Registration endpoint for additional user data
+  // Registration endpoint with OTP verification
   app.post('/api/auth/register', async (req, res) => {
     try {
       const {
@@ -77,33 +81,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
         email,
         phoneNumber,
         password,
-        dateOfBirth,
-        city,
         region,
-        marketingConsent
+        city,
+        isVerified,
+        phoneVerified,
+        verificationType,
+        profilePicture,
+        preferences
       } = req.body;
 
       // Basic validation
       if (!firstName || !lastName || !email || !phoneNumber) {
-        return res.status(400).json({ 
-          message: "Missing required fields: firstName, lastName, email, phoneNumber" 
+        return res.status(400).json({
+          message: 'First name, last name, email, and phone number are required',
+          messageAm: 'የመጀመሪያ ስም፣ የአባት ስም፣ ኢሜይል እና ስልክ ቁጥር ያስፈልጋል'
         });
       }
 
-      // In a real application, you would:
-      // 1. Hash the password
-      // 2. Validate phone number format
-      // 3. Send verification emails
-      // 4. Store in database
-      
-      // For now, we'll return success since this integrates with Replit Auth
-      res.status(201).json({ 
-        message: "Registration successful. Please verify your email.",
-        userId: `temp_${Date.now()}` // Temporary ID
+      // Verify that phone number was verified via OTP
+      if (!phoneVerified || !isVerified) {
+        return res.status(400).json({
+          message: 'Phone number must be verified before registration',
+          messageAm: 'ስልክ ቁጥር ከመመዝገቡ በፊት መረጋገጥ አለበት'
+        });
+      }
+
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({
+          message: 'User with this email already exists',
+          messageAm: 'በዚህ ኢሜይል የተመዘገበ ተጠቃሚ አለ'
+        });
+      }
+
+      // Hash password if provided
+      let hashedPassword = undefined;
+      if (password) {
+        const bcrypt = require('bcrypt');
+        hashedPassword = await bcrypt.hash(password, 12);
+      }
+
+      const user = await storage.createUser({
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+        password: hashedPassword,
+        region,
+        city,
+        profileImageUrl: profilePicture,
+        isVerified: true,
+        phoneVerified: true,
+        preferences: preferences ? JSON.stringify(preferences) : null
+      });
+
+      // Remove password from response
+      const { password: _, ...userResponse } = user;
+
+      res.json({
+        success: true,
+        user: userResponse,
+        message: 'User registered successfully',
+        messageAm: 'ተጠቃሚ በተሳካ ሁኔታ ተመዝግቧል'
       });
     } catch (error) {
-      console.error("Registration error:", error);
-      res.status(500).json({ message: "Registration failed. Please try again." });
+      console.error('Registration error:', error);
+      res.status(500).json({
+        message: 'Registration failed',
+        messageAm: 'ምዝገባ አልተሳካም'
+      });
     }
   });
 
@@ -478,6 +525,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register tender management routes
   registerTenderRoutes(app);
+  
+  // OTP routes
+  app.use('/api/otp', otpRoutes);
 
   const httpServer = createServer(app);
   return httpServer;

@@ -23,6 +23,7 @@ import TenderHome from "@/pages/TenderHome";
 import TenderDetail from "@/pages/TenderDetail";
 import TenderUserRegister from "@/pages/TenderUserRegister";
 import TenderCompanyRegister from "@/pages/TenderCompanyRegister";
+import TenderOTPRegister from "@/pages/TenderOTPRegister";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminUsers from "@/pages/admin/Users";
 import AdminListings from "@/pages/admin/Listings";
@@ -54,8 +55,8 @@ function Router() {
 
           {/* Tender routes available to all */}
           <Route path="/tender" component={TenderHome} />
-          <Route path="/tender/register-user" component={TenderUserRegister} />
-          <Route path="/tender/register-company" component={TenderCompanyRegister} />
+          <Route path="/tender/register-user" component={() => <TenderOTPRegister registrationType="user" />} />
+          <Route path="/tender/register-company" component={() => <TenderOTPRegister registrationType="company" />} />
           <Route path="/tender/:id" component={TenderDetail} />
         </>
       ) : (

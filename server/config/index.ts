@@ -118,6 +118,26 @@ export const config = {
     jwtExpiry: env.JWT_EXPIRY,
   },
   
+  // SMS and OTP configuration
+  sms: {
+    provider: 'twilio',
+    twilio: {
+      accountSid: process.env.TWILIO_ACCOUNT_SID || 'your_twilio_account_sid_here',
+      authToken: process.env.TWILIO_AUTH_TOKEN || 'your_twilio_auth_token_here',
+      phoneNumber: process.env.TWILIO_PHONE_NUMBER || '+1234567890', // Your Twilio phone number
+    },
+  },
+  
+  // OTP configuration
+  otp: {
+    expiryMinutes: 10,
+    maxAttempts: 3,
+    rateLimitWindowMinutes: 60,
+    maxRequestsPerHour: 5,
+    blockDurationMinutes: 30,
+    codeLength: 4,
+  },
+  
   // Image storage
   imageStorage: {
     type: env.IMAGE_STORAGE_TYPE,
