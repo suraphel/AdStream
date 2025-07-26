@@ -59,43 +59,24 @@ export function EnhancedCategories() {
           <p className="text-gray-600">Find exactly what you're looking for</p>
         </div>
 
-        {/* Category Groups - Clean Minimal Layout */}
-        <div className="space-y-16">
-          {Object.entries(CATEGORY_GROUPS).map(([groupKey, group]) => {
-            const groupCategories = groupedCategories[groupKey as CategoryGroupKey] || [];
-            
-            if (groupCategories.length === 0) return null;
-
+        {/* Clean Grid Layout - No Group Headers */}
+        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-8">
+          {categories.map((category) => {
+            const IconComponent = getCategoryIcon(category.slug);
+            const groupKey = getCategoryGroup(category.slug) || 'services';
             const colorClass = getGroupColor(groupKey as CategoryGroupKey);
-
+            
             return (
-              <div key={groupKey} className="space-y-8">
-                {/* Group Header - Minimal */}
-                <div className="text-center">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{group.name}</h3>
-                  <div className="w-16 h-0.5 bg-gray-300 mx-auto"></div>
+              <Link key={category.id} href={`/category/${category.slug}`}>
+                <div className="flex flex-col items-center text-center group cursor-pointer">
+                  <div className={`w-14 h-14 bg-${colorClass}-100 rounded-2xl flex items-center justify-center mb-3 group-hover:bg-${colorClass}-200 transition-all duration-200 group-hover:scale-105`}>
+                    <IconComponent className={`w-7 h-7 text-${colorClass}-600`} />
+                  </div>
+                  <span className="text-xs font-medium text-gray-700 leading-tight group-hover:text-blue-600 transition-colors max-w-16">
+                    {category.name}
+                  </span>
                 </div>
-
-                {/* Categories Grid - Clean Minimal Layout */}
-                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-8">
-                  {groupCategories.slice(0, 10).map((category) => {
-                    const IconComponent = getCategoryIcon(category.slug);
-                    
-                    return (
-                      <Link key={category.id} href={`/category/${category.slug}`}>
-                        <div className="flex flex-col items-center text-center group cursor-pointer">
-                          <div className={`w-14 h-14 bg-${colorClass}-100 rounded-2xl flex items-center justify-center mb-3 group-hover:bg-${colorClass}-200 transition-all duration-200 group-hover:scale-105`}>
-                            <IconComponent className={`w-7 h-7 text-${colorClass}-600`} />
-                          </div>
-                          <span className="text-xs font-medium text-gray-700 leading-tight group-hover:text-blue-600 transition-colors max-w-16">
-                            {category.name}
-                          </span>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
+              </Link>
             );
           })}
         </div>

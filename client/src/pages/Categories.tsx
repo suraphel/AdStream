@@ -69,55 +69,35 @@ export default function Categories() {
           </div>
         </div>
 
-        {/* Organized Category Groups - Clean Minimal Layout */}
+        {/* Clean Grid Layout - No Group Headers */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="space-y-20">
-            {Object.entries(CATEGORY_GROUPS).map(([groupKey, group]) => {
-              const groupCategories = groupedCategories[groupKey as CategoryGroupKey] || [];
-              
-              if (groupCategories.length === 0) return null;
-
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-10">
+            {categories.map((category) => {
+              const IconComponent = getCategoryIcon(category.slug);
+              const groupKey = getCategoryGroup(category.slug) || 'services';
               const colorClass = getGroupColor(groupKey as CategoryGroupKey);
-
+              
               return (
-                <div key={groupKey} className="space-y-10">
-                  {/* Group Header - Clean Minimal */}
-                  <div className="text-center">
-                    <h2 className="text-xl font-bold text-gray-800 mb-3">{group.name}</h2>
-                    <p className="text-sm text-gray-600 mb-4">{group.nameAm}</p>
-                    <div className="w-20 h-0.5 bg-gray-300 mx-auto"></div>
+                <Link key={category.id} href={`/category/${category.slug}`}>
+                  <div className="flex flex-col items-center text-center group cursor-pointer">
+                    {/* Icon Container - Minimal */}
+                    <div className={`w-16 h-16 bg-${colorClass}-100 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-${colorClass}-200 transition-all duration-200 group-hover:scale-105`}>
+                      <IconComponent className={`w-8 h-8 text-${colorClass}-600`} />
+                    </div>
+                    
+                    {/* Category Name */}
+                    <h3 className="text-sm font-medium text-gray-700 text-center leading-tight group-hover:text-blue-600 transition-colors max-w-20">
+                      {category.name}
+                    </h3>
+                    
+                    {/* Listing Count - Subtle */}
+                    {category.listingCount !== undefined && (
+                      <p className="text-xs text-gray-400 mt-1">
+                        {category.listingCount}
+                      </p>
+                    )}
                   </div>
-
-                  {/* Categories Grid - Clean Minimal Layout */}
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-10">
-                    {groupCategories.map((category) => {
-                      const IconComponent = getCategoryIcon(category.slug);
-                      
-                      return (
-                        <Link key={category.id} href={`/category/${category.slug}`}>
-                          <div className="flex flex-col items-center text-center group cursor-pointer">
-                            {/* Icon Container - Minimal */}
-                            <div className={`w-16 h-16 bg-${colorClass}-100 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-${colorClass}-200 transition-all duration-200 group-hover:scale-105`}>
-                              <IconComponent className={`w-8 h-8 text-${colorClass}-600`} />
-                            </div>
-                            
-                            {/* Category Name */}
-                            <h3 className="text-sm font-medium text-gray-700 text-center leading-tight group-hover:text-blue-600 transition-colors max-w-20">
-                              {category.name}
-                            </h3>
-                            
-                            {/* Listing Count - Subtle */}
-                            {category.listingCount !== undefined && (
-                              <p className="text-xs text-gray-400 mt-1">
-                                {category.listingCount}
-                              </p>
-                            )}
-                          </div>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
+                </Link>
               );
             })}
           </div>
