@@ -24,6 +24,7 @@ export function ListingCard({ listing, featured = false }: ListingCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isFavorited, setIsFavorited] = useState(listing.isFavorited);
+  const [imageError, setImageError] = useState(false);
 
   const favoriteMutation = useMutation({
     mutationFn: async () => {
@@ -70,7 +71,13 @@ export function ListingCard({ listing, featured = false }: ListingCardProps) {
   };
 
   const primaryImage = listing.images?.find(img => img.isPrimary) || listing.images?.[0];
-  const imageUrl = primaryImage?.imageUrl || '/uploads/listings/placeholder.svg';
+  const imageUrl = imageError ? '/uploads/listings/placeholder.svg' : (primaryImage?.imageUrl || '/uploads/listings/placeholder.svg');
+
+  const handleImageError = () => {
+    if (!imageError) {
+      setImageError(true);
+    }
+  };
 
   return (
     <Card className={`overflow-hidden hover:shadow-md transition-shadow group ${
@@ -88,10 +95,7 @@ export function ListingCard({ listing, featured = false }: ListingCardProps) {
             src={imageUrl}
             alt={listing.title}
             className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = '/uploads/listings/placeholder.svg';
-            }}
+            onError={handleImageError}
           />
           <div className="absolute top-3 right-3">
             <Button
