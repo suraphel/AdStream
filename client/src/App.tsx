@@ -11,6 +11,7 @@ import Landing from "@/pages/Landing";
 import Home from "@/pages/Home";
 import ListingDetail from "@/pages/ListingDetail";
 import PostListing from "@/pages/PostListing";
+import EditListing from "@/pages/EditListing";
 import Profile from "@/pages/Profile";
 import Category from "@/pages/Category";
 import Categories from "@/pages/Categories";
@@ -63,6 +64,7 @@ function Router() {
           <Route path="/categories" component={Categories} />
           <Route path="/category/:slug" component={Category} />
           <Route path="/post" component={PostListing} />
+          <Route path="/edit/:id" component={EditListing} />
           <Route path="/select-category" component={CategorySelect} />
           <Route path="/profile" component={Profile} />
           {/* Tender routes available to all */}
