@@ -45,7 +45,7 @@ export default function ListingDetail() {
 
   const contactSellerMutation = useMutation({
     mutationFn: async (message: string) => {
-      return await apiRequest('/api/conversations', 'POST', {
+      return await apiRequest('POST', '/api/conversations', {
         otherUserId: listing?.user?.id,
         listingId: listing?.id,
         initialMessage: message,
@@ -82,9 +82,9 @@ export default function ListingDetail() {
   const favoriteMutation = useMutation({
     mutationFn: async () => {
       if (listing?.isFavorited) {
-        await apiRequest(`/api/favorites/${listing.id}`, 'DELETE');
+        await apiRequest('DELETE', `/api/favorites/${listing.id}`);
       } else {
-        await apiRequest('/api/favorites', 'POST', { listingId: listing?.id });
+        await apiRequest('POST', '/api/favorites', { listingId: listing?.id });
       }
     },
     onSuccess: () => {
