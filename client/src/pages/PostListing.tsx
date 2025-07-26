@@ -197,6 +197,7 @@ const PostListing: React.FC = () => {
             : "Your listing has been posted successfully",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/listings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/my-listings"] });
       navigate("/");
     },
     onError: (error: any) => {
