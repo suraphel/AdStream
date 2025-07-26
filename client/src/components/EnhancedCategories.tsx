@@ -59,29 +59,54 @@ export function EnhancedCategories() {
           <p className="text-gray-600">Find exactly what you're looking for</p>
         </div>
 
-        {/* Clean Grid Layout Similar to FINN.no */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6">
-          {categories.slice(0, 16).map((category) => {
-            const IconComponent = getCategoryIcon(category.slug);
-            const groupKey = getCategoryGroup(category.slug) || 'services';
-            const colorClass = getGroupColor(groupKey as CategoryGroupKey);
+        {/* Category Groups with FINN.no Style */}
+        <div className="space-y-12">
+          {Object.entries(CATEGORY_GROUPS).map(([groupKey, group]) => {
+            const groupCategories = groupedCategories[groupKey as CategoryGroupKey] || [];
             
+            if (groupCategories.length === 0) return null;
+
+            const GroupIcon = group.icon;
+            const colorClass = getGroupColor(groupKey as CategoryGroupKey);
+
             return (
-              <Link key={category.id} href={`/category/${category.slug}`}>
-                <div className="flex flex-col items-center p-4 bg-white rounded-lg hover:shadow-md transition-all duration-200 group cursor-pointer border border-gray-100 hover:border-blue-200">
-                  <div className={`w-12 h-12 bg-${colorClass}-100 rounded-lg flex items-center justify-center mb-3 group-hover:bg-${colorClass}-200 transition-colors`}>
-                    <IconComponent className={`w-6 h-6 text-${colorClass}-600`} />
+              <div key={groupKey} className="space-y-6">
+                {/* Group Header */}
+                <div className="flex items-center space-x-4">
+                  <div className={`p-3 bg-${colorClass}-100 rounded-xl w-fit`}>
+                    <GroupIcon className={`h-6 w-6 text-${colorClass}-600`} />
                   </div>
-                  <span className="text-sm font-medium text-gray-900 text-center leading-tight group-hover:text-blue-600 transition-colors">
-                    {category.name}
-                  </span>
-                  {category.listingCount !== undefined && (
-                    <span className="text-xs text-gray-500 mt-1">
-                      {category.listingCount} ads
-                    </span>
-                  )}
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">{group.name}</h3>
+                    <p className="text-gray-600 text-sm">{group.nameAm}</p>
+                  </div>
                 </div>
-              </Link>
+
+                {/* Categories Grid - FINN.no Style */}
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6">
+                  {groupCategories.slice(0, 8).map((category) => {
+                    const IconComponent = getCategoryIcon(category.slug);
+                    
+                    return (
+                      <Link key={category.id} href={`/category/${category.slug}`}>
+                        <div className="flex flex-col items-center p-4 bg-white rounded-lg hover:shadow-md transition-all duration-200 group cursor-pointer border border-gray-100 hover:border-blue-200">
+                          <div className={`w-12 h-12 bg-${colorClass}-100 rounded-lg flex items-center justify-center mb-3 group-hover:bg-${colorClass}-200 transition-colors`}>
+                            <IconComponent className={`w-6 h-6 text-${colorClass}-600`} />
+                          </div>
+                          <span className="text-sm font-medium text-gray-900 text-center leading-tight group-hover:text-blue-600 transition-colors">
+                            {category.name}
+                          </span>
+                          {category.listingCount !== undefined && (
+                            <span className="text-xs text-gray-500 mt-1">
+                              {category.listingCount} ads
+                            </span>
+                          )}
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
             );
           })}
         </div>

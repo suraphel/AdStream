@@ -69,40 +69,65 @@ export default function Categories() {
           </div>
         </div>
 
-        {/* Main Categories Grid - FINN.no Style */}
+        {/* Organized Category Groups - FINN.no Style */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
-            {categories.map((category) => {
-              const IconComponent = getCategoryIcon(category.slug);
-              const groupKey = getCategoryGroup(category.slug) || 'services';
-              const colorClass = getGroupColor(groupKey as CategoryGroupKey);
+          <div className="space-y-16">
+            {Object.entries(CATEGORY_GROUPS).map(([groupKey, group]) => {
+              const groupCategories = groupedCategories[groupKey as CategoryGroupKey] || [];
               
+              if (groupCategories.length === 0) return null;
+
+              const GroupIcon = group.icon;
+              const colorClass = getGroupColor(groupKey as CategoryGroupKey);
+
               return (
-                <Link key={category.id} href={`/category/${category.slug}`}>
-                  <div className="flex flex-col items-center p-6 bg-white rounded-xl hover:shadow-xl transition-all duration-300 group cursor-pointer border border-gray-100 hover:border-blue-200 hover:-translate-y-1">
-                    {/* Icon Container */}
-                    <div className={`w-16 h-16 bg-${colorClass}-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-${colorClass}-200 transition-colors`}>
-                      <IconComponent className={`w-8 h-8 text-${colorClass}-600`} />
+                <div key={groupKey} className="space-y-8">
+                  {/* Group Header */}
+                  <div className="flex items-center space-x-4">
+                    <div className={`p-4 bg-${colorClass}-100 rounded-xl w-fit`}>
+                      <GroupIcon className={`h-8 w-8 text-${colorClass}-600`} />
                     </div>
-                    
-                    {/* Category Name */}
-                    <h3 className="text-sm font-semibold text-gray-900 text-center mb-1 group-hover:text-blue-600 transition-colors leading-tight">
-                      {category.name}
-                    </h3>
-                    
-                    {/* Amharic Name */}
-                    {category.nameAm && (
-                      <p className="text-xs text-gray-500 text-center mb-3 leading-tight">{category.nameAm}</p>
-                    )}
-                    
-                    {/* Listing Count */}
-                    {category.listingCount !== undefined && (
-                      <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">
-                        {category.listingCount} ads
-                      </Badge>
-                    )}
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900">{group.name}</h2>
+                      <p className="text-gray-600">{group.nameAm}</p>
+                    </div>
                   </div>
-                </Link>
+
+                  {/* Categories Grid for this Group */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
+                    {groupCategories.map((category) => {
+                      const IconComponent = getCategoryIcon(category.slug);
+                      
+                      return (
+                        <Link key={category.id} href={`/category/${category.slug}`}>
+                          <div className="flex flex-col items-center p-6 bg-white rounded-xl hover:shadow-xl transition-all duration-300 group cursor-pointer border border-gray-100 hover:border-blue-200 hover:-translate-y-1">
+                            {/* Icon Container */}
+                            <div className={`w-16 h-16 bg-${colorClass}-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-${colorClass}-200 transition-colors`}>
+                              <IconComponent className={`w-8 h-8 text-${colorClass}-600`} />
+                            </div>
+                            
+                            {/* Category Name */}
+                            <h3 className="text-sm font-semibold text-gray-900 text-center mb-1 group-hover:text-blue-600 transition-colors leading-tight">
+                              {category.name}
+                            </h3>
+                            
+                            {/* Amharic Name */}
+                            {category.nameAm && (
+                              <p className="text-xs text-gray-500 text-center mb-3 leading-tight">{category.nameAm}</p>
+                            )}
+                            
+                            {/* Listing Count */}
+                            {category.listingCount !== undefined && (
+                              <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">
+                                {category.listingCount} ads
+                              </Badge>
+                            )}
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
               );
             })}
           </div>
