@@ -52,68 +52,44 @@ export function EnhancedCategories() {
   }, {} as Record<CategoryGroupKey, Category[]>);
 
   return (
-    <section className="bg-white py-8">
+    <section className="bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Browse by Category</h2>
-          <p className="text-gray-600">Find exactly what you're looking for in organized groups</p>
+        <div className="text-center mb-10">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Browse Categories</h2>
+          <p className="text-gray-600">Find exactly what you're looking for</p>
         </div>
 
-        <div className="space-y-10">
-          {Object.entries(CATEGORY_GROUPS).map(([groupKey, group]) => {
-            const groupCategories = groupedCategories[groupKey as CategoryGroupKey] || [];
-            
-            if (groupCategories.length === 0) return null;
-
-            const GroupIcon = group.icon;
+        {/* Clean Grid Layout Similar to FINN.no */}
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6">
+          {categories.slice(0, 16).map((category) => {
+            const IconComponent = getCategoryIcon(category.slug);
+            const groupKey = getCategoryGroup(category.slug) || 'services';
             const colorClass = getGroupColor(groupKey as CategoryGroupKey);
-
+            
             return (
-              <div key={groupKey} className="space-y-4">
-                {/* Group Header */}
-                <div className="flex items-center space-x-3">
-                  <div className={`p-3 bg-${colorClass}-100 rounded-xl w-fit`}>
-                    <GroupIcon className={`h-6 w-6 text-${colorClass}-600`} />
+              <Link key={category.id} href={`/category/${category.slug}`}>
+                <div className="flex flex-col items-center p-4 bg-white rounded-lg hover:shadow-md transition-all duration-200 group cursor-pointer border border-gray-100 hover:border-blue-200">
+                  <div className={`w-12 h-12 bg-${colorClass}-100 rounded-lg flex items-center justify-center mb-3 group-hover:bg-${colorClass}-200 transition-colors`}>
+                    <IconComponent className={`w-6 h-6 text-${colorClass}-600`} />
                   </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900">{group.name}</h3>
-                    <p className="text-gray-600 text-sm">{group.nameAm}</p>
-                  </div>
+                  <span className="text-sm font-medium text-gray-900 text-center leading-tight group-hover:text-blue-600 transition-colors">
+                    {category.name}
+                  </span>
+                  {category.listingCount !== undefined && (
+                    <span className="text-xs text-gray-500 mt-1">
+                      {category.listingCount} ads
+                    </span>
+                  )}
                 </div>
-
-                {/* Categories Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                  {groupCategories.slice(0, 6).map((category) => (
-                    <Link key={category.id} href={`/category/${category.slug}`}>
-                      <Card className="h-full hover:shadow-md transition-all duration-200 cursor-pointer group border-border hover:border-primary/20 bg-white">
-                        <CardContent className="p-4 text-center">
-                          <div className={`p-3 bg-${colorClass}-50 rounded-lg w-fit mx-auto mb-3`}>
-                            {React.createElement(getCategoryIcon(category.slug), {
-                              className: `h-6 w-6 text-${colorClass}-600`
-                            })}
-                          </div>
-                          <h4 className="font-medium text-sm text-gray-900 mb-1 group-hover:text-primary transition-colors">
-                            {category.name}
-                          </h4>
-                          {category.listingCount !== undefined && (
-                            <p className="text-xs text-gray-500">
-                              {category.listingCount} items
-                            </p>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
-              </div>
+              </Link>
             );
           })}
         </div>
 
         {/* View All Categories Link */}
-        <div className="text-center mt-8">
+        <div className="text-center mt-10">
           <Link href="/categories">
-            <button className="px-6 py-2 border border-primary text-primary hover:bg-primary hover:text-white transition-colors rounded-lg font-medium">
+            <button className="px-8 py-3 bg-blue-600 text-white hover:bg-blue-700 transition-colors rounded-lg font-medium shadow-sm">
               View All Categories
             </button>
           </Link>
