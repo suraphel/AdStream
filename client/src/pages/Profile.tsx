@@ -8,6 +8,8 @@ import { useToast } from '@/hooks/use-toast';
 import { isUnauthorizedError } from '@/lib/authUtils';
 import { Layout } from '@/components/Layout';
 import { ListingCard } from '@/components/ListingCard';
+import { MyListingCard } from '@/components/MyListingCard';
+import { DeleteListingModal } from '@/components/DeleteListingModal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -24,7 +26,9 @@ import {
   Plus,
   Heart,
   Grid,
-  List
+  List,
+  Trash2,
+  MoreVertical
 } from 'lucide-react';
 import { formatRelativeTime } from '@/lib/i18n';
 
@@ -35,6 +39,8 @@ export default function Profile() {
   const queryClient = useQueryClient();
   const [location] = useLocation();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [listingToDelete, setListingToDelete] = useState<any>(null);
 
   // Determine which tab to show based on URL
   const currentTab = location === '/favorites' ? 'favorites' : 'listings';
@@ -63,6 +69,53 @@ export default function Profile() {
     queryKey: ['/api/favorites'],
     enabled: isAuthenticated,
   });
+
+  // Delete listing mutation
+  const deleteListingMutation = useMutation({
+    mutationFn: async (listingId: number) => {
+      await apiRequest('DELETE', `/api/listings/${listingId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/my-listings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/listings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
+      toast({
+        title: "Success",
+        description: "Listing deleted successfully.",
+      });
+      setDeleteModalOpen(false);
+      setListingToDelete(null);
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to delete listing. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDeleteClick = (listing: any) => {
+    setListingToDelete(listing);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (listingToDelete) {
+      deleteListingMutation.mutate(listingToDelete.id);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -232,7 +285,11 @@ export default function Profile() {
                   : 'grid-cols-1'
               }`}>
                 {myListings?.map((listing: any) => (
-                  <ListingCard key={listing.id} listing={listing} />
+                  <MyListingCard 
+                    key={listing.id} 
+                    listing={listing} 
+                    onDelete={handleDeleteClick}
+                  />
                 ))}
               </div>
             )}
@@ -287,6 +344,18 @@ export default function Profile() {
             )}
           </TabsContent>
         </Tabs>
+
+        {/* Delete Confirmation Modal */}
+        <DeleteListingModal
+          listing={listingToDelete}
+          isOpen={deleteModalOpen}
+          onClose={() => {
+            setDeleteModalOpen(false);
+            setListingToDelete(null);
+          }}
+          onConfirm={handleDeleteConfirm}
+          isDeleting={deleteListingMutation.isPending}
+        />
       </div>
     </Layout>
   );
