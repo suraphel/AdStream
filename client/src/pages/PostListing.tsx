@@ -1,30 +1,43 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useLocation } from 'wouter';
-import { Layout } from '@/components/Layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ImageUploader, UploadedImage } from '@/components/ImageUploader';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowLeft } from 'lucide-react';
-import { apiRequest } from '@/lib/queryClient';
-import { AirlineTicketForm } from '@/components/AirlineTicketForm';
-import { AirlinePriceList } from '@/components/AirlinePriceList';
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
+import { Layout } from "@/components/Layout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ImageUploader, UploadedImage } from "@/components/ImageUploader";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, ArrowLeft } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import { AirlineTicketForm } from "@/components/AirlineTicketForm";
+import { AirlinePriceList } from "@/components/AirlinePriceList";
 
 const listingSchema = z.object({
-  title: z.string().min(3, 'Title must be at least 3 characters'),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
-  price: z.number().min(0, 'Price must be non-negative'),
-  currency: z.string().default('ETB'),
-  categoryId: z.number().min(1, 'Category is required'),
-  location: z.string().min(2, 'Location is required'),
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  price: z.number().min(0, "Price must be non-negative"),
+  currency: z.string().default("ETB"),
+  categoryId: z.number().min(1, "Category is required"),
+  location: z.string().min(2, "Location is required"),
   condition: z.string().optional(),
   // Airline ticket specific fields
   departureCity: z.string().optional(),
@@ -48,73 +61,73 @@ interface Category {
 
 const PostListing: React.FC = () => {
   const [images, setImages] = useState<UploadedImage[]>([]);
-  const [language, setLanguage] = useState<'en' | 'am'>('en');
+  const [language, setLanguage] = useState<"en" | "am">("en");
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Get category from URL params
   const searchParams = new URLSearchParams(window.location.search);
-  const selectedCategoryId = searchParams.get('category');
-  const selectedCategoryName = searchParams.get('name');
+  const selectedCategoryId = searchParams.get("category");
+  const selectedCategoryName = searchParams.get("name");
 
   const translations = {
     en: {
-      title: 'Post New Listing',
-      backToHome: 'Back to Home',
-      listingTitle: 'Title',
-      listingTitlePlaceholder: 'Enter listing title',
-      description: 'Description',
-      descriptionPlaceholder: 'Describe your item in detail',
-      price: 'Price',
-      pricePlaceholder: 'Enter price',
-      currency: 'Currency',
-      category: 'Category',
-      categoryPlaceholder: 'Select a category',
-      location: 'Location',
-      locationPlaceholder: 'Enter your location',
-      condition: 'Condition',
-      conditionPlaceholder: 'Select condition',
-      images: 'Images',
-      imagesDescription: 'Upload up to 10 images of your item',
-      postListing: 'Post Listing',
-      posting: 'Posting...',
-      cancel: 'Cancel',
-      success: 'Listing posted successfully!',
-      error: 'Failed to post listing',
-      conditionNew: 'New',
-      conditionUsed: 'Used',
-      conditionRefurbished: 'Refurbished',
-      toggleLanguage: 'Switch to Amharic'
+      title: "Post New Listing",
+      backToHome: "Back to Home",
+      listingTitle: "Title",
+      listingTitlePlaceholder: "Enter listing title",
+      description: "Description",
+      descriptionPlaceholder: "Describe your item in detail",
+      price: "Price",
+      pricePlaceholder: "Enter price",
+      currency: "Currency",
+      category: "Category",
+      categoryPlaceholder: "Select a category",
+      location: "Location",
+      locationPlaceholder: "Enter your location",
+      condition: "Condition",
+      conditionPlaceholder: "Select condition",
+      images: "Images",
+      imagesDescription: "Upload up to 10 images of your item",
+      postListing: "Post Listing",
+      posting: "Posting...",
+      cancel: "Cancel",
+      success: "Listing posted successfully!",
+      error: "Failed to post listing",
+      conditionNew: "New",
+      conditionUsed: "Used",
+      conditionRefurbished: "Refurbished",
+      toggleLanguage: "Switch to Amharic",
     },
     am: {
-      title: 'አዲስ ዕቃ ለሽያጭ ያስቀምጡ',
-      backToHome: 'ወደ ቤት ተመለስ',
-      listingTitle: 'ርዕስ',
-      listingTitlePlaceholder: 'የዕቃው ርዕስ ያስገቡ',
-      description: 'መግለጫ',
-      descriptionPlaceholder: 'የዕቃውን ዝርዝር መግለጫ ያስገቡ',
-      price: 'ዋጋ',
-      pricePlaceholder: 'ዋጋ ያስገቡ',
-      currency: 'ምንዛሬ',
-      category: 'ምድብ',
-      categoryPlaceholder: 'ምድብ ይምረጡ',
-      location: 'አድራሻ',
-      locationPlaceholder: 'የእርስዎን አድራሻ ያስገቡ',
-      condition: 'ሁኔታ',
-      conditionPlaceholder: 'ሁኔታ ይምረጡ',
-      images: 'ምስሎች',
-      imagesDescription: 'እስከ 10 ምስሎች ያስቀምጡ',
-      postListing: 'ዕቃ ለሽያጭ አስቀምጥ',
-      posting: 'እየተለጠፈ...',
-      cancel: 'ይቅር',
-      success: 'ዕቃ በተሳካ ሁኔታ ተለጠፈ!',
-      error: 'ዕቃ መለጠፍ አልተሳካም',
-      conditionNew: 'አዲስ',
-      conditionUsed: 'ተጠቅሟል',
-      conditionRefurbished: 'ታድሷል',
-      toggleLanguage: 'ወደ እንግሊዝኛ ቀይር'
-    }
+      title: "አዲስ ዕቃ ለሽያጭ ያስቀምጡ",
+      backToHome: "ወደ ቤት ተመለስ",
+      listingTitle: "ርዕስ",
+      listingTitlePlaceholder: "የዕቃው ርዕስ ያስገቡ",
+      description: "መግለጫ",
+      descriptionPlaceholder: "የዕቃውን ዝርዝር መግለጫ ያስገቡ",
+      price: "ዋጋ",
+      pricePlaceholder: "ዋጋ ያስገቡ",
+      currency: "ምንዛሬ",
+      category: "ምድብ",
+      categoryPlaceholder: "ምድብ ይምረጡ",
+      location: "አድራሻ",
+      locationPlaceholder: "የእርስዎን አድራሻ ያስገቡ",
+      condition: "ሁኔታ",
+      conditionPlaceholder: "ሁኔታ ይምረጡ",
+      images: "ምስሎች",
+      imagesDescription: "እስከ 10 ምስሎች ያስቀምጡ",
+      postListing: "ዕቃ ለሽያጭ አስቀምጥ",
+      posting: "እየተለጠፈ...",
+      cancel: "ይቅር",
+      success: "ዕቃ በተሳካ ሁኔታ ተለጠፈ!",
+      error: "ዕቃ መለጠፍ አልተሳካም",
+      conditionNew: "አዲስ",
+      conditionUsed: "ተጠቅሟል",
+      conditionRefurbished: "ታድሷል",
+      toggleLanguage: "ወደ እንግሊዝኛ ቀይር",
+    },
   };
 
   const t = translations[language];
@@ -122,35 +135,44 @@ const PostListing: React.FC = () => {
   const form = useForm<ListingFormData>({
     resolver: zodResolver(listingSchema),
     defaultValues: {
-      title: '',
-      description: '',
+      title: "",
+      description: "",
       price: 0,
-      currency: 'ETB',
+      currency: "ETB",
       categoryId: selectedCategoryId ? parseInt(selectedCategoryId) : 10,
-      location: '',
-      condition: 'new',
+      location: "",
+      condition: "new",
     },
   });
 
   // Fetch categories
   const { data: categories = [] } = useQuery<Category[]>({
-    queryKey: ['/api/categories'],
+    queryKey: ["/api/categories"],
   });
 
   // Categories that don't need condition field (houses, services, airline tickets, etc.)
-  const categoriesWithoutCondition = ['real-estate', 'services', 'jobs', 'airline-tickets'];
-  const currentCategory = categories.find(cat => cat.id === parseInt(selectedCategoryId || '10'));
-  const showConditionField = currentCategory ? !categoriesWithoutCondition.includes(currentCategory.slug) : true;
-  const isAirlineTicket = currentCategory?.slug === 'airline-tickets';
+  const categoriesWithoutCondition = [
+    "real-estate",
+    "services",
+    "jobs",
+    "airline-tickets",
+  ];
+  const currentCategory = categories.find(
+    (cat) => cat.id === parseInt(selectedCategoryId || "10"),
+  );
+  const showConditionField = currentCategory
+    ? !categoriesWithoutCondition.includes(currentCategory.slug)
+    : true;
+  const isAirlineTicket = currentCategory?.slug === "airline-tickets";
 
   const createListingMutation = useMutation({
     mutationFn: async (data: ListingFormData & { imageKeys: string[] }) => {
-      const response = await fetch('/api/listings', {
-        method: 'POST',
+      const response = await fetch("/api/listings", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({
           ...data,
           categoryId: data.categoryId,
@@ -161,7 +183,7 @@ const PostListing: React.FC = () => {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to create listing');
+        throw new Error(error.message || "Failed to create listing");
       }
 
       return await response.json();
@@ -169,22 +191,25 @@ const PostListing: React.FC = () => {
     onSuccess: () => {
       toast({
         title: t.success,
-        description: language === 'am' ? 'ዕቃዎ በተሳካ ሁኔታ ተለጠፈ' : 'Your listing has been posted successfully',
+        description:
+          language === "am"
+            ? "ዕቃዎ በተሳካ ሁኔታ ተለጠፈ"
+            : "Your listing has been posted successfully",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/listings'] });
-      navigate('/');
+      queryClient.invalidateQueries({ queryKey: ["/api/listings"] });
+      navigate("/");
     },
     onError: (error: any) => {
       toast({
         title: t.error,
         description: error.message,
-        variant: 'destructive',
+        variant: "destructive",
       });
     },
   });
 
   const onSubmit = (data: ListingFormData) => {
-    const imageKeys = images.map(img => img.key);
+    const imageKeys = images.map((img) => img.key);
     createListingMutation.mutate({ ...data, imageKeys });
   };
 
@@ -195,91 +220,182 @@ const PostListing: React.FC = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/")}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              {t.backToHome}
+            </Button>
+            <h1 className="text-2xl font-bold">
+              {selectedCategoryName
+                ? `Post in ${selectedCategoryName}`
+                : t.title}
+            </h1>
+          </div>
+
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            onClick={() => navigate('/')}
-            className="text-muted-foreground hover:text-foreground"
+            onClick={() => setLanguage(language === "en" ? "am" : "en")}
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            {t.backToHome}
+            {t.toggleLanguage}
           </Button>
-          <h1 className="text-2xl font-bold">
-            {selectedCategoryName ? `Post in ${selectedCategoryName}` : t.title}
-          </h1>
         </div>
-        
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setLanguage(language === 'en' ? 'am' : 'en')}
-        >
-          {t.toggleLanguage}
-        </Button>
-      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t.title}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Title */}
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t.listingTitle}</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder={t.listingTitlePlaceholder} 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+        <Card>
+          <CardHeader>
+            <CardTitle>{t.title}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                {/* Title */}
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t.listingTitle}</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder={t.listingTitlePlaceholder}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              {/* Description */}
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t.description}</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder={t.descriptionPlaceholder} 
-                        rows={4}
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                {/* Description */}
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t.description}</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder={t.descriptionPlaceholder}
+                          rows={4}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              {/* Price and Currency */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="md:col-span-2">
+                {/* Price and Currency */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="md:col-span-2">
+                    <FormField
+                      control={form.control}
+                      name="price"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t.price}</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder={t.pricePlaceholder}
+                              value={field.value}
+                              onChange={(e) =>
+                                field.onChange(parseFloat(e.target.value) || 0)
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
                   <FormField
                     control={form.control}
-                    name="price"
+                    name="currency"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t.price}</FormLabel>
+                        <FormLabel>{t.currency}</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="ETB">ETB</SelectItem>
+                            <SelectItem value="USD">USD</SelectItem>
+                            <SelectItem value="EUR">EUR</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Category and Location */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="categoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t.category}</FormLabel>
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(parseInt(value))
+                          }
+                          value={field.value?.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue
+                                placeholder={t.categoryPlaceholder}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {categories.map((category) => (
+                              <SelectItem
+                                key={category.id}
+                                value={category.id.toString()}
+                              >
+                                {language === "am" && category.nameAm
+                                  ? category.nameAm
+                                  : category.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="location"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t.location}</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number"
-                            placeholder={t.pricePlaceholder} 
-                            value={field.value}
-                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                          <Input
+                            placeholder={t.locationPlaceholder}
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />
@@ -287,152 +403,98 @@ const PostListing: React.FC = () => {
                     )}
                   />
                 </div>
-                
-                <FormField
-                  control={form.control}
-                  name="currency"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t.currency}</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="ETB">ETB</SelectItem>
-                          <SelectItem value="USD">USD</SelectItem>
-                          <SelectItem value="EUR">EUR</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
 
-              {/* Category and Location */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="categoryId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t.category}</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={t.categoryPlaceholder} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {categories.map((category) => (
-                            <SelectItem key={category.id} value={category.id.toString()}>
-                              {language === 'am' && category.nameAm ? category.nameAm : category.name}
+                {/* Condition - Only show for relevant categories */}
+                {showConditionField && (
+                  <FormField
+                    control={form.control}
+                    name="condition"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t.condition}</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue
+                                placeholder={t.conditionPlaceholder}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="new">
+                              {t.conditionNew}
                             </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                            <SelectItem value="used">
+                              {t.conditionUsed}
+                            </SelectItem>
+                            <SelectItem value="refurbished">
+                              {t.conditionRefurbished}
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
 
-                <FormField
-                  control={form.control}
-                  name="location"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t.location}</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder={t.locationPlaceholder} 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                {/* Airline Ticket Specific Fields */}
+                {isAirlineTicket && (
+                  <div className="border-t pt-6">
+                    <h3 className="text-lg font-semibold mb-4">
+                      Flight Details
+                    </h3>
+                    <AirlineTicketForm form={form} />
+                  </div>
+                )}
 
-              {/* Condition - Only show for relevant categories */}
-              {showConditionField && (
-                <FormField
-                  control={form.control}
-                  name="condition"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t.condition}</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={t.conditionPlaceholder} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="new">{t.conditionNew}</SelectItem>
-                          <SelectItem value="used">{t.conditionUsed}</SelectItem>
-                          <SelectItem value="refurbished">{t.conditionRefurbished}</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {/* Airline Ticket Specific Fields */}
-              {isAirlineTicket && (
-                <div className="border-t pt-6">
-                  <h3 className="text-lg font-semibold mb-4">Flight Details</h3>
-                  <AirlineTicketForm form={form} />
+                {/* Images */}
+                <div className="space-y-2">
+                  <FormLabel>{t.images}</FormLabel>
+                  <p className="text-sm text-muted-foreground">
+                    {t.imagesDescription}
+                  </p>
+                  <ImageUploader
+                    onImagesChange={handleImagesChange}
+                    initialImages={images}
+                    maxImages={10}
+                    language={language}
+                    className="mt-2"
+                  />
                 </div>
-              )}
 
-              {/* Images */}
-              <div className="space-y-2">
-                <FormLabel>{t.images}</FormLabel>
-                <p className="text-sm text-muted-foreground">{t.imagesDescription}</p>
-                <ImageUploader
-                  onImagesChange={handleImagesChange}
-                  initialImages={images}
-                  maxImages={10}
-                  language={language}
-                  className="mt-2"
-                />
-              </div>
-
-              {/* Submit Buttons */}
-              <div className="flex gap-4 pt-6">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate('/')}
-                  disabled={createListingMutation.isPending}
-                >
-                  {t.cancel}
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={createListingMutation.isPending}
-                  className="flex-1"
-                >
-                  {createListingMutation.isPending ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      {t.posting}
-                    </>
-                  ) : (
-                    t.postListing
-                  )}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+                {/* Submit Buttons */}
+                <div className="flex gap-4 pt-6">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => navigate("/")}
+                    disabled={createListingMutation.isPending}
+                  >
+                    {t.cancel}
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={createListingMutation.isPending}
+                    className="flex-1"
+                  >
+                    {createListingMutation.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        {t.posting}
+                      </>
+                    ) : (
+                      t.postListing
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
       </div>
     </Layout>
   );
