@@ -10,6 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Heart, MapPin } from 'lucide-react';
+import { CategoryGroupBadge } from '@/components/CategoryGroupBadge';
 import { formatRelativeTime, formatPrice } from '@/lib/i18n';
 import type { ListingWithDetails } from '@shared/schema';
 

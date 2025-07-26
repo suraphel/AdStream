@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { getCategoryGroup, getGroupColor, CATEGORY_GROUPS, type CategoryGroupKey } from '@/lib/categoryGroups';
 import { 
   Laptop, 
   Car, 
@@ -61,11 +62,14 @@ export function CategoryNav() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
           {categories?.slice(0, 6).map((category: any) => {
             const IconComponent = categoryIcons[category.slug] || Laptop;
+            const groupKey = getCategoryGroup(category.slug) || 'services';
+            const colorClass = getGroupColor(groupKey as CategoryGroupKey);
+            
             return (
               <Link key={category.id} href={`/category/${category.slug}`}>
-                <div className="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group cursor-pointer">
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-2 group-hover:bg-primary/20 transition-colors">
-                    <IconComponent className="w-6 h-6 text-primary" />
+                <div className="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group cursor-pointer relative">
+                  <div className={`w-12 h-12 bg-${colorClass}-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-${colorClass}-200 transition-colors`}>
+                    <IconComponent className={`w-6 h-6 text-${colorClass}-600`} />
                   </div>
                   <span className="text-sm font-medium text-secondary-800 text-center">
                     {language === 'am' && category.nameAm ? category.nameAm : category.name}
@@ -73,6 +77,10 @@ export function CategoryNav() {
                   <span className="text-xs text-secondary-600 mt-1">
                     {formatNumber(category.listingCount || 0, language)} {t('categories.ads')}
                   </span>
+                  {/* Category Group Indicator */}
+                  <div className={`absolute -top-1 -right-1 w-5 h-5 bg-${colorClass}-500 rounded-full flex items-center justify-center text-white text-xs font-bold`}>
+                    {CATEGORY_GROUPS[groupKey as CategoryGroupKey]?.name.charAt(0)}
+                  </div>
                 </div>
               </Link>
             );
