@@ -68,10 +68,10 @@ export default function Category() {
       const params = new URLSearchParams();
       if (category?.id) params.append('category', category.id.toString());
       if (filters.searchTerm) params.append('search', filters.searchTerm);
-      if (filters.location && filters.location !== '') params.append('location', filters.location);
+      if (filters.location && filters.location !== 'all') params.append('location', filters.location);
       if (filters.condition.length > 0) params.append('condition', filters.condition.join(','));
       if (filters.brands.length > 0) params.append('brands', filters.brands.join(','));
-      if (filters.transmission) params.append('transmission', filters.transmission);
+      if (filters.transmission && filters.transmission !== 'any') params.append('transmission', filters.transmission);
       params.append('priceMin', filters.priceRange[0].toString());
       params.append('priceMax', filters.priceRange[1].toString());
       if (filters.mileage) {
@@ -84,7 +84,7 @@ export default function Category() {
       if (!response.ok) throw new Error('Failed to fetch listings');
       return response.json();
     },
-    enabled: !isOverview && !!category,
+    enabled: !isOverview && !!category?.id,
   });
 
   // Get category group information
