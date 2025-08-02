@@ -211,6 +211,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const query = searchSchema.parse(req.query);
       const categoryId = query.category ? parseInt(query.category) : undefined;
       
+      console.log(`[LISTINGS] Fetching categoryId: ${categoryId}, sort: ${query.sort || 'recent'}, limit: ${query.limit}`);
+      
       const listings = await storage.getListings({
         categoryId,
         search: query.search,
@@ -227,6 +229,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         mileageMax: query.mileageMax,
         sort: query.sort,
       });
+      
+      console.log(`[LISTINGS] Returning ${listings.length} listings, first few IDs: ${listings.slice(0, 3).map(l => l.id).join(', ')}`);
       
       res.json(listings);
     } catch (error) {

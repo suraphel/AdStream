@@ -216,8 +216,10 @@ const PostListing: React.FC = () => {
             : `Your listing "${data.title}" has been posted successfully`,
         variant: "default",
       });
+      // Force refresh all listing-related queries - comprehensive cache bust
       queryClient.invalidateQueries({ queryKey: ["/api/listings"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/my-listings"] });
+      queryClient.refetchQueries({ queryKey: ["/api/listings"] });
+      queryClient.removeQueries({ queryKey: ["/api/listings"] });
       navigate("/");
     },
     onError: (error: any) => {
