@@ -231,16 +231,22 @@ export class DatabaseStorage implements IStorage {
       baseConditions.push(inArray(listings.condition, conditions));
     }
 
-    // Transmission filtering (for vehicles)
+    // Transmission filtering (for vehicles) - include NULL values for listings without transmission data
     if (transmission && transmission !== 'any') {
       baseConditions.push(eq(listings.gearboxType, transmission));
     }
 
     // Mileage filtering (for vehicles) - include NULL values to avoid filtering out listings without mileage
-    if (mileageMin !== undefined) {
+    if (mileageMin !== undefined && mileageMax !== undefined) {
+      baseConditions.push(
+        or(
+          and(gte(listings.mileage, mileageMin), lte(listings.mileage, mileageMax)),
+          isNull(listings.mileage)
+        )
+      );
+    } else if (mileageMin !== undefined) {
       baseConditions.push(or(gte(listings.mileage, mileageMin), isNull(listings.mileage)));
-    }
-    if (mileageMax !== undefined) {
+    } else if (mileageMax !== undefined) {
       baseConditions.push(or(lte(listings.mileage, mileageMax), isNull(listings.mileage)));
     }
 

@@ -1,4 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+// Debounce hook for optimized API calls
+const useDebounce = (value: any, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -107,6 +124,25 @@ export function FilterSidebar({
       [section]: !prev[section]
     }));
   };
+
+  // Debounced filter updates for price and mileage sliders
+  const [localPriceRange, setLocalPriceRange] = useState(filters.priceRange);
+  const [localMileage, setLocalMileage] = useState(filters.mileage || [0, 200000]);
+  const debouncedPriceRange = useDebounce(localPriceRange, 800);
+  const debouncedMileage = useDebounce(localMileage, 800);
+
+  // Apply debounced updates
+  useEffect(() => {
+    if (debouncedPriceRange !== filters.priceRange) {
+      updateFilters({ priceRange: debouncedPriceRange });
+    }
+  }, [debouncedPriceRange]);
+
+  useEffect(() => {
+    if (debouncedMileage !== filters.mileage) {
+      updateFilters({ mileage: debouncedMileage });
+    }
+  }, [debouncedMileage]);
 
   const updateFilters = (updates: Partial<FilterState>) => {
     onFiltersChange({ ...filters, ...updates });
@@ -229,15 +265,15 @@ export function FilterSidebar({
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-3 pt-3">
                 <Slider
-                  value={filters.priceRange}
-                  onValueChange={(value) => updateFilters({ priceRange: value as [number, number] })}
+                  value={localPriceRange}
+                  onValueChange={(value) => setLocalPriceRange(value as [number, number])}
                   max={1000000}
                   step={5000}
                   className="w-full"
                 />
                 <div className="flex items-center justify-between text-sm text-gray-600">
-                  <span>ETB {filters.priceRange[0].toLocaleString()}</span>
-                  <span>ETB {filters.priceRange[1].toLocaleString()}</span>
+                  <span>ETB {localPriceRange[0].toLocaleString()}</span>
+                  <span>ETB {localPriceRange[1].toLocaleString()}</span>
                 </div>
               </CollapsibleContent>
             </Collapsible>
@@ -363,15 +399,15 @@ export function FilterSidebar({
                   <div>
                     <Label className="text-sm font-medium">Mileage (km)</Label>
                     <Slider
-                      value={filters.mileage || [0, 200000]}
-                      onValueChange={(value) => updateFilters({ mileage: value as [number, number] })}
+                      value={localMileage}
+                      onValueChange={(value) => setLocalMileage(value as [number, number])}
                       max={500000}
                       step={5000}
                       className="w-full mt-2"
                     />
                     <div className="flex items-center justify-between text-sm text-gray-600 mt-1">
-                      <span>{(filters.mileage?.[0] || 0).toLocaleString()} km</span>
-                      <span>{(filters.mileage?.[1] || 200000).toLocaleString()} km</span>
+                      <span>{localMileage[0].toLocaleString()} km</span>
+                      <span>{localMileage[1].toLocaleString()} km</span>
                     </div>
                   </div>
                 </CollapsibleContent>
