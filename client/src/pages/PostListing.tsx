@@ -220,6 +220,10 @@ const PostListing: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ["/api/listings"] });
       queryClient.refetchQueries({ queryKey: ["/api/listings"] });
       queryClient.removeQueries({ queryKey: ["/api/listings"] });
+      // Force refresh category-specific queries
+      queryClient.invalidateQueries({ predicate: (query) => 
+        query.queryKey[0] === '/api/listings' && query.queryKey[1] 
+      });
       navigate("/");
     },
     onError: (error: any) => {
