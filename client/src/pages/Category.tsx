@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Layout } from '@/components/Layout';
 import { ListingCard } from '@/components/ListingCard';
+import { BreadcrumbNavigation } from '@/components/BreadcrumbNavigation';
+import { FilterSidebar, type FilterState } from '@/components/FilterSidebar';
+import { SubcategoryGrid } from '@/components/SubcategoryGrid';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -26,6 +29,7 @@ import {
   Building
 } from 'lucide-react';
 import { formatNumber } from '@/lib/i18n';
+import { getCategoryGroup, type CategoryGroupKey } from '@/lib/categoryGroups';
 
 export default function Category() {
   const params = useParams();
@@ -35,9 +39,16 @@ export default function Category() {
   
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('recent');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState('');
-  const [priceRange, setPriceRange] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState<FilterState>({
+    priceRange: [0, 1000000],
+    condition: [],
+    location: '',
+    brands: [],
+    transmission: '',
+    mileage: [0, 200000],
+    searchTerm: ''
+  });
 
   // Check if this is the categories overview page
   const isOverview = location === '/categories' || !slug;
@@ -52,12 +63,21 @@ export default function Category() {
   });
 
   const { data: listings, isLoading: listingsLoading } = useQuery({
-    queryKey: ['/api/listings', category?.id, searchTerm, selectedLocation, sortBy],
+    queryKey: ['/api/listings', category?.id, filters, sortBy],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (category?.id) params.append('category', category.id.toString());
-      if (searchTerm) params.append('search', searchTerm);
-      if (selectedLocation && selectedLocation !== 'all') params.append('location', selectedLocation);
+      if (filters.searchTerm) params.append('search', filters.searchTerm);
+      if (filters.location && filters.location !== '') params.append('location', filters.location);
+      if (filters.condition.length > 0) params.append('condition', filters.condition.join(','));
+      if (filters.brands.length > 0) params.append('brands', filters.brands.join(','));
+      if (filters.transmission) params.append('transmission', filters.transmission);
+      params.append('priceMin', filters.priceRange[0].toString());
+      params.append('priceMax', filters.priceRange[1].toString());
+      if (filters.mileage) {
+        params.append('mileageMin', filters.mileage[0].toString());
+        params.append('mileageMax', filters.mileage[1].toString());
+      }
       params.append('sort', sortBy);
       
       const response = await fetch(`/api/listings?${params.toString()}`);
@@ -67,8 +87,16 @@ export default function Category() {
     enabled: !isOverview && !!category,
   });
 
-  // Check if this is the real estate category
+  // Get category group information
+  const categoryGroup = slug ? getCategoryGroup(slug) : null;
   const isRealEstateCategory = slug === 'real-estate';
+
+  // Auto-hide filters on mobile after applying
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setShowFilters(false);
+    }
+  }, [filters]);
 
   const locations = [
     { value: 'all', label: t('search.allEthiopia') },
@@ -197,217 +225,180 @@ export default function Category() {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Category Header */}
-        <div className="mb-8">
-          {category.icon && (
-            <div className="relative mb-6 rounded-lg overflow-hidden">
-              <img 
-                src={category.icon} 
-                alt={category.name}
-                className="w-full h-40 object-cover"
-              />
-              <div className="absolute inset-0 bg-black/40"></div>
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <h1 className="text-3xl font-bold text-white mb-2">
-                  {language === 'am' && category.nameAm ? category.nameAm : category.name}
-                </h1>
-                <p className="text-lg text-white/90">
-                  {formatNumber(listings?.length || 0, language)} listings found
-                </p>
-              </div>
-            </div>
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Breadcrumb Navigation */}
+          <BreadcrumbNavigation 
+            categorySlug={slug}
+            categoryName={category.name}
+          />
+
+          {/* Show subcategories if this is a main category group page */}
+          {categoryGroup && (
+            <SubcategoryGrid 
+              groupKey={categoryGroup}
+              currentCategorySlug={slug}
+            />
           )}
-          {!category.icon && (
-            <div className="mb-6">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {language === 'am' && category.nameAm ? category.nameAm : category.name}
-              </h1>
-              <p className="text-lg text-gray-600">
-                {formatNumber(listings?.length || 0, language)} listings found
-              </p>
+
+          {/* Layout Container */}
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Filter Sidebar */}
+            <FilterSidebar
+              isOpen={showFilters}
+              onToggle={() => setShowFilters(!showFilters)}
+              filters={filters}
+              onFiltersChange={setFilters}
+              categorySlug={slug}
+              className="lg:w-80 flex-shrink-0"
+            />
+
+            {/* Main Content */}
+            <div className="flex-1">
+              {/* Category Header */}
+              <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div className="flex items-center mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-3 bg-blue-100 rounded-xl">
+                      <Building className="h-6 w-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <h1 className="text-2xl font-bold text-gray-900">
+                        {category.name}
+                      </h1>
+                      {category.nameAm && language === 'am' && (
+                        <p className="text-gray-600 mt-1">{category.nameAm}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                {category.description && (
+                  <p className="text-gray-600 mb-4">
+                    {language === 'am' && category.descriptionAm ? category.descriptionAm : category.description}
+                  </p>
+                )}
+
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-gray-500">
+                    {formatNumber(listings?.length || 0, language)} listings found
+                  </p>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant={viewMode === 'grid' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setViewMode('grid')}
+                    >
+                      <Grid className="w-4 h-4 mr-1" />
+                      Grid
+                    </Button>
+                    <Button
+                      variant={viewMode === 'list' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setViewMode('list')}
+                    >
+                      <List className="w-4 h-4 mr-1" />
+                      List
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Listings Grid/List */}
+              {listingsLoading ? (
+                <div className={viewMode === 'grid' 
+                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
+                  : 'space-y-4'
+                }>
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="bg-white rounded-lg shadow-sm overflow-hidden">
+                      <Skeleton className="w-full h-48" />
+                      <div className="p-4 space-y-2">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                        <Skeleton className="h-4 w-1/4" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : listings && listings.length > 0 ? (
+                <div className={viewMode === 'grid' 
+                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
+                  : 'space-y-4'
+                }>
+                  {listings.map((listing: any) => (
+                    <ListingCard 
+                      key={listing.id} 
+                      listing={listing} 
+                      viewMode={viewMode}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+                  <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Search className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No listings found</h3>
+                  <p className="text-gray-500 mb-6">
+                    No listings match your current filters in this category.
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setFilters({
+                      priceRange: [0, 1000000],
+                      condition: [],
+                      location: '',
+                      brands: [],
+                      transmission: '',
+                      mileage: [0, 200000],
+                      searchTerm: ''
+                    })}
+                  >
+                    Clear Filters
+                  </Button>
+                </div>
+              )}
             </div>
+          </div>
+
+          {/* External Listings Section for Real Estate */}
+          {isRealEstateCategory && (
+            <Card className="mt-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building className="h-5 w-5 text-primary" />
+                  External Real Estate Listings
+                  <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">
+                  Access thousands of additional property listings from trusted external platforms
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Button 
+                    onClick={() => window.location.href = '/external'}
+                    className="flex items-center gap-2"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Browse External Listings
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    RentCast Properties
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    Zillow Data
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    More Sources
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           )}
         </div>
-
-        {/* Filters */}
-        <Card className="mb-8">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Search in this category..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-
-              {/* Location */}
-              <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Locations" />
-                </SelectTrigger>
-                <SelectContent>
-                  {locations.map((location) => (
-                    <SelectItem key={location.value} value={location.value}>
-                      {location.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* Price Range */}
-              <Select value={priceRange} onValueChange={setPriceRange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Any Price" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">Any Price</SelectItem>
-                  <SelectItem value="0-1000">Under ETB 1,000</SelectItem>
-                  <SelectItem value="1000-5000">ETB 1,000 - 5,000</SelectItem>
-                  <SelectItem value="5000-10000">ETB 5,000 - 10,000</SelectItem>
-                  <SelectItem value="10000-50000">ETB 10,000 - 50,000</SelectItem>
-                  <SelectItem value="50000+">Over ETB 50,000</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {/* Sort */}
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {sortOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex justify-between items-center">
-              <Button variant="ghost" className="text-primary">
-                <SlidersHorizontal className="w-4 h-4 mr-2" />
-                Advanced Filters
-              </Button>
-              
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant={viewMode === 'grid' ? 'default' : 'outline'}
-                  size="icon"
-                  onClick={() => setViewMode('grid')}
-                >
-                  <Grid className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'outline'}
-                  size="icon"
-                  onClick={() => setViewMode('list')}
-                >
-                  <List className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* External Listings Section for Real Estate */}
-        {isRealEstateCategory && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building className="h-5 w-5 text-primary" />
-                External Real Estate Listings
-                <ExternalLink className="h-4 w-4 text-muted-foreground" />
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">
-                Access thousands of additional property listings from trusted external platforms
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <Button 
-                  onClick={() => window.location.href = '/external'}
-                  className="flex items-center gap-2"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  Browse External Listings
-                </Button>
-                <Button variant="outline" size="sm">
-                  RentCast Properties
-                </Button>
-                <Button variant="outline" size="sm">
-                  Zillow Data
-                </Button>
-                <Button variant="outline" size="sm">
-                  More Sources
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Listings */}
-        {listingsLoading ? (
-          <div className={`grid gap-6 ${
-            viewMode === 'grid' 
-              ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
-              : 'grid-cols-1'
-          }`}>
-            {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="space-y-4">
-                <Skeleton className="w-full h-48 rounded-lg" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-              </div>
-            ))}
-          </div>
-        ) : listings?.length === 0 ? (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No listings found
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Try adjusting your search criteria or browse other categories
-              </p>
-              <div className="flex justify-center space-x-4">
-                <Button variant="outline" asChild>
-                  <a href="/categories">Browse Categories</a>
-                </Button>
-                <Button asChild>
-                  <a href="/">Back to Home</a>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <>
-            <div className={`grid gap-6 ${
-              viewMode === 'grid' 
-                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
-                : 'grid-cols-1'
-            }`}>
-              {listings?.map((listing: any) => (
-                <ListingCard key={listing.id} listing={listing} />
-              ))}
-            </div>
-
-            {/* Load More */}
-            <div className="text-center mt-8">
-              <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">
-                Load More Listings
-              </Button>
-            </div>
-          </>
-        )}
       </div>
     </Layout>
   );

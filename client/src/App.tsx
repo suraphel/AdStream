@@ -15,6 +15,7 @@ import EditListing from "@/pages/EditListing";
 import Profile from "@/pages/Profile";
 import Category from "@/pages/Category";
 import Categories from "@/pages/Categories";
+import CategoryGroup from "@/pages/CategoryGroup";
 import CategorySelect from "@/pages/CategorySelect";
 
 import ExternalListings from "@/pages/ExternalListings";
@@ -52,6 +53,7 @@ function Router() {
           <Route path="/" component={Landing} />
           <Route path="/listing/:id" component={ListingDetail} />
           <Route path="/categories" component={Categories} />
+          <Route path="/category-group/:groupKey" component={CategoryGroup} />
           <Route path="/category/:slug" component={Category} />
 
           {/* Tender routes available to all */}
@@ -65,6 +67,7 @@ function Router() {
           <Route path="/" component={Home} />
           <Route path="/listing/:id" component={ListingDetail} />
           <Route path="/categories" component={Categories} />
+          <Route path="/category-group/:groupKey" component={CategoryGroup} />
           <Route path="/category/:slug" component={Category} />
           <Route path="/post" component={PostListing} />
           <Route path="/edit/:id" component={EditListing} />

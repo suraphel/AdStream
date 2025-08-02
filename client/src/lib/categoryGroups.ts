@@ -57,7 +57,7 @@ export type CategoryGroupKey = keyof typeof CATEGORY_GROUPS;
 
 export function getCategoryGroup(categorySlug: string): CategoryGroupKey | null {
   for (const [groupKey, group] of Object.entries(CATEGORY_GROUPS)) {
-    if (group.subcategories.includes(categorySlug as any)) {
+    if (group.subcategories.includes(categorySlug)) {
       return groupKey as CategoryGroupKey;
     }
   }

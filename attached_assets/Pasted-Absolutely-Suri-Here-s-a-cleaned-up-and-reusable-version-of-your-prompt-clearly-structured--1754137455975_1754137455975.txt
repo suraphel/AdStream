@@ -1,0 +1,136 @@
+Absolutely, Suri! Here's a **cleaned-up and reusable version** of your prompt — clearly structured, modular, and applicable to **any main category and its subcategories**, not just Vehicles.
+
+---
+
+### ✅ Feature Implementation Prompt for Classified Categories
+
+**Objective:**
+Enhance category and subcategory pages on the existing classified ads platform by adding a **collapsible filter sidebar**, **breadcrumb navigation**, and a **dynamic item listing section**. This should work for **any category** (e.g., Vehicles, Electronics, Real Estate) with its own subpages and filter options.
+
+---
+
+### 🧩 Layout & Functional Breakdown
+
+#### 1. **Breadcrumb Navigation**
+
+* Show users their current path, e.g.:
+
+  ```
+  Home > Vehicles > Cars
+  ```
+* Display it at the top of the category/subcategory pages.
+* Clicking a breadcrumb link navigates one level up.
+
+#### 2. **Subcategories**
+
+* Display subcategories relevant to the selected main category.
+* Each subcategory should be a **clickable card/button**, redirecting to its own page:
+
+  ```
+  /vehicles/cars
+  /vehicles/vans
+  /vehicles/motorhomes
+  ```
+* This subcategory list should be reusable across categories (e.g., Electronics → Phones, Laptops, TVs).
+
+---
+
+### 📂 3. **Collapsible Filter Sidebar**
+
+* The filter sidebar should appear on the **left side** of the category or subcategory page.
+* It should be **collapsible**, with a default state of collapsed.
+* A button like **"Show Filters" / "Hide Filters"** should toggle its visibility.
+
+#### 💡 General Filter Structure (for reuse across categories):
+
+```text
+Filter Sidebar (Collapsible)
+├── Price Range (slider)
+├── Condition (checkbox or dropdown): New, Used
+├── Location (dropdown or search): e.g., Addis Ababa, Mekelle, etc.
+├── [Category-Specific Filters]
+```
+
+#### ✅ Example: For `/vehicles` and its subpages, filters include:
+
+* **Price Range**: Slider in ETB (Ethiopian Birr)
+* **Condition**: New, Used (checkboxes or dropdown)
+* **Location**: Dropdown with Ethiopian cities
+* **Transmission Type**: Automatic, Manual
+* **Mileage**: Range slider (0–200,000+ km)
+* **Car Brands**:
+
+  * Show common car brands in Ethiopia as **scrollable checkboxes**
+    (e.g., Toyota, Hyundai, Mercedes, BMW, Nissan, Mitsubishi, Kia, Ford, Honda, Suzuki)
+  * Allow **multi-select**
+  * Include a **"Select All"** option
+
+> ✅ This filter layout should be **extensible** — for example, if you’re in `/electronics`, you can replace "Car Brands" with "Laptop Brands", "Phone Brands", etc.
+
+---
+
+### 📦 4. **Items List**
+
+* The items list should reflect:
+
+  * The selected subcategory (e.g., Cars under Vehicles)
+  * The active filters
+* Each item should show:
+
+  * **Title**
+  * **Price (in ETB)**
+  * **Thumbnail Image**
+  * **Short description**
+* Results should support:
+
+  * **Pagination** or **Infinite Scroll**
+  * Responsive updates based on filters
+
+---
+
+### 📱 5. **Mobile Responsiveness**
+
+* Filters should collapse into an **accordion menu** or slide-over drawer on mobile.
+* Subcategories should be easily tappable as cards or buttons.
+* Breadcrumbs should shrink or stack vertically if needed.
+
+---
+
+### 🌍 6. **Localization & Market Fit**
+
+* **Location** dropdowns should list **Ethiopian cities** like:
+
+  * Addis Ababa
+  * Dire Dawa
+  * Mekelle
+  * Bahir Dar
+  * Hawassa
+* Currency for all price inputs and outputs should be in **ETB**.
+* Car brands and filters should reflect what’s relevant in the **Ethiopian market**.
+
+---
+
+### ✅ Key Expected Outcomes
+
+* ✅ Clicking a main category (e.g., Vehicles) routes to `/vehicles`
+* ✅ `/vehicles` displays subcategories (e.g., Cars, Vans, Motorhomes) as clickable entries
+* ✅ Clicking a subcategory (e.g., Cars) routes to `/vehicles/cars`
+* ✅ Breadcrumb navigation reflects the page hierarchy (`Home > Vehicles > Cars`)
+* ✅ A collapsible sidebar appears on category and subcategory pages
+* ✅ Filters are category-aware and include price, condition, location, and specific filters like car brands
+* ✅ Items update dynamically as filters are applied
+* ✅ Layout is responsive and optimized for both desktop and mobile
+
+---
+
+### ♻️ Reusability Note
+
+This architecture is reusable for all main categories:
+
+* Use a **filter configuration map** per category to define available filters.
+* Subcategory rendering and breadcrumbs follow the same structure regardless of main category.
+* Filter components and layout behavior stay consistent — only their **data** changes.
+
+---
+
+Let me know if you want a JSON or TypeScript config structure to define category-specific filters — would be a great next step to make this fully modular.
