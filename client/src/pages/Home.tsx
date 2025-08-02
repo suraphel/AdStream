@@ -6,7 +6,7 @@ import { Layout } from '@/components/Layout';
 import { SearchHero } from '@/components/SearchHero';
 import { CategoryNav } from '@/components/CategoryNav';
 import { ListingCard } from '@/components/ListingCard';
-import { CategoryGroupCards } from '@/components/CategoryGroupCards';
+import { EnhancedCategories } from '@/components/EnhancedCategories';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FeaturedSectionSkeleton, RecentListingsSkeleton } from '@/components/SkeletonLoader';
@@ -44,7 +44,7 @@ export default function Home() {
   return (
     <Layout>
       <SearchHero onSearch={handleSearch} />
-      <CategoryGroupCards />
+      <EnhancedCategories />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Featured Section */}

@@ -7,7 +7,7 @@ import { SearchHero } from '@/components/SearchHero';
 import { CategoryNav } from '@/components/CategoryNav';
 import { Layout } from '@/components/Layout';
 import { ListingCard } from '@/components/ListingCard';
-import { CategoryGroupCards } from '@/components/CategoryGroupCards';
+
 import { Skeleton } from '@/components/ui/skeleton';
 import { Plus } from 'lucide-react';
 
@@ -27,6 +27,7 @@ export default function Landing() {
   return (
     <Layout>
       <SearchHero />
+      <CategoryNav />
       
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-primary to-primary/80 text-white py-16">
@@ -51,9 +52,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
-      {/* Category Groups */}
-      <CategoryGroupCards />
 
       {/* Features Section */}
       <section className="py-16 bg-white">
