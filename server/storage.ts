@@ -24,7 +24,7 @@ import {
   type CategoryWithCount,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, asc, and, or, ilike, count, sql, inArray, gte, lte } from "drizzle-orm";
+import { eq, desc, asc, and, or, ilike, count, sql, inArray, gte, lte, isNull } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -236,15 +236,16 @@ export class DatabaseStorage implements IStorage {
       baseConditions.push(eq(listings.gearboxType, transmission));
     }
 
-    // Mileage filtering (for vehicles)
+    // Mileage filtering (for vehicles) - include NULL values to avoid filtering out listings without mileage
     if (mileageMin !== undefined) {
-      baseConditions.push(gte(listings.mileage, mileageMin));
+      baseConditions.push(or(gte(listings.mileage, mileageMin), isNull(listings.mileage)));
     }
     if (mileageMax !== undefined) {
-      baseConditions.push(lte(listings.mileage, mileageMax));
+      baseConditions.push(or(lte(listings.mileage, mileageMax), isNull(listings.mileage)));
     }
 
     console.log(`[STORAGE] Building query with ${baseConditions.length} conditions for categoryId: ${categoryId}`);
+    console.log(`[STORAGE] Conditions: priceMin=${priceMin}, priceMax=${priceMax}, mileageMin=${mileageMin}, mileageMax=${mileageMax}, transmission=${transmission}`);
     
     const query = db
       .select({
