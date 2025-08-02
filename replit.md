@@ -1,7 +1,7 @@
 # TenderFloatingBindingApplication
 
 ## Overview
-TenderFloatingBindingApplication is a monolithic web application designed for managing and hosting tender documents. It allows companies to upload tender documents, enables public viewing of basic details, and restricts full document downloads to paid users. The system features secure document access, payment integration, email notifications, and comprehensive administrative tools for tender management. The project aims to provide a robust platform for tender document exchange, with capabilities for handling various document types and ensuring secure transactions.
+TenderFloatingBindingApplication has evolved into a comprehensive classified ads marketplace platform. Originally designed for tender document management, it now features a complete FINN.no-style marketplace with advanced category filtering, Ethiopian localization, and modern responsive design. The system provides robust listing management, user authentication, multilingual support, and specialized features for various market segments including vehicles, electronics, real estate, and more.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -31,11 +31,14 @@ Preferred communication style: Simple, everyday language.
 - **Features**: Hierarchical categories, bilingual content (English/Amharic), role-based access control, comprehensive shop module with Ethiopian accounting compliance (VAT, TIN/VAT validation, fiscal year management), SMS-based OTP verification, and text notification system for favorited item matches.
 
 ### Key Features & Components
+- **Advanced Category Filtering System**: Comprehensive filter sidebar with collapsible sections, price range sliders, Ethiopian city selection, brand filtering, vehicle-specific filters (transmission, mileage), condition filters, and responsive design.
+- **FINN.no-Style Layout**: Clean, organized category presentation with hierarchical navigation, breadcrumb system, subcategory grids, and mobile-first responsive design optimized for diverse device experiences.
+- **Navigation System**: BreadcrumbNavigation component, SubcategoryGrid for category group browsing, CategoryGroup pages with proper routing integration, and intuitive category organization.
 - **Authentication System**: JWT-based authentication, role-based access control, user management, email verification, SMS-based OTP verification.
-- **Listing Management**: Multi-step forms, image upload, hierarchical categories, search & filtering, user-specific favoriting.
+- **Listing Management**: Multi-step forms, image upload, hierarchical categories, advanced search & filtering with real-time updates, user-specific favoriting.
 - **Tender Document Management**: Secure file upload, storage, download with access control, payment integration, email notifications, download logging, purchase verification.
 - **Shop Module**: Business logic for private selling, extensive database schema for shops, products, orders, and accounting, Ethiopian accounting compliance, shop registration, dashboard interface, and back office administration.
-- **Internationalization**: English and Amharic support, context-based translation, locale-aware formatting.
+- **Internationalization**: English and Amharic support, context-based translation, locale-aware formatting with Ethiopian market localization.
 - **Messaging System**: User-to-user communication with conversations and messages tables, "Contact Seller" functionality.
 - **Text Notification System**: SMS notifications for favorited item matches, user-controlled preferences, notification history.
 - **Configuration & Feature Management**: Environment-specific configuration, feature toggle system for dynamic enabling/disabling of features (payments, chat, image upload, admin panel, analytics, etc.), localization management.

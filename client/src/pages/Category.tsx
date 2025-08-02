@@ -43,9 +43,9 @@ export default function Category() {
   const [filters, setFilters] = useState<FilterState>({
     priceRange: [0, 1000000],
     condition: [],
-    location: '',
+    location: 'all',
     brands: [],
-    transmission: '',
+    transmission: 'any',
     mileage: [0, 200000],
     searchTerm: ''
   });
@@ -349,9 +349,9 @@ export default function Category() {
                     onClick={() => setFilters({
                       priceRange: [0, 1000000],
                       condition: [],
-                      location: '',
+                      location: 'all',
                       brands: [],
-                      transmission: '',
+                      transmission: 'any',
                       mileage: [0, 200000],
                       searchTerm: ''
                     })}

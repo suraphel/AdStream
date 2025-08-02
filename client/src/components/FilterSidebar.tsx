@@ -52,7 +52,7 @@ interface FilterSidebarProps {
 }
 
 const ETHIOPIAN_CITIES = [
-  { value: '', label: 'All Ethiopia' },
+  { value: 'all', label: 'All Ethiopia' },
   { value: 'addis-ababa', label: 'Addis Ababa' },
   { value: 'dire-dawa', label: 'Dire Dawa' },
   { value: 'mekelle', label: 'Mekelle' },
@@ -142,9 +142,9 @@ export function FilterSidebar({
     onFiltersChange({
       priceRange: [0, 1000000],
       condition: [],
-      location: '',
+      location: 'all',
       brands: [],
-      transmission: '',
+      transmission: 'any',
       mileage: [0, 200000],
       searchTerm: ''
     });
@@ -347,12 +347,12 @@ export function FilterSidebar({
                   {/* Transmission */}
                   <div>
                     <Label className="text-sm font-medium">Transmission</Label>
-                    <Select value={filters.transmission || ''} onValueChange={(value) => updateFilters({ transmission: value })}>
+                    <Select value={filters.transmission || 'any'} onValueChange={(value) => updateFilters({ transmission: value === 'any' ? '' : value })}>
                       <SelectTrigger className="mt-1">
                         <SelectValue placeholder="Any transmission" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Any transmission</SelectItem>
+                        <SelectItem value="any">Any transmission</SelectItem>
                         <SelectItem value="automatic">Automatic</SelectItem>
                         <SelectItem value="manual">Manual</SelectItem>
                       </SelectContent>
