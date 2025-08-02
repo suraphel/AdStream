@@ -268,10 +268,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const listing = await storage.createListing(listingData);
       
-      // Trigger notification check for matching favorites (non-blocking)
-      NotificationService.checkFavoriteMatches(listing).catch((error: any) => {
-        console.error('Error checking notifications for new listing:', error);
-      });
+      // Trigger notification check for matching favorites (non-blocking) - disabled temporarily
+      // NotificationService.checkFavoriteMatches(listing).catch((error: any) => {
+      //   console.error('Error checking notifications for new listing:', error);
+      // });
       
       res.status(201).json(listing);
     } catch (error) {

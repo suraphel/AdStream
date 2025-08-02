@@ -207,13 +207,14 @@ const PostListing: React.FC = () => {
 
       return await response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
-        title: t.success,
+        title: language === "am" ? "ተሳክቷል!" : "Success!",
         description:
           language === "am"
-            ? "ዕቃዎ በተሳካ ሁኔታ ተለጠፈ"
-            : "Your listing has been posted successfully",
+            ? `ዕቃዎ "${data.title}" በተሳካ ሁኔታ ተለጠፈ`
+            : `Your listing "${data.title}" has been posted successfully`,
+        variant: "default",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/listings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/my-listings"] });
