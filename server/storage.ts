@@ -24,7 +24,7 @@ import {
   type CategoryWithCount,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, asc, and, or, ilike, count, sql, inArray } from "drizzle-orm";
+import { eq, desc, asc, and, or, ilike, count, sql, inArray, gte, lte } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -163,6 +163,14 @@ export class DatabaseStorage implements IStorage {
     limit?: number;
     offset?: number;
     featured?: boolean;
+    priceMin?: number;
+    priceMax?: number;
+    condition?: string;
+    brands?: string;
+    transmission?: string;
+    mileageMin?: number;
+    mileageMax?: number;
+    sort?: string;
   } = {}): Promise<ListingWithDetails[]> {
     const {
       categoryId,
@@ -172,6 +180,14 @@ export class DatabaseStorage implements IStorage {
       limit = 20,
       offset = 0,
       featured = false,
+      priceMin,
+      priceMax,
+      condition,
+      brands,
+      transmission,
+      mileageMin,
+      mileageMax,
+      sort = 'recent',
     } = options;
 
     let baseConditions = [eq(listings.isActive, true)];
@@ -201,6 +217,33 @@ export class DatabaseStorage implements IStorage {
       baseConditions.push(eq(listings.isFeatured, true));
     }
 
+    // Price filtering
+    if (priceMin !== undefined) {
+      baseConditions.push(gte(listings.price, priceMin.toString()));
+    }
+    if (priceMax !== undefined) {
+      baseConditions.push(lte(listings.price, priceMax.toString()));
+    }
+
+    // Condition filtering
+    if (condition) {
+      const conditions = condition.split(',');
+      baseConditions.push(inArray(listings.condition, conditions));
+    }
+
+    // Transmission filtering (for vehicles)
+    if (transmission && transmission !== 'any') {
+      baseConditions.push(eq(listings.gearboxType, transmission));
+    }
+
+    // Mileage filtering (for vehicles)
+    if (mileageMin !== undefined) {
+      baseConditions.push(gte(listings.mileage, mileageMin));
+    }
+    if (mileageMax !== undefined) {
+      baseConditions.push(lte(listings.mileage, mileageMax));
+    }
+
     const query = db
       .select({
         listing: listings,
@@ -212,8 +255,25 @@ export class DatabaseStorage implements IStorage {
       .innerJoin(categories, eq(listings.categoryId, categories.id))
       .where(and(...baseConditions));
 
+    let orderBy;
+    switch (sort) {
+      case 'price-low':
+        orderBy = asc(listings.price);
+        break;
+      case 'price-high':
+        orderBy = desc(listings.price);
+        break;
+      case 'popular':
+        orderBy = desc(listings.viewCount);
+        break;
+      case 'recent':
+      default:
+        orderBy = desc(listings.createdAt);
+        break;
+    }
+
     const results = await query
-      .orderBy(desc(listings.createdAt))
+      .orderBy(orderBy)
       .limit(limit)
       .offset(offset);
 

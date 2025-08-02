@@ -30,6 +30,14 @@ const searchSchema = z.object({
   page: z.string().optional().transform(s => s ? parseInt(s) : 1),
   limit: z.string().optional().transform(s => s ? parseInt(s) : 20),
   featured: z.string().optional().transform(s => s === 'true'),
+  priceMin: z.string().optional().transform(s => s ? parseFloat(s) : undefined),
+  priceMax: z.string().optional().transform(s => s ? parseFloat(s) : undefined),
+  condition: z.string().optional(),
+  brands: z.string().optional(),
+  transmission: z.string().optional(),
+  mileageMin: z.string().optional().transform(s => s ? parseInt(s) : undefined),
+  mileageMax: z.string().optional().transform(s => s ? parseInt(s) : undefined),
+  sort: z.string().optional(),
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -207,6 +215,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         limit: query.limit,
         offset: (query.page - 1) * query.limit,
         featured: query.featured,
+        priceMin: query.priceMin,
+        priceMax: query.priceMax,
+        condition: query.condition,
+        brands: query.brands,
+        transmission: query.transmission,
+        mileageMin: query.mileageMin,
+        mileageMax: query.mileageMax,
+        sort: query.sort,
       });
       
       res.json(listings);
