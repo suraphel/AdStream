@@ -73,6 +73,7 @@ export default function Category() {
       if (category?.id) params.append('category', category.id.toString());
       if (filters.searchTerm) params.append('search', filters.searchTerm);
       if (filters.location && filters.location !== 'all') params.append('location', filters.location);
+      if (filters.condition && filters.condition.length > 0) params.append('condition', filters.condition.join(','));
       if (filters.condition.length > 0) params.append('condition', filters.condition.join(','));
       if (filters.brands.length > 0) params.append('brands', filters.brands.join(','));
       if (filters.transmission && filters.transmission !== 'any') params.append('transmission', filters.transmission);

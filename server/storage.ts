@@ -225,10 +225,15 @@ export class DatabaseStorage implements IStorage {
       baseConditions.push(lte(listings.price, priceMax.toString()));
     }
 
-    // Condition filtering
-    if (condition) {
-      const conditions = condition.split(',');
-      baseConditions.push(inArray(listings.condition, conditions));
+    // Condition filtering - include NULL values for listings without condition data
+    if (condition && condition !== '' && condition !== 'all') {
+      const conditions = condition.split(',').map(c => c.toLowerCase());
+      baseConditions.push(
+        or(
+          inArray(sql`LOWER(${listings.condition})`, conditions),
+          isNull(listings.condition)
+        )
+      );
     }
 
     // Transmission filtering (for vehicles) - include NULL values for listings without transmission data
@@ -251,7 +256,7 @@ export class DatabaseStorage implements IStorage {
     }
 
     console.log(`[STORAGE] Building query with ${baseConditions.length} conditions for categoryId: ${categoryId}`);
-    console.log(`[STORAGE] Conditions: priceMin=${priceMin}, priceMax=${priceMax}, mileageMin=${mileageMin}, mileageMax=${mileageMax}, transmission=${transmission}`);
+    console.log(`[STORAGE] Conditions: priceMin=${priceMin}, priceMax=${priceMax}, mileageMin=${mileageMin}, mileageMax=${mileageMax}, transmission=${transmission}, condition=${condition}`);
     
     const query = db
       .select({

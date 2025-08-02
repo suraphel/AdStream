@@ -287,7 +287,7 @@ export function FilterSidebar({
                 </Button>
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-2 pt-3">
-                {['New', 'Used', 'Refurbished'].map((condition) => (
+                {['new', 'used', 'excellent', 'good'].map((condition) => (
                   <div key={condition} className="flex items-center space-x-2">
                     <Checkbox
                       id={condition}
@@ -300,7 +300,7 @@ export function FilterSidebar({
                         }
                       }}
                     />
-                    <Label htmlFor={condition} className="text-sm">{condition}</Label>
+                    <Label htmlFor={condition} className="text-sm capitalize">{condition}</Label>
                   </div>
                 ))}
               </CollapsibleContent>
