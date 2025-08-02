@@ -244,6 +244,8 @@ export class DatabaseStorage implements IStorage {
       baseConditions.push(lte(listings.mileage, mileageMax));
     }
 
+    console.log(`[STORAGE] Building query with ${baseConditions.length} conditions for categoryId: ${categoryId}`);
+    
     const query = db
       .select({
         listing: listings,

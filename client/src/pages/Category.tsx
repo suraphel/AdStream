@@ -66,11 +66,11 @@ export default function Category() {
     queryKey: ['/api/listings', category?.id, filters, sortBy],
     staleTime: 0,
     gcTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       const params = new URLSearchParams();
       if (category?.id) params.append('category', category.id.toString());
-      // Add cache buster to force fresh data
-      params.append('_t', Date.now().toString());
       if (filters.searchTerm) params.append('search', filters.searchTerm);
       if (filters.location && filters.location !== 'all') params.append('location', filters.location);
       if (filters.condition.length > 0) params.append('condition', filters.condition.join(','));
