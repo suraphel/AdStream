@@ -60,7 +60,7 @@ export function CategoryNav() {
         </div>
         
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-          {categories?.slice(0, 6).map((category: any) => {
+          {(categories as any[])?.slice(0, 6).map((category: any) => {
             const IconComponent = categoryIcons[category.slug] || Laptop;
             const groupKey = getCategoryGroup(category.slug) || 'services';
             const colorClass = getGroupColor(groupKey as CategoryGroupKey);

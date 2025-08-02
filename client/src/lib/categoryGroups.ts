@@ -1,5 +1,13 @@
 // Category grouping system for enhanced organization
-import { Car, Home, Smartphone, Shirt, Plane, Briefcase, Wrench } from 'lucide-react';
+import { Car, Home, Smartphone, Shirt, Plane, Briefcase, Wrench, type LucideIcon } from 'lucide-react';
+
+export interface CategoryGroup {
+  name: string;
+  nameAm: string;
+  icon: LucideIcon;
+  color: string;
+  subcategories: string[];
+}
 
 export const CATEGORY_GROUPS = {
   vehicles: {
@@ -51,7 +59,7 @@ export const CATEGORY_GROUPS = {
     color: 'gray',
     subcategories: ['home-services', 'professional', 'education', 'health']
   }
-} as const;
+};
 
 export type CategoryGroupKey = keyof typeof CATEGORY_GROUPS;
 
