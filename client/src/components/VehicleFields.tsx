@@ -25,6 +25,10 @@ export function VehicleFields({ control, categorySlug }: VehicleFieldsProps) {
   const watchedCategory = useWatch({ control, name: 'categoryId' });
   
   // Don't render if not a vehicle category
+  if (categorySlug && !isVehicleCategory(categorySlug)) {
+    return null;
+  }
+  
   if (!categorySlug && !isVehicleCategory(watchedCategory)) {
     return null;
   }

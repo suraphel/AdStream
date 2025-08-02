@@ -5,6 +5,9 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { registerNotificationRoutes } from "./routes/notification-routes";
 import { NotificationService } from "./services/NotificationService";
+
+// Initialize notification service
+const notificationService = new NotificationService();
 import { registerMessagingRoutes } from "./messaging-routes";
 import { registerTenderRoutes } from "./tender-routes";
 import { registerExternalListingsRoutes } from "./routes/externalListings";
@@ -266,7 +269,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const listing = await storage.createListing(listingData);
       
       // Trigger notification check for matching favorites (non-blocking)
-      notificationService.checkAndNotifyForNewListing(listing.id).catch(error => {
+      NotificationService.checkFavoriteMatches(listing).catch((error: any) => {
         console.error('Error checking notifications for new listing:', error);
       });
       
@@ -527,7 +530,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/notifications/history', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const history = await notificationService.getNotificationHistory(userId);
+      const history = await NotificationService.getNotificationHistory(userId);
       res.json(history);
     } catch (error) {
       console.error("Error fetching notification history:", error);

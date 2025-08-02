@@ -25,6 +25,10 @@ export function ElectronicsFields({ control, categorySlug }: ElectronicsFieldsPr
   const watchedCategory = useWatch({ control, name: 'categoryId' });
   
   // Don't render if not an electronics category
+  if (categorySlug && !isElectronicsCategory(categorySlug)) {
+    return null;
+  }
+  
   if (!categorySlug && !isElectronicsCategory(watchedCategory)) {
     return null;
   }

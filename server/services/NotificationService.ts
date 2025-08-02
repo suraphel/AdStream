@@ -7,7 +7,7 @@ import {
   users, 
   favorites 
 } from "@shared/schema";
-import { eq, and, ne, ilike } from "drizzle-orm";
+import { eq, and, ne, ilike, desc } from "drizzle-orm";
 import type { InsertListing, Listing } from "@shared/schema";
 
 export interface NotificationMatch {
@@ -258,6 +258,31 @@ export class NotificationService {
         averagePerDay: 0,
         topNotificationTypes: [],
       };
+    }
+  }
+
+  // Get notification history for a user
+  static async getNotificationHistory(userId: string) {
+    try {
+      const history = await db
+        .select({
+          id: notificationLogs.id,
+          notificationType: notificationLogs.notificationType,
+          messageContent: notificationLogs.messageContent,
+          deliveryStatus: notificationLogs.deliveryStatus,
+          sentAt: notificationLogs.sentAt,
+          newListingId: notificationLogs.newListingId,
+          favoriteListingId: notificationLogs.favoriteListingId,
+        })
+        .from(notificationLogs)
+        .where(eq(notificationLogs.userId, userId))
+        .orderBy(desc(notificationLogs.sentAt))
+        .limit(50);
+
+      return history;
+    } catch (error) {
+      console.error("Error fetching notification history:", error);
+      return [];
     }
   }
 }
