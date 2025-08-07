@@ -1,0 +1,78 @@
+Got it, Suri. Here's the **clean, AI-targeted prompt** you can **copy and paste directly into Replit** (or any code AI assistant) to split your monolithic app into a **clean frontend-backend structure** with support for **SQL Server Express**, IDE compatibility, and **working out-of-the-box setup**:
+
+---
+
+### ✅ AI Prompt for Replit
+
+```txt
+Refactor my existing monolithic full-stack application into a clean and maintainable structure with two separate modules:
+
+1. `frontend/` — a React (or Vite-based) application that runs independently using `npm run dev` in Visual Studio Code.
+
+2. `backend/` — a .NET Web API project (C#) that runs independently using Visual Studio or Rider, using a local SQL Server Express database.
+
+The goal is to allow developers to run and develop the frontend and backend separately, using their preferred tools, while keeping all connections working seamlessly.
+
+🛠 Requirements:
+
+- Migrate all backend code (routes, models, DB logic, etc.) to a new `backend/` folder structured as a .NET Web API project.
+- Migrate all frontend code (components, assets, styling) to a `frontend/` folder structured as a standalone Vite React project.
+- Preserve all existing features and functionality. Do not break any current routes, database access, or business logic.
+- Configure both frontend and backend to work with each other using environment variables.
+- All fetch or Axios calls in the frontend must read from `VITE_API_URL` defined in `.env.local`.
+- Update backend CORS policy to allow requests from `http://localhost:5173`.
+
+💾 Backend configuration:
+
+- Use SQL Server Express locally:
+  Connection string:
+```
+
+Server=localhost\SQLEXPRESS;Database=AdStreamDb;Trusted\_Connection=True;TrustServerCertificate=True;
+
+```
+- Store this in `appsettings.json` under `ConnectionStrings:DefaultConnection`.
+
+🌍 Frontend configuration:
+
+- Create `.env.local` inside `frontend/` with:
+```
+
+VITE\_API\_URL=[http://localhost:5000/api](http://localhost:5000/api)
+
+```
+- All API calls must reference this environment variable.
+
+📂 Final folder structure should look like:
+
+```
+
+project-root/
+├── backend/         # .NET Web API backend
+│   ├── Controllers/
+│   ├── Models/
+│   ├── Data/
+│   └── appsettings.json
+├── frontend/        # React/Vite frontend
+│   ├── src/
+│   ├── public/
+│   └── .env.local
+└── README.md        # Setup instructions
+
+```
+
+🧪 Ensure after splitting:
+- Running the backend in Visual Studio or Rider connects to the SQL Server Express DB and exposes the same routes.
+- Running the frontend in VS Code works via `npm run dev`, using VITE_API_URL to talk to the backend.
+- The app is fully functional, out-of-the-box, with no broken features or routes.
+
+✍️ Also generate a `README.md` file that clearly documents:
+- How to run the backend in Visual Studio or Rider
+- How to run the frontend in VS Code
+- How to set environment variables
+- Database prerequisites (SQL Server Express)
+```
+
+---
+
+Paste that directly into Replit, and it will understand your goal: **clean separation, full feature retention, IDE-friendly, and zero breakage**. Let me know if you want the final folder scaffolding too!
