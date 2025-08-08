@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TenderFloatingBindingApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ba100b546036b088e75e019e2b6cccb291885314")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1aaf55281147052839f6b8e3cb40ced151e96677")]
 [assembly: System.Reflection.AssemblyProductAttribute("TenderFloatingBindingApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TenderFloatingBindingApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
