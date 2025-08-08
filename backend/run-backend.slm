@@ -1,0 +1,48 @@
+#!/bin/bash
+# TenderFloatingBinding Backend Launcher
+# Usage: ./run-backend.slm or double-click to run
+
+echo "Starting TenderFloatingBinding Backend..."
+echo "API will be available at: http://localhost:5001"
+echo "Swagger documentation: http://localhost:5001/swagger"
+echo ""
+
+cd "$(dirname "$0")/TenderFloatingBindingApi"
+
+# Check if dotnet is installed
+if ! command -v dotnet &> /dev/null; then
+    echo "Error: .NET 8 SDK is not installed."
+    echo "Please install .NET 8 SDK from: https://dotnet.microsoft.com/download/dotnet/8.0"
+    read -p "Press Enter to exit..."
+    exit 1
+fi
+
+# Check if project exists
+if [ ! -f "TenderFloatingBindingApi.csproj" ]; then
+    echo "Error: Backend project not found in expected location."
+    read -p "Press Enter to exit..."
+    exit 1
+fi
+
+echo "Building backend..."
+dotnet build
+
+if [ $? -ne 0 ]; then
+    echo "Build failed. Please check the error messages above."
+    read -p "Press Enter to exit..."
+    exit 1
+fi
+
+echo "Starting backend server..."
+echo "Press Ctrl+C to stop the server"
+echo ""
+
+# Set environment and run
+export ASPNETCORE_ENVIRONMENT=Development
+export ASPNETCORE_URLS=http://0.0.0.0:5001
+
+dotnet run
+
+echo ""
+echo "Backend stopped."
+read -p "Press Enter to exit..."
