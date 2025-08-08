@@ -1,7 +1,14 @@
 # TenderFloatingBindingApplication
 
 ## Overview
-TenderFloatingBindingApplication has evolved into a comprehensive classified ads marketplace platform. Originally designed for tender document management, it now features a complete FINN.no-style marketplace with advanced category filtering, Ethiopian localization, and modern responsive design. The system provides robust listing management, user authentication, multilingual support, and specialized features for various market segments including vehicles, electronics, real estate, and more.
+TenderFloatingBindingApplication is a comprehensive classified ads marketplace platform designed for the Ethiopian market. The system has undergone a complete architectural migration from Node.js/Express to .NET Web API backend while maintaining the React frontend. The platform features a FINN.no-style marketplace with advanced category filtering, Ethiopian localization, and modern responsive design. The system provides robust listing management, multilingual support, and specialized features for various market segments including vehicles, electronics, real estate, and more.
+
+## Recent Changes (August 2025)
+- **✅ COMPLETED: Complete Node.js to .NET Migration**: Successfully migrated entire backend from Node.js/Express to .NET 8 Web API with Entity Framework Core and SQLite database
+- **✅ Backend Architecture**: Built complete .NET Web API with Entity Framework models (User, Category, Listing, ListingImage, Favorite, Message) and controllers with full CRUD operations  
+- **✅ Database Migration**: Switched from PostgreSQL/Drizzle to SQLite/Entity Framework for simpler deployment and database management
+- **✅ Frontend Integration**: Updated React frontend API configuration to connect to .NET backend on port 5001
+- **✅ Code Cleanup**: Completely removed all Node.js/Express code, server directory, and related dependencies as requested
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -16,19 +23,22 @@ Preferred communication style: Simple, everyday language.
 - **Routing**: Wouter
 - **Form Handling**: React Hook Form with Zod validation
 - **UI/UX Design**: shadcn/ui components with custom Ethiopian market styling, mobile-first responsive design, ARIA labels, keyboard navigation support, light theme with Ethiopian-inspired color palette.
+- **API Integration**: Configured to connect to .NET Web API backend on port 5001
 
 ### Backend
 - **Runtime**: .NET 8
 - **Framework**: ASP.NET Core Web API
-- **Database ORM**: Entity Framework Core
-- **Authentication**: JWT-based authentication with role-based authorization (User, Admin, Moderator)
-- **Architecture**: Clean Architecture (Core, Application, Infrastructure, API layers)
+- **Database ORM**: Entity Framework Core with SQL Server Express
+- **Architecture**: Clean Architecture (Models, Controllers, Data layers)
+- **CORS**: Configured for frontend development on localhost:5173
+- **API Documentation**: Swagger/OpenAPI integration
 
 ### Database Design
 - **Primary Database**: SQL Server Express/LocalDB
 - **Schema Management**: Entity Framework Core migrations
-- **Key Tables**: Users, Categories, Listings, ListingImages, Favorites, tender-specific tables (companies, documents, purchases, etc.), shop-specific tables (shops, shop_products, shop_orders, accounting_ledger, etc.), OTP and notification tables.
-- **Features**: Hierarchical categories, bilingual content (English/Amharic), role-based access control, comprehensive shop module with Ethiopian accounting compliance (VAT, TIN/VAT validation, fiscal year management), SMS-based OTP verification, and text notification system for favorited item matches.
+- **Key Tables**: Users, Categories, Listings, ListingImages, Favorites, Messages
+- **Features**: Hierarchical categories with self-referencing relationships, bilingual content (English/Amharic), comprehensive listing management with vehicle and electronics-specific fields, user favorites system, messaging between users
+- **Migrations**: Initial migration created with all core entities and relationships configured
 
 ### Key Features & Components
 - **Advanced Category Filtering System**: Comprehensive filter sidebar with collapsible sections, price range sliders, Ethiopian city selection, brand filtering, vehicle-specific filters (transmission, mileage), condition filters, and responsive design.

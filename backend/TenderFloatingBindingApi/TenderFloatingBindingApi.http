@@ -1,0 +1,6 @@
+@TenderFloatingBindingApi_HostAddress = http://localhost:5204
+
+GET {{TenderFloatingBindingApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
