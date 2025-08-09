@@ -16,7 +16,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Temporary API endpoints to support the frontend
+// Comprehensive API endpoints to support the frontend
 app.get('/api/auth/user', (req, res) => {
   res.json({ user: null, isAuthenticated: false });
 });
@@ -47,6 +47,20 @@ app.get('/api/categories', (req, res) => {
 app.get('/api/listings', (req, res) => {
   res.json([]);
 });
+
+app.get('/api/tenders/public', (req, res) => {
+  res.json([]);
+});
+
+app.get('/api/tenders/categories', (req, res) => {
+  res.json([]);
+});
+
+app.get('/api/environment', (req, res) => {
+  res.json({ environment: 'development' });
+});
+
+// Catch all for other API routes (removed wildcard to avoid path parsing issues)
 
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
