@@ -26,10 +26,14 @@ import {
   MapPin,
   Filter,
   ExternalLink,
-  Building
+  Building,
+  Heart,
+  Package
 } from 'lucide-react';
 import { formatNumber } from '@/lib/i18n';
 import { getCategoryGroup, type CategoryGroupKey } from '@/lib/categoryGroups';
+import { getStaticCategoryData } from '@/lib/staticCategoryData';
+import { useBackendStatus } from '@/hooks/useBackendStatus';
 
 export default function Category() {
   const params = useParams();
@@ -52,14 +56,22 @@ export default function Category() {
 
   // Check if this is the categories overview page
   const isOverview = location === '/categories' || !slug;
+  
+  // Get backend status
+  const { isBackendAvailable } = useBackendStatus();
 
+  // Get static category data
+  const staticCategoryData = slug ? getStaticCategoryData(slug) : null;
+
+  // Use API data if backend is available, otherwise use static data
   const { data: categories, isLoading: categoriesLoading } = useQuery<any[]>({
     queryKey: ['/api/categories'],
+    enabled: isBackendAvailable && isOverview,
   });
 
   const { data: category, isLoading: categoryLoading } = useQuery<any>({
     queryKey: ['/api/categories', slug],
-    enabled: !!slug && !isOverview,
+    enabled: isBackendAvailable && !!slug && !isOverview,
   });
 
   const { data: listings, isLoading: listingsLoading } = useQuery({
@@ -68,7 +80,7 @@ export default function Category() {
     gcTime: 0,
     refetchOnMount: 'always',
     refetchOnWindowFocus: false,
-    enabled: !isOverview && !!category?.id,
+    enabled: isBackendAvailable && !isOverview && !!category?.id,
   });
 
   // Get category group information
@@ -185,7 +197,16 @@ export default function Category() {
     );
   }
 
-  if (!category) {
+  // Use static data if no backend or no API category data
+  const currentCategory = category || (staticCategoryData ? { 
+    name: staticCategoryData.name, 
+    description: staticCategoryData.description,
+    slug: slug
+  } : null);
+
+  const currentListings = listings || (staticCategoryData ? staticCategoryData.featuredListings : []);
+
+  if (!currentCategory && !staticCategoryData) {
     return (
       <Layout>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -207,6 +228,109 @@ export default function Category() {
     );
   }
 
+  // Show static FINN.no-style layout when using static data
+  if (staticCategoryData && !isBackendAvailable) {
+    return (
+      <Layout>
+        {/* Hero Section */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div className="text-center">
+              <h1 className="text-4xl font-bold mb-4">{staticCategoryData.heroTitle}</h1>
+              <p className="text-xl mb-8">{staticCategoryData.heroSubtitle}</p>
+              
+              {/* Search Bar */}
+              <div className="max-w-2xl mx-auto relative mb-8">
+                <Input
+                  type="text"
+                  placeholder={`Search for ${staticCategoryData.name.toLowerCase()}...`}
+                  className="w-full h-12 pl-4 pr-12 text-black"
+                />
+                <Button
+                  size="sm"
+                  className="absolute right-2 top-2 bg-blue-600 hover:bg-blue-700"
+                >
+                  <Search className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Subcategories Grid */}
+        <section className="py-12 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+              {staticCategoryData.subcategories.map((subcategory, index) => (
+                <Card key={index} className="hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="p-6 text-center">
+                    <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center mx-auto mb-4">
+                      <subcategory.icon className="w-6 h-6 text-gray-600" />
+                    </div>
+                    <h3 className="font-semibold mb-2">{subcategory.name}</h3>
+                    <p className="text-gray-500 text-sm">{subcategory.count.toLocaleString()}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Sell Section */}
+            <div className="bg-gray-50 rounded-xl p-8 mb-12 flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold mb-2">{staticCategoryData.sellSection.title}</h2>
+                <p className="text-gray-600">{staticCategoryData.sellSection.subtitle}</p>
+              </div>
+              <div className="hidden md:flex items-center space-x-4">
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                  {staticCategoryData.sellSection.buttonText}
+                </Button>
+                <Button variant="outline" size="lg">
+                  Learn More
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Featured Listings */}
+        <section className="py-12 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-center mb-8">Featured {staticCategoryData.name}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {staticCategoryData.featuredListings.map((item) => (
+                <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="bg-gray-200 h-48 flex items-center justify-center relative">
+                    <Package className="w-16 h-16 text-gray-400" />
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="absolute top-2 right-2 bg-white/80 hover:bg-white"
+                    >
+                      <Heart className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-semibold text-lg">{item.title}</h3>
+                    </div>
+                    <p className="text-blue-600 font-bold text-lg mb-2">{item.price}</p>
+                    <div className="flex items-center text-sm text-gray-500">
+                      <MapPin className="w-4 h-4 mr-1" />
+                      {item.location}
+                    </div>
+                    <div className="mt-2">
+                      <span className="text-xs bg-gray-100 px-2 py-1 rounded">{item.category}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="min-h-screen bg-gray-50">
@@ -214,7 +338,7 @@ export default function Category() {
           {/* Breadcrumb Navigation */}
           <BreadcrumbNavigation 
             categorySlug={slug}
-            categoryName={category.name}
+            categoryName={currentCategory?.name || slug || ''}
           />
 
           {/* Show subcategories if this is a main category group page */}
@@ -248,24 +372,24 @@ export default function Category() {
                     </div>
                     <div>
                       <h1 className="text-2xl font-bold text-gray-900">
-                        {category.name}
+                        {currentCategory?.name || slug}
                       </h1>
-                      {category.nameAm && language === 'am' && (
-                        <p className="text-gray-600 mt-1">{category.nameAm}</p>
+                      {currentCategory?.nameAm && language === 'am' && (
+                        <p className="text-gray-600 mt-1">{currentCategory.nameAm}</p>
                       )}
                     </div>
                   </div>
                 </div>
                 
-                {category.description && (
+                {currentCategory?.description && (
                   <p className="text-gray-600 mb-4">
-                    {language === 'am' && category.descriptionAm ? category.descriptionAm : category.description}
+                    {language === 'am' && currentCategory.descriptionAm ? currentCategory.descriptionAm : currentCategory.description}
                   </p>
                 )}
 
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-gray-500">
-                    {formatNumber(listings?.length || 0, language)} listings found
+                    {formatNumber(currentListings?.length || 0, language)} listings found
                   </p>
                   
                   <div className="flex items-center space-x-2">
@@ -290,7 +414,7 @@ export default function Category() {
               </div>
 
               {/* Listings Grid/List */}
-              {listingsLoading ? (
+              {(listingsLoading && isBackendAvailable) ? (
                 <div className={viewMode === 'grid' 
                   ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
                   : 'space-y-4'
@@ -306,12 +430,12 @@ export default function Category() {
                     </div>
                   ))}
                 </div>
-              ) : listings && listings.length > 0 ? (
+              ) : currentListings && currentListings.length > 0 ? (
                 <div className={viewMode === 'grid' 
                   ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
                   : 'space-y-4'
                 }>
-                  {listings.map((listing: any) => (
+                  {currentListings.map((listing: any) => (
                     <ListingCard 
                       key={listing.id} 
                       listing={listing} 
