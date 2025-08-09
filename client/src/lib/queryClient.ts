@@ -49,20 +49,16 @@ export async function apiRequest(
   endpoint: string,
   data?: unknown | undefined,
 ): Promise<AxiosResponse> {
-  // Remove leading slash if present to avoid double slashes
-  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+  // STANDALONE MODE: Return mock response instead of making API calls
+  console.log(`Standalone Mode: Skipping ${method} request to ${endpoint}`);
   
-  try {
-    const response = await apiClient.request({
-      method: method.toLowerCase() as any,
-      url: cleanEndpoint,
-      data,
-    });
-    
-    return response;
-  } catch (error) {
-    throw error;
-  }
+  return {
+    data: {},
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+    config: {} as any,
+  } as AxiosResponse;
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
@@ -71,19 +67,12 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    // Construct endpoint from query key
-    const endpoint = queryKey.join("/") as string;
-    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-    
-    try {
-      const response = await apiClient.get(cleanEndpoint);
-      return response.data;
-    } catch (error: any) {
-      if (unauthorizedBehavior === "returnNull" && error.message?.includes('401')) {
-        return null;
-      }
-      throw error;
+    // STANDALONE MODE: Return appropriate empty data instead of making API calls
+    console.log(`Standalone Mode: Skipping API call to ${queryKey.join("/")}`);
+    if (unauthorizedBehavior === "returnNull") {
+      return null as unknown as T;
     }
+    return [] as unknown as T;
   };
 
 export const queryClient = new QueryClient({

@@ -22,13 +22,11 @@ export default function Home() {
     location: '',
   });
 
-  const { data: featuredListings, isLoading: featuredLoading } = useQuery({
-    queryKey: ['/api/listings?featured=true&limit=4'],
-  });
-
-  const { data: recentListings, isLoading: recentLoading } = useQuery({
-    queryKey: [`/api/listings?limit=8${searchParams.search ? `&search=${encodeURIComponent(searchParams.search)}` : ''}${searchParams.category ? `&category=${searchParams.category}` : ''}${searchParams.location ? `&location=${encodeURIComponent(searchParams.location)}` : ''}`],
-  });
+  // STANDALONE MODE: Use empty arrays instead of API calls
+  const featuredListings: any[] = [];
+  const featuredLoading = false;
+  const recentListings: any[] = [];
+  const recentLoading = false;
 
   const handleSearch = (params: typeof searchParams) => {
     setSearchParams(params);

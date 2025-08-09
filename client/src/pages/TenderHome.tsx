@@ -28,13 +28,10 @@ const TenderHome: React.FC = () => {
   const [searchTerm, setSearchTerm] = React.useState('');
   const [categoryFilter, setCategoryFilter] = React.useState('all');
 
-  const { data: tenderDocuments = [], isLoading } = useQuery<TenderDocument[]>({
-    queryKey: ['/api/tenders/public'],
-  });
-
-  const { data: categories = [] } = useQuery<string[]>({
-    queryKey: ['/api/tenders/categories'],
-  });
+  // STANDALONE MODE: Use mock data instead of API calls
+  const tenderDocuments: TenderDocument[] = [];
+  const isLoading = false;
+  const categories: string[] = [];
 
   const filteredTenders = tenderDocuments.filter(tender => {
     const matchesSearch = tender.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
