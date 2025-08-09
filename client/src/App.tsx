@@ -10,6 +10,7 @@ import NotFound from "@/pages/not-found";
 import SimpleLanding from "@/pages/SimpleLanding";
 import Home from "@/pages/Home";
 import Landing from "@/pages/Landing";
+import Login from "@/pages/Login";
 import ListingDetail from "@/pages/ListingDetail";
 import PostListing from "@/pages/PostListing";
 import EditListing from "@/pages/EditListing";
@@ -57,7 +58,7 @@ function Router() {
           <Route path="/category-group/:groupKey" component={CategoryGroup} />
           <Route path="/category/:slug" component={Category} />
           <Route path="/categories/enhanced" component={EnhancedCategories} />
-          <Route path="/login" component={() => <div className="min-h-screen bg-gray-50 pt-16 px-4"><div className="max-w-md mx-auto"><h1 className="text-2xl font-bold mb-4">Login</h1><p>Login functionality coming soon</p></div></div>} />
+          <Route path="/login" component={Login} />
 
           {/* Tender routes available to all */}
           <Route path="/tender" component={TenderHome} />
@@ -76,7 +77,7 @@ function Router() {
           <Route path="/edit/:id" component={EditListing} />
           <Route path="/select-category" component={CategorySelect} />
           <Route path="/categories/enhanced" component={EnhancedCategories} />
-          <Route path="/login" component={() => <div className="min-h-screen bg-gray-50 pt-16 px-4"><div className="max-w-md mx-auto"><h1 className="text-2xl font-bold mb-4">Login</h1><p>Login functionality coming soon</p></div></div>} />
+          <Route path="/login" component={Login} />
           <Route path="/profile" component={Profile} />
           {/* Tender routes available to all */}
           <Route path="/tender" component={TenderHome} />
