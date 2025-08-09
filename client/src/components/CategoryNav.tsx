@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+// Removed useQuery - standalone operation
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -46,9 +46,8 @@ const categoryIcons: Record<string, any> = {
 export function CategoryNav() {
   const { language, t } = useLanguage();
 
-  const { data: categories } = useQuery({
-    queryKey: ["/api/categories"],
-  });
+  // Mock categories for standalone operation
+  const categories: any[] = [];
 
   return (
     <section className="bg-white border-b border-gray-200">

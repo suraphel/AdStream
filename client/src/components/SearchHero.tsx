@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+// Removed useQuery - standalone operation
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,9 +26,8 @@ export function SearchHero({ onSearch }: SearchHeroProps) {
   const [category, setCategory] = useState('');
   const [location, setLocation] = useState('');
 
-  const { data: categories } = useQuery({
-    queryKey: ['/api/categories'],
-  });
+  // Mock categories for standalone operation
+  const categories: any[] = [];
 
   const locations = [
     { value: 'all', label: t('search.allEthiopia') },

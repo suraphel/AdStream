@@ -1,6 +1,6 @@
 import React, { createContext, useContext, ReactNode, useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { apiRequest } from '@/lib/queryClient';
+// Removed auth dependency - standalone operation
+// Removed API dependency - standalone operation
 
 // Feature configuration interface
 export interface FeatureConfig {
@@ -93,49 +93,27 @@ const defaultFeatures: FeatureConfig = {
 
 // Feature provider component
 export function FeatureProvider({ children }: { children: ReactNode }) {
-  const { user, isAuthenticated } = useAuth();
+  // Standalone mode - no auth dependency
+  const user = null;
+  const isAuthenticated = false;
   const [featureConfig, setFeatureConfig] = useState<FeatureConfig>(defaultFeatures);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch feature configuration from backend
+  // Standalone mode - no backend dependency
   const fetchFeatureConfig = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      // Build context for feature evaluation
-      const context: any = {
-        environment: import.meta.env.MODE || 'development',
-      };
-
-      if (isAuthenticated && user) {
-        context.userId = user.id;
-        context.userRole = (user as any).role || 'user';
-      }
-
-      // Add language from localStorage or browser
-      const savedLanguage = localStorage.getItem('language');
-      const browserLanguage = navigator.language.split('-')[0];
-      context.language = savedLanguage || (browserLanguage === 'am' ? 'am' : 'en');
-
-      // Make request to feature config endpoint
-      const response = await apiRequest('POST', '/api/features/config', { context });
-      const config = response.data;
-      setFeatureConfig(config);
-    } catch (error) {
-      console.error('Failed to fetch feature configuration:', error);
-      setError(error instanceof Error ? error.message : 'Unknown error');
-      // Keep default configuration on error
-    } finally {
-      setIsLoading(false);
-    }
+    setIsLoading(true);
+    setError(null);
+    
+    // Use default features for standalone operation
+    setFeatureConfig(defaultFeatures);
+    setIsLoading(false);
   };
 
-  // Fetch configuration on mount and when authentication changes
+  // Initialize on mount without backend dependency
   useEffect(() => {
     fetchFeatureConfig();
-  }, [isAuthenticated, user?.id]);
+  }, []);
 
   // Helper function to check if feature is enabled
   const isFeatureEnabled = (feature: keyof FeatureConfig['features']): boolean => {

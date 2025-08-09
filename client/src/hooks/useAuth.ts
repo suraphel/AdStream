@@ -1,14 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
+// Removed useQuery - standalone operation
 
 export function useAuth() {
-  const { data: user, isLoading } = useQuery({
-    queryKey: ["/api/auth/user"],
-    retry: false,
-  });
+  // Standalone mode - no backend dependency
+  const user = null;
+  const isLoading = false;
 
   return {
     user,
     isLoading,
-    isAuthenticated: !!user,
+    isAuthenticated: false, // Always false in standalone mode
   };
 }

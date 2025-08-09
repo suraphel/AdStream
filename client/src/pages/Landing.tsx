@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+// Removed useQuery - standalone operation
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,15 +14,12 @@ import { Plus } from "lucide-react";
 export default function Landing() {
   const { t } = useLanguage();
 
-  // Fetch featured listings (same as Home page)
-  const { data: featuredListings, isLoading: featuredLoading } = useQuery({
-    queryKey: ["/api/listings?featured=true&limit=8"],
-  });
-
-  // Fetch recent listings
-  const { data: recentListings, isLoading: recentLoading } = useQuery({
-    queryKey: ["/api/listings?limit=12"],
-  });
+  // Mock data for standalone operation - no backend dependency
+  const featuredListings = [];
+  const featuredLoading = false;
+  
+  const recentListings = [];
+  const recentLoading = false;
 
   return (
     <Layout>
