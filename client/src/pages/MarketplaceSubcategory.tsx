@@ -86,6 +86,110 @@ const MARKETPLACE_DATA = {
       { name: 'Cosmetics', icon: ShoppingCart, count: 380 },
       { name: 'Jewelry', icon: Star, count: 310 }
     ]
+  },
+  'garden-house': {
+    name: 'Garden, renovation and house',
+    icon: Wrench,
+    description: 'Home improvement supplies and garden equipment',
+    subcategories: [
+      { name: 'Garden Tools', icon: Wrench, count: 450 },
+      { name: 'Power Tools', icon: Wrench, count: 380 },
+      { name: 'Building Materials', icon: Package, count: 520 },
+      { name: 'Paint & Supplies', icon: Package, count: 290 },
+      { name: 'Plants & Seeds', icon: Package, count: 180 },
+      { name: 'Outdoor Furniture', icon: Sofa, count: 210 }
+    ]
+  },
+  'sports-outdoor': {
+    name: 'Sports and outdoor activities',
+    icon: Dumbbell,
+    description: 'Sporting goods and outdoor adventure equipment',
+    subcategories: [
+      { name: 'Fitness Equipment', icon: Dumbbell, count: 340 },
+      { name: 'Camping Gear', icon: Package, count: 280 },
+      { name: 'Sports Clothing', icon: ShoppingCart, count: 420 },
+      { name: 'Bicycles', icon: Package, count: 190 },
+      { name: 'Team Sports', icon: Package, count: 160 },
+      { name: 'Water Sports', icon: Package, count: 95 }
+    ]
+  },
+  'animals-equipment': {
+    name: 'Animals and equipment',
+    icon: PawPrint,
+    description: 'Pet supplies and animal care essentials',
+    subcategories: [
+      { name: 'Pet Food', icon: Package, count: 220 },
+      { name: 'Pet Accessories', icon: Package, count: 180 },
+      { name: 'Pet Toys', icon: Package, count: 140 },
+      { name: 'Pet Health Care', icon: Package, count: 95 },
+      { name: 'Pet Carriers', icon: Package, count: 85 },
+      { name: 'Farm Animals', icon: PawPrint, count: 60 }
+    ]
+  },
+  'business-activities': {
+    name: 'Business activities',
+    icon: Briefcase,
+    description: 'Commercial services and business solutions',
+    subcategories: [
+      { name: 'Office Equipment', icon: Package, count: 280 },
+      { name: 'Business Services', icon: Briefcase, count: 190 },
+      { name: 'Industrial Equipment', icon: Wrench, count: 150 },
+      { name: 'Commercial Vehicles', icon: Package, count: 120 },
+      { name: 'Restaurant Equipment', icon: Package, count: 95 },
+      { name: 'Professional Tools', icon: Wrench, count: 110 }
+    ]
+  },
+  'parents-children': {
+    name: 'Parents and children',
+    icon: Baby,
+    description: 'Everything for families with children',
+    subcategories: [
+      { name: 'Baby Clothing', icon: ShoppingCart, count: 420 },
+      { name: 'Toys & Games', icon: Package, count: 580 },
+      { name: 'Baby Equipment', icon: Package, count: 340 },
+      { name: 'School Supplies', icon: Package, count: 290 },
+      { name: 'Children Books', icon: Package, count: 180 },
+      { name: 'Baby Food', icon: Package, count: 150 }
+    ]
+  },
+  'leisure-hobbies': {
+    name: 'Leisure, hobbies and entertainment',
+    icon: Gamepad2,
+    description: 'Entertainment and hobby items for all ages',
+    subcategories: [
+      { name: 'Video Games', icon: Gamepad2, count: 380 },
+      { name: 'Board Games', icon: Package, count: 240 },
+      { name: 'Music Instruments', icon: Package, count: 190 },
+      { name: 'Books & Magazines', icon: Package, count: 320 },
+      { name: 'Art Supplies', icon: Palette, count: 160 },
+      { name: 'Crafting Materials', icon: Package, count: 140 }
+    ]
+  },
+  'furniture-interior': {
+    name: 'Furniture and interior',
+    icon: Sofa,
+    description: 'Home furniture and interior decoration',
+    subcategories: [
+      { name: 'Living Room', icon: Sofa, count: 450 },
+      { name: 'Bedroom', icon: Package, count: 380 },
+      { name: 'Kitchen & Dining', icon: Package, count: 340 },
+      { name: 'Office Furniture', icon: Package, count: 220 },
+      { name: 'Home Decor', icon: Package, count: 290 },
+      { name: 'Lighting', icon: Package, count: 180 }
+    ]
+  },
+  'equipment-vehicles': {
+    name: 'Equipment for cars, boats and motorcycles',
+    icon: Wrench,
+    description: 'Vehicle parts and automotive accessories',
+    subcategories: [
+      { name: 'Car Parts', icon: Wrench, count: 280 },
+      { name: 'Motorcycle Parts', icon: Wrench, count: 150 },
+      { name: 'Boat Equipment', icon: Package, count: 95 },
+      { name: 'Car Accessories', icon: Package, count: 180 },
+      { name: 'Tools & Maintenance', icon: Wrench, count: 120 },
+      { name: 'Tires & Wheels', icon: Package, count: 140 }
+    ]
   }
 };
 
