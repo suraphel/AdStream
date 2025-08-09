@@ -23,19 +23,14 @@ export default function Landing() {
 
   // Static category data for Ethiopian market
   const staticCategories = [
-    { name: 'Torget', nameAm: 'ምርቶች', icon: Package, href: '/categories', color: 'bg-blue-50 text-blue-600' },
-    { name: 'Bil og campingvogn', nameAm: 'መኪና እና ካምፒንግ', icon: Car, href: '/category/vehicles', color: 'bg-green-50 text-green-600' },
-    { name: 'Reise', nameAm: 'ጉዞ', icon: Plane, href: '/category/travel', color: 'bg-purple-50 text-purple-600' },
-    { name: 'Båt', nameAm: 'ጀልባ', icon: Plane, href: '/category/boats', color: 'bg-cyan-50 text-cyan-600' },
-    { name: 'MC', nameAm: 'ሞተር ሳይክል', icon: Package, href: '/category/motorcycles', color: 'bg-orange-50 text-orange-600' },
-    { name: 'Nettbil', nameAm: 'መኪና ሽያጭ', icon: Car, href: '/category/cars', color: 'bg-red-50 text-red-600' },
-    
-    { name: 'Jobb', nameAm: 'ስራ', icon: Briefcase, href: '/category/jobs', color: 'bg-indigo-50 text-indigo-600' },
-    { name: 'Eiendom', nameAm: 'ቤት', icon: Home, href: '/category/real-estate', color: 'bg-emerald-50 text-emerald-600' },
-    { name: 'Nybrukt elektronikk', nameAm: 'ኤሌክትሮኒክስ', icon: Smartphone, href: '/category/electronics', color: 'bg-violet-50 text-violet-600' },
-    { name: 'Feriehjem og hytter', nameAm: 'የበዓል ቤቶች', icon: Home, href: '/category/vacation-homes', color: 'bg-teal-50 text-teal-600' },
-    { name: 'Nyttekjøretøy og maskiner', nameAm: 'መሳሪያዎች', icon: Wrench, href: '/category/tools', color: 'bg-amber-50 text-amber-600' },
-    { name: 'Pakkeroise', nameAm: 'ጉዞ ፓኬጆች', icon: ShoppingBag, href: '/category/travel-packages', color: 'bg-rose-50 text-rose-600' },
+    { name: 'Marketplace', icon: ShoppingBag, href: '/categories', color: 'bg-blue-50 text-blue-600' },
+    { name: 'Cars & Vehicles', icon: Car, href: '/category/vehicles', color: 'bg-green-50 text-green-600' },
+    { name: 'Travel', icon: Plane, href: '/category/travel', color: 'bg-purple-50 text-purple-600' },
+    { name: 'Jobs', icon: Briefcase, href: '/category/jobs', color: 'bg-indigo-50 text-indigo-600' },
+    { name: 'Real Estate', icon: Home, href: '/category/real-estate', color: 'bg-emerald-50 text-emerald-600' },
+    { name: 'Electronics', icon: Smartphone, href: '/category/electronics', color: 'bg-violet-50 text-violet-600' },
+    { name: 'Tools & Equipment', icon: Wrench, href: '/category/tools', color: 'bg-amber-50 text-amber-600' },
+    { name: 'Fashion', icon: Shirt, href: '/category/fashion', color: 'bg-pink-50 text-pink-600' },
   ];
 
   return (
@@ -46,7 +41,7 @@ export default function Landing() {
       {/* Static Category Grid - FINN.no Style */}
       <section className="py-8 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {staticCategories.map((category, index) => {
               const IconComponent = category.icon;
               return (
@@ -55,12 +50,9 @@ export default function Landing() {
                     <div className={`w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center ${category.color}`}>
                       <IconComponent className="w-6 h-6" />
                     </div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-1 leading-tight">
+                    <h3 className="text-sm font-medium text-gray-900 leading-tight">
                       {category.name}
                     </h3>
-                    <p className="text-xs text-gray-500">
-                      {category.nameAm}
-                    </p>
                   </div>
                 </Link>
               );
