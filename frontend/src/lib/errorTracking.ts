@@ -1,4 +1,5 @@
 import React from 'react';
+import { apiRequest } from './queryClient';
 
 interface ErrorDetails {
   message: string;
@@ -116,14 +117,7 @@ class FrontendErrorTracker {
       };
 
       // Send to backend
-      await fetch(this.endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      });
+      await apiRequest('POST', this.endpoint, payload);
 
       // Log to console in development
       if (process.env.NODE_ENV === 'development') {

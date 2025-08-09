@@ -120,19 +120,8 @@ export function FeatureProvider({ children }: { children: ReactNode }) {
       context.language = savedLanguage || (browserLanguage === 'am' ? 'am' : 'en');
 
       // Make request to feature config endpoint
-      const response = await fetch('/api/features/config', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ context }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch feature config: ${response.statusText}`);
-      }
-
-      const config = await response.json();
+      const response = await apiRequest('POST', '/api/features/config', { context });
+      const config = response.data;
       setFeatureConfig(config);
     } catch (error) {
       console.error('Failed to fetch feature configuration:', error);

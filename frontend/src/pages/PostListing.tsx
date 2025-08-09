@@ -186,26 +186,14 @@ const PostListing: React.FC = () => {
 
   const createListingMutation = useMutation({
     mutationFn: async (data: ListingFormData & { imageKeys: string[] }) => {
-      const response = await fetch("/api/listings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          ...data,
-          categoryId: data.categoryId,
-          price: data.price,
-          images: data.imageKeys,
-        }),
+      const response = await apiRequest("POST", "/api/listings", {
+        ...data,
+        categoryId: data.categoryId,
+        price: data.price,
+        images: data.imageKeys,
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to create listing");
-      }
-
-      return await response.json();
+      return response.data;
     },
     onSuccess: (data) => {
       toast({

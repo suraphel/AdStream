@@ -91,18 +91,8 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         formData.append('listingId', listingId.toString());
       }
 
-      const response = await fetch('/api/images/upload', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Upload failed');
-      }
-
-      return await response.json();
+      const response = await apiRequest('POST', '/api/images/upload', formData);
+      return response.data;
     },
     onSuccess: (data) => {
       const newImages = [...images, ...data.images];
@@ -126,17 +116,9 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   const deleteMutation = useMutation({
     mutationFn: async (key: string) => {
-      const response = await fetch(`/api/images/${encodeURIComponent(key)}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Delete failed');
-      }
-
-      return await response.json();
+      const response = await apiRequest('DELETE', `/api/images/${encodeURIComponent(key)}`);
+      return response.data;
+    },
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/listings'] });
