@@ -75,28 +75,17 @@ export function CategoryFilters({
     });
   };
 
-  if (!isOpen) {
-    return (
-      <div className={`${className} lg:hidden`}>
-        <Button 
-          variant="outline" 
-          onClick={onToggle}
-          className="w-full flex items-center gap-2"
-        >
-          <Filter className="w-4 h-4" />
-          Show Filters
-        </Button>
-      </div>
-    );
-  }
+  // Remove the early return - let parent handle visibility
 
   return (
     <div className={`space-y-6 ${className}`}>
       <div className="flex items-center justify-between lg:hidden">
         <h3 className="text-lg font-semibold">Filters</h3>
-        <Button variant="ghost" size="sm" onClick={onToggle}>
-          <X className="w-4 h-4" />
-        </Button>
+        {onToggle && (
+          <Button variant="ghost" size="sm" onClick={onToggle}>
+            <X className="w-4 h-4" />
+          </Button>
+        )}
       </div>
 
       {/* Search */}

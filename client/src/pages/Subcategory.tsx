@@ -26,7 +26,7 @@ export default function Subcategory() {
   const subcategorySlug = params.subcategory;
   
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const [filters, setFilters] = useState<FilterState>({
     priceRange: [0, 1000000],
     condition: [],
@@ -170,15 +170,32 @@ export default function Subcategory() {
 
         {/* Main Content Layout */}
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filters Sidebar */}
-          <CategoryFilters
-            filters={filters}
-            onFiltersChange={setFilters}
-            categorySlug={categorySlug}
-            className="lg:w-80 flex-shrink-0"
-            isOpen={showFilters}
-            onToggle={() => setShowFilters(!showFilters)}
-          />
+          {/* Filters Sidebar - Always show on desktop, toggle on mobile */}
+          <div className="lg:w-80 flex-shrink-0">
+            {/* Mobile Filter Toggle */}
+            <div className="lg:hidden mb-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowFilters(!showFilters)}
+                className="w-full flex items-center gap-2"
+              >
+                <Search className="w-4 h-4" />
+                {showFilters ? 'Hide Filters' : 'Show Filters'}
+              </Button>
+            </div>
+            
+            {/* Filter Component - Always visible on desktop */}
+            <div className={`${showFilters ? 'block' : 'hidden'} lg:block`}>
+              <CategoryFilters
+                filters={filters}
+                onFiltersChange={setFilters}
+                categorySlug={categorySlug}
+                className="w-full"
+                isOpen={true}
+                onToggle={() => setShowFilters(!showFilters)}
+              />
+            </div>
+          </div>
 
           {/* Main Content */}
           <div className="flex-1">
