@@ -23,7 +23,7 @@ export default function Landing() {
 
   // Static category data for Ethiopian market - using existing routes
   const staticCategories = [
-    { name: 'Marketplace', icon: ShoppingBag, href: '/categories', color: 'bg-blue-50 text-blue-600' },
+    { name: 'Marketplace', icon: ShoppingBag, href: '/marketplace', color: 'bg-blue-50 text-blue-600' },
     { name: 'Cars & Vehicles', icon: Car, href: '/category/vehicles', color: 'bg-green-50 text-green-600' },
     { name: 'Travel', icon: Plane, href: '/category/travel', color: 'bg-purple-50 text-purple-600' },
     { name: 'Jobs', icon: Briefcase, href: '/category/jobs', color: 'bg-indigo-50 text-indigo-600' },
