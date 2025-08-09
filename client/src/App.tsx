@@ -16,6 +16,7 @@ import PostListing from "@/pages/PostListing";
 import EditListing from "@/pages/EditListing";
 import Profile from "@/pages/Profile";
 import Category from "@/pages/Category";
+import Subcategory from "@/pages/Subcategory";
 import Categories from "@/pages/Categories";
 import CategoryGroup from "@/pages/CategoryGroup";
 import CategorySelect from "@/pages/CategorySelect";
@@ -56,6 +57,7 @@ function Router() {
           <Route path="/listing/:id" component={ListingDetail} />
           <Route path="/categories" component={Categories} />
           <Route path="/category-group/:groupKey" component={CategoryGroup} />
+          <Route path="/category/:category/:subcategory" component={Subcategory} />
           <Route path="/category/:slug" component={Category} />
           <Route path="/categories/enhanced" component={EnhancedCategories} />
           <Route path="/login" component={Login} />
@@ -72,6 +74,7 @@ function Router() {
           <Route path="/listing/:id" component={ListingDetail} />
           <Route path="/categories" component={Categories} />
           <Route path="/category-group/:groupKey" component={CategoryGroup} />
+          <Route path="/category/:category/:subcategory" component={Subcategory} />
           <Route path="/category/:slug" component={Category} />
           <Route path="/post" component={PostListing} />
           <Route path="/edit/:id" component={EditListing} />

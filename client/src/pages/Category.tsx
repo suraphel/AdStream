@@ -58,7 +58,8 @@ export default function Category() {
   const isOverview = location === '/categories' || !slug;
   
   // Get backend status
-  const { isBackendAvailable } = useBackendStatus();
+  const { status } = useBackendStatus();
+  const isBackendAvailable = status === 'connected';
 
   // Get static category data
   const staticCategoryData = slug ? getStaticCategoryData(slug) : null;
@@ -261,17 +262,24 @@ export default function Category() {
         <section className="py-12 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-              {staticCategoryData.subcategories.map((subcategory, index) => (
-                <Card key={index} className="hover:shadow-md transition-shadow cursor-pointer">
-                  <CardContent className="p-6 text-center">
-                    <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center mx-auto mb-4">
-                      <subcategory.icon className="w-6 h-6 text-gray-600" />
-                    </div>
-                    <h3 className="font-semibold mb-2">{subcategory.name}</h3>
-                    <p className="text-gray-500 text-sm">{subcategory.count.toLocaleString()}</p>
-                  </CardContent>
-                </Card>
-              ))}
+              {staticCategoryData.subcategories.map((subcategory, index) => {
+                const subcategorySlug = subcategory.name.toLowerCase().replace(/\s+/g, '-').replace(/[&]/g, '');
+                return (
+                  <Card 
+                    key={index} 
+                    className="hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => window.location.href = `/category/${slug}/${subcategorySlug}`}
+                  >
+                    <CardContent className="p-6 text-center">
+                      <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center mx-auto mb-4">
+                        <subcategory.icon className="w-6 h-6 text-gray-600" />
+                      </div>
+                      <h3 className="font-semibold mb-2">{subcategory.name}</h3>
+                      <p className="text-gray-500 text-sm">{subcategory.count.toLocaleString()}</p>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
 
             {/* Sell Section */}
@@ -389,7 +397,7 @@ export default function Category() {
 
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-gray-500">
-                    {formatNumber(currentListings?.length || 0, language)} listings found
+                    {formatNumber(Array.isArray(currentListings) ? currentListings.length : 0, language)} listings found
                   </p>
                   
                   <div className="flex items-center space-x-2">
@@ -430,7 +438,7 @@ export default function Category() {
                     </div>
                   ))}
                 </div>
-              ) : currentListings && currentListings.length > 0 ? (
+              ) : Array.isArray(currentListings) && currentListings.length > 0 ? (
                 <div className={viewMode === 'grid' 
                   ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
                   : 'space-y-4'
@@ -439,7 +447,6 @@ export default function Category() {
                     <ListingCard 
                       key={listing.id} 
                       listing={listing} 
-                      viewMode={viewMode}
                     />
                   ))}
                 </div>
