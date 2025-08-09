@@ -9,7 +9,7 @@ import { Layout } from "@/components/Layout";
 import { ListingCard } from "@/components/ListingCard";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus } from "lucide-react";
+import { Plus, Car, Home, Smartphone, Shirt, Plane, Briefcase, Wrench, Package, ShoppingBag, Users, Heart, Star } from "lucide-react";
 
 export default function Landing() {
   const { t } = useLanguage();
@@ -21,10 +21,53 @@ export default function Landing() {
   const recentListings = [];
   const recentLoading = false;
 
+  // Static category data for Ethiopian market
+  const staticCategories = [
+    { name: 'Torget', nameAm: 'ምርቶች', icon: Package, href: '/categories', color: 'bg-blue-50 text-blue-600' },
+    { name: 'Bil og campingvogn', nameAm: 'መኪና እና ካምፒንግ', icon: Car, href: '/category/vehicles', color: 'bg-green-50 text-green-600' },
+    { name: 'Reise', nameAm: 'ጉዞ', icon: Plane, href: '/category/travel', color: 'bg-purple-50 text-purple-600' },
+    { name: 'Båt', nameAm: 'ጀልባ', icon: Plane, href: '/category/boats', color: 'bg-cyan-50 text-cyan-600' },
+    { name: 'MC', nameAm: 'ሞተር ሳይክል', icon: Package, href: '/category/motorcycles', color: 'bg-orange-50 text-orange-600' },
+    { name: 'Nettbil', nameAm: 'መኪና ሽያጭ', icon: Car, href: '/category/cars', color: 'bg-red-50 text-red-600' },
+    
+    { name: 'Jobb', nameAm: 'ስራ', icon: Briefcase, href: '/category/jobs', color: 'bg-indigo-50 text-indigo-600' },
+    { name: 'Eiendom', nameAm: 'ቤት', icon: Home, href: '/category/real-estate', color: 'bg-emerald-50 text-emerald-600' },
+    { name: 'Nybrukt elektronikk', nameAm: 'ኤሌክትሮኒክስ', icon: Smartphone, href: '/category/electronics', color: 'bg-violet-50 text-violet-600' },
+    { name: 'Feriehjem og hytter', nameAm: 'የበዓል ቤቶች', icon: Home, href: '/category/vacation-homes', color: 'bg-teal-50 text-teal-600' },
+    { name: 'Nyttekjøretøy og maskiner', nameAm: 'መሳሪያዎች', icon: Wrench, href: '/category/tools', color: 'bg-amber-50 text-amber-600' },
+    { name: 'Pakkeroise', nameAm: 'ጉዞ ፓኬጆች', icon: ShoppingBag, href: '/category/travel-packages', color: 'bg-rose-50 text-rose-600' },
+  ];
+
   return (
     <Layout>
       <SearchHero />
       <CategoryNav />
+      
+      {/* Static Category Grid - FINN.no Style */}
+      <section className="py-8 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {staticCategories.map((category, index) => {
+              const IconComponent = category.icon;
+              return (
+                <Link key={index} href={category.href}>
+                  <div className="group cursor-pointer p-4 rounded-xl hover:bg-gray-50 transition-colors text-center">
+                    <div className={`w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center ${category.color}`}>
+                      <IconComponent className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-sm font-medium text-gray-900 mb-1 leading-tight">
+                      {category.name}
+                    </h3>
+                    <p className="text-xs text-gray-500">
+                      {category.nameAm}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
 
       {/* Featured Listings */}
       <section className="py-12 bg-gray-50">
