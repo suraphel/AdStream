@@ -7,7 +7,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { FeatureProvider } from "@/contexts/FeatureContext";
 import { useAuth } from "@/hooks/useAuth";
 import NotFound from "@/pages/not-found";
-import Landing from "@/pages/Landing";
+import SimpleLanding from "@/pages/SimpleLanding";
 import Home from "@/pages/Home";
 import ListingDetail from "@/pages/ListingDetail";
 import PostListing from "@/pages/PostListing";
@@ -50,7 +50,7 @@ function Router() {
     <Switch>
       {isLoading || !isAuthenticated ? (
         <>
-          <Route path="/" component={Landing} />
+          <Route path="/" component={SimpleLanding} />
           <Route path="/listing/:id" component={ListingDetail} />
           <Route path="/categories" component={Categories} />
           <Route path="/category-group/:groupKey" component={CategoryGroup} />
