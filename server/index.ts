@@ -5,11 +5,11 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-console.log('Starting Vite development server...');
+console.log('Starting Vite development server from client directory...');
 
-// Start Vite dev server
+// Start Vite dev server from client directory
 const viteProcess = spawn('npx', ['vite', '--host', '0.0.0.0', '--port', '5000'], {
-  cwd: path.join(__dirname, '..'),
+  cwd: path.join(__dirname, '..', 'client'),
   stdio: 'inherit'
 });
 
