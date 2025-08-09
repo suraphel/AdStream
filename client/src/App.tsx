@@ -17,6 +17,9 @@ import EditListing from "@/pages/EditListing";
 import Profile from "@/pages/Profile";
 import Category from "@/pages/Category";
 import Subcategory from "@/pages/Subcategory";
+import Marketplace from "@/pages/Marketplace";
+import MarketplaceSubcategory from "@/pages/MarketplaceSubcategory";
+import MarketplaceSubSubcategory from "@/pages/MarketplaceSubSubcategory";
 import Categories from "@/pages/Categories";
 import CategoryGroup from "@/pages/CategoryGroup";
 import CategorySelect from "@/pages/CategorySelect";
@@ -59,6 +62,9 @@ function Router() {
           <Route path="/category-group/:groupKey" component={CategoryGroup} />
           <Route path="/category/:category/:subcategory" component={Subcategory} />
           <Route path="/category/:slug" component={Category} />
+          <Route path="/marketplace" component={Marketplace} />
+          <Route path="/marketplace/:category/:subcategory" component={MarketplaceSubSubcategory} />
+          <Route path="/marketplace/:category" component={MarketplaceSubcategory} />
           <Route path="/categories/enhanced" component={EnhancedCategories} />
           <Route path="/login" component={Login} />
 
@@ -76,6 +82,9 @@ function Router() {
           <Route path="/category-group/:groupKey" component={CategoryGroup} />
           <Route path="/category/:category/:subcategory" component={Subcategory} />
           <Route path="/category/:slug" component={Category} />
+          <Route path="/marketplace" component={Marketplace} />
+          <Route path="/marketplace/:category/:subcategory" component={MarketplaceSubSubcategory} />
+          <Route path="/marketplace/:category" component={MarketplaceSubcategory} />
           <Route path="/post" component={PostListing} />
           <Route path="/edit/:id" component={EditListing} />
           <Route path="/select-category" component={CategorySelect} />
