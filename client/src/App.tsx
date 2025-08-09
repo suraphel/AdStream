@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import NotFound from "@/pages/not-found";
 import SimpleLanding from "@/pages/SimpleLanding";
 import Home from "@/pages/Home";
+import Landing from "@/pages/Landing";
 import ListingDetail from "@/pages/ListingDetail";
 import PostListing from "@/pages/PostListing";
 import EditListing from "@/pages/EditListing";
@@ -50,7 +51,7 @@ function Router() {
     <Switch>
       {isLoading || !isAuthenticated ? (
         <>
-          <Route path="/" component={SimpleLanding} />
+          <Route path="/" component={Landing} />
           <Route path="/listing/:id" component={ListingDetail} />
           <Route path="/categories" component={Categories} />
           <Route path="/category-group/:groupKey" component={CategoryGroup} />
@@ -64,7 +65,7 @@ function Router() {
         </>
       ) : (
         <>
-          <Route path="/" component={Home} />
+          <Route path="/" component={Landing} />
           <Route path="/listing/:id" component={ListingDetail} />
           <Route path="/categories" component={Categories} />
           <Route path="/category-group/:groupKey" component={CategoryGroup} />

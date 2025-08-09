@@ -60,6 +60,11 @@ app.get('/api/environment', (req, res) => {
   res.json({ environment: 'development' });
 });
 
+app.post('/api/errors/frontend', (req, res) => {
+  console.log('Frontend error logged:', req.body);
+  res.json({ logged: true });
+});
+
 // Catch all for other API routes (removed wildcard to avoid path parsing issues)
 
 app.get('/health', (req, res) => {
