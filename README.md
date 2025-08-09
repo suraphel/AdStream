@@ -9,6 +9,8 @@ A modern, standalone frontend marketplace application designed specifically for 
 - No backend dependencies required
 
 ### Installation & Setup
+
+#### For Replit Development
 ```bash
 # 1. Install dependencies
 npm install
@@ -17,8 +19,29 @@ npm install
 npm run dev
 
 # 3. Open in browser
-# http://localhost:5173
+# http://localhost:5000
 ```
+
+#### For Local Development (Windows/Mac/Linux)
+This is a **frontend-only standalone application**. Choose either directory:
+
+**Option 1: Using the client directory (Recommended)**
+```bash
+cd client
+npm install
+npm run dev
+```
+
+**Option 2: Using the frontend directory**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Then open [http://localhost:5173](http://localhost:5173) in your browser.
+
+> **Windows Note**: The root `npm run dev` uses NODE_ENV variables that may not work on Windows PowerShell. Use the client or frontend directories instead for local development.
 
 ### Production Build
 ```bash
