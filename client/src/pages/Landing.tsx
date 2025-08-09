@@ -21,16 +21,16 @@ export default function Landing() {
   const recentListings = [];
   const recentLoading = false;
 
-  // Static category data for Ethiopian market - using existing routes
+  // Static category data for Ethiopian market - using translations
   const staticCategories = [
-    { name: 'Marketplace', icon: ShoppingBag, href: '/marketplace', color: 'bg-blue-50 text-blue-600' },
-    { name: 'Cars & Vehicles', icon: Car, href: '/category/vehicles', color: 'bg-green-50 text-green-600' },
-    { name: 'Travel', icon: Plane, href: '/category/travel', color: 'bg-purple-50 text-purple-600' },
-    { name: 'Jobs', icon: Briefcase, href: '/category/jobs', color: 'bg-indigo-50 text-indigo-600' },
-    { name: 'Real Estate', icon: Home, href: '/category/real-estate', color: 'bg-emerald-50 text-emerald-600' },
-    { name: 'Electronics', icon: Smartphone, href: '/category/electronics', color: 'bg-violet-50 text-violet-600' },
-    { name: 'Services', icon: Wrench, href: '/category/services', color: 'bg-amber-50 text-amber-600' },
-    { name: 'Fashion', icon: Shirt, href: '/category/fashion', color: 'bg-pink-50 text-pink-600' },
+    { nameKey: 'marketplace.title', icon: ShoppingBag, href: '/marketplace', color: 'bg-blue-50 text-blue-600' },
+    { nameKey: 'categories.vehicles', icon: Car, href: '/category/vehicles', color: 'bg-green-50 text-green-600' },
+    { nameKey: 'subcategories.travel', icon: Plane, href: '/category/travel', color: 'bg-purple-50 text-purple-600' },
+    { nameKey: 'subcategories.professionalServices', icon: Briefcase, href: '/category/jobs', color: 'bg-indigo-50 text-indigo-600' },
+    { nameKey: 'categories.property', icon: Home, href: '/category/real-estate', color: 'bg-emerald-50 text-emerald-600' },
+    { nameKey: 'categories.electronics', icon: Smartphone, href: '/category/electronics', color: 'bg-violet-50 text-violet-600' },
+    { nameKey: 'categories.services', icon: Wrench, href: '/category/services', color: 'bg-amber-50 text-amber-600' },
+    { nameKey: 'categories.fashion', icon: Shirt, href: '/category/fashion', color: 'bg-pink-50 text-pink-600' },
   ];
 
   return (
@@ -51,7 +51,7 @@ export default function Landing() {
                       <IconComponent className="w-6 h-6" />
                     </div>
                     <h3 className="text-sm font-medium text-gray-900 leading-tight">
-                      {category.name}
+                      {t(category.nameKey)}
                     </h3>
                   </div>
                 </Link>

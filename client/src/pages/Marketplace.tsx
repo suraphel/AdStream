@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Search, Package, Heart, Star, MapPin, Clock, Zap } from 'lucide-react';
 import { 
   Palette, 
@@ -21,91 +22,91 @@ import {
   PawPrint
 } from 'lucide-react';
 
-const MARKETPLACE_CATEGORIES = [
+const getMarketplaceCategories = (t: (key: string) => string) => [
   {
     id: 'antiques-art',
-    name: 'Antiques and art',
+    nameKey: 'subcategories.jewelry',
     icon: Palette,
     count: 1250,
-    description: 'Unique collectibles and artistic pieces'
+    descriptionKey: 'categories.healthBeauty.desc'
   },
   {
     id: 'mobile-phones',
-    name: 'Newly used mobile phone',
+    nameKey: 'subcategories.mobilePhones',
     icon: Smartphone,
     count: 3420,
-    description: 'Quality pre-owned smartphones',
+    descriptionKey: 'categories.electronics.desc',
     isNew: true
   },
   {
     id: 'garden-house',
-    name: 'Garden, renovation and house',
+    nameKey: 'categories.homeGarden',
     icon: Wrench,
     count: 2180,
-    description: 'Home improvement and garden supplies'
+    descriptionKey: 'categories.homeGarden.desc'
   },
   {
     id: 'business-activities',
-    name: 'Business activities',
+    nameKey: 'categories.businessActivities',
     icon: Briefcase,
     count: 890,
-    description: 'Commercial and business services'
+    descriptionKey: 'categories.businessActivities.desc'
   },
   {
     id: 'animals-equipment',
-    name: 'Animals and equipment',
+    nameKey: 'categories.animalsEquipment',
     icon: PawPrint,
     count: 560,
-    description: 'Pet supplies and animal care'
+    descriptionKey: 'categories.animalsEquipment.desc'
   },
   {
     id: 'parents-children',
-    name: 'Parents and children',
+    nameKey: 'categories.parentsChildren',
     icon: Baby,
     count: 1760,
-    description: 'Family and children related items'
+    descriptionKey: 'categories.parentsChildren.desc'
   },
   {
     id: 'clothing-accessories',
-    name: 'Clothing, cosmetics and accessories',
+    nameKey: 'categories.fashion',
     icon: ShoppingCart,
     count: 4230,
-    description: 'Fashion and personal care items'
+    descriptionKey: 'categories.fashion.desc'
   },
   {
     id: 'sports-outdoor',
-    name: 'Sports and outdoor activities',
+    nameKey: 'categories.sportsOutdoor',
     icon: Dumbbell,
     count: 1540,
-    description: 'Sporting goods and outdoor gear'
+    descriptionKey: 'categories.sportsOutdoor.desc'
   },
   {
     id: 'electronics-appliances',
-    name: 'Electronics and appliances',
+    nameKey: 'categories.electronics',
     icon: Smartphone,
     count: 2890,
-    description: 'Electronic devices and home appliances'
+    descriptionKey: 'categories.electronics.desc'
   },
   {
     id: 'leisure-hobbies',
-    name: 'Leisure, hobbies and entertainment',
+    nameKey: 'subcategories.gaming',
     icon: Gamepad2,
     count: 1320,
-    description: 'Entertainment and hobby items'
+    descriptionKey: 'categories.sportsOutdoor.desc'
   },
   {
     id: 'furniture-interior',
-    name: 'Furniture and interior',
+    nameKey: 'subcategories.furniture',
     icon: Sofa,
     count: 1980,
-    description: 'Home furniture and decor'
+    descriptionKey: 'categories.homeGarden.desc'
   },
   {
     id: 'equipment-vehicles',
-    name: 'Equipment for cars, boats and motorcycles',
+    nameKey: 'categories.vehicles',
     icon: Wrench,
     count: 720,
-    description: 'Vehicle parts and accessories'
+    descriptionKey: 'categories.vehicles.desc'
   }
 ];
 
@@ -146,10 +147,12 @@ const FEATURED_LISTINGS = [
 ];
 
 export default function Marketplace() {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredCategories = MARKETPLACE_CATEGORIES.filter(category =>
-    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const marketplaceCategories = getMarketplaceCategories(t);
+  const filteredCategories = marketplaceCategories.filter(category =>
+    t(category.nameKey).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -162,17 +165,17 @@ export default function Marketplace() {
               <div className="bg-white/20 rounded-full p-3 mr-4">
                 <Package className="w-8 h-8" />
               </div>
-              <h1 className="text-4xl font-bold">The Square</h1>
+              <h1 className="text-4xl font-bold">{t('landing.hero.title')}</h1>
             </div>
             <p className="text-xl mb-8 max-w-3xl mx-auto">
-              Ethiopia's premier marketplace for buying and selling quality goods
+              {t('landing.hero.subtitle')}
             </p>
             
             {/* Search Bar */}
             <div className="max-w-2xl mx-auto relative mb-8">
               <Input
                 type="text"
-                placeholder="Search the square..."
+                placeholder={t('search.placeholder')}
                 className="w-full h-14 pl-6 pr-14 text-black text-lg"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -212,7 +215,7 @@ export default function Marketplace() {
 
         {/* Categories Grid */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">Browse Categories</h2>
+          <h2 className="text-2xl font-bold mb-6">{t('categories.title')}</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredCategories.map((category) => {
               return (
@@ -232,9 +235,9 @@ export default function Marketplace() {
                         </Badge>
                       )}
                     </div>
-                    <h3 className="font-semibold mb-2 text-sm leading-tight">{category.name}</h3>
+                    <h3 className="font-semibold mb-2 text-sm leading-tight">{t(category.nameKey)}</h3>
                     <p className="text-cyan-600 font-medium text-sm">{category.count.toLocaleString()}</p>
-                    <p className="text-xs text-gray-500 mt-1">{category.description}</p>
+                    <p className="text-xs text-gray-500 mt-1">{t(category.descriptionKey)}</p>
                   </CardContent>
                 </Card>
               );
@@ -244,7 +247,7 @@ export default function Marketplace() {
 
         {/* Popular Ads Section */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">Popular ads</h2>
+          <h2 className="text-2xl font-bold mb-6">{t('listings.featured')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {FEATURED_LISTINGS.map((listing) => (
               <Card key={listing.id} className="overflow-hidden hover:shadow-lg transition-shadow group">

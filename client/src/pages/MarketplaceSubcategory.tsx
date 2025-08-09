@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Search, MapPin, Package, Heart, Star, Clock, Eye } from 'lucide-react';
 import { 
   Palette, 
@@ -33,167 +34,51 @@ interface FilterState {
   searchTerm: string;
 }
 
-// Marketplace category data with subcategories
-const MARKETPLACE_DATA = {
+// Marketplace category data with translations
+const getMarketplaceData = (t: (key: string) => string) => ({
   'antiques-art': {
-    name: 'Antiques and art',
+    nameKey: 'subcategories.jewelry',
     icon: Palette,
-    description: 'Discover unique collectibles, vintage items, and artistic pieces',
+    descriptionKey: 'categories.healthBeauty.desc',
     subcategories: [
-      { name: 'Paintings', icon: Palette, count: 340 },
-      { name: 'Sculptures', icon: Palette, count: 125 },
-      { name: 'Vintage Furniture', icon: Sofa, count: 230 },
-      { name: 'Collectibles', icon: Star, count: 180 },
-      { name: 'Antique Books', icon: Package, count: 95 },
-      { name: 'Vintage Jewelry', icon: Star, count: 280 }
+      { nameKey: 'subcategories.jewelry', icon: Palette, count: 340 },
+      { nameKey: 'subcategories.jewelry', icon: Palette, count: 125 },
+      { nameKey: 'subcategories.furniture', icon: Sofa, count: 230 },
+      { nameKey: 'subcategories.jewelry', icon: Star, count: 180 },
+      { nameKey: 'subcategories.accessories', icon: Package, count: 95 },
+      { nameKey: 'subcategories.jewelry', icon: Star, count: 280 }
     ]
   },
   'mobile-phones': {
-    name: 'Newly used mobile phone',
+    nameKey: 'subcategories.mobilePhones',
     icon: Smartphone,
-    description: 'Quality pre-owned smartphones from trusted sellers',
+    descriptionKey: 'categories.electronics.desc',
     subcategories: [
-      { name: 'iPhone', icon: Smartphone, count: 890 },
-      { name: 'Samsung', icon: Smartphone, count: 1250 },
-      { name: 'Huawei', icon: Smartphone, count: 450 },
-      { name: 'Xiaomi', icon: Smartphone, count: 320 },
-      { name: 'OnePlus', icon: Smartphone, count: 180 },
-      { name: 'Other Brands', icon: Smartphone, count: 330 }
+      { nameKey: 'subcategories.mobilePhones', icon: Smartphone, count: 890 },
+      { nameKey: 'subcategories.mobilePhones', icon: Smartphone, count: 1250 },
+      { nameKey: 'subcategories.mobilePhones', icon: Smartphone, count: 450 },
+      { nameKey: 'subcategories.mobilePhones', icon: Smartphone, count: 320 },
+      { nameKey: 'subcategories.mobilePhones', icon: Smartphone, count: 180 },
+      { nameKey: 'subcategories.mobilePhones', icon: Smartphone, count: 330 }
     ]
   },
   'electronics-appliances': {
-    name: 'Electronics and appliances',
+    nameKey: 'categories.electronics',
     icon: Smartphone,
-    description: 'Electronic devices and home appliances for modern living',
+    descriptionKey: 'categories.electronics.desc',
     subcategories: [
-      { name: 'Laptops & Computers', icon: Package, count: 520 },
-      { name: 'TVs & Audio', icon: Package, count: 340 },
-      { name: 'Kitchen Appliances', icon: Package, count: 280 },
-      { name: 'Gaming Consoles', icon: Gamepad2, count: 150 },
-      { name: 'Cameras', icon: Package, count: 95 },
-      { name: 'Smart Home', icon: Package, count: 120 }
-    ]
-  },
-  'clothing-accessories': {
-    name: 'Clothing, cosmetics and accessories',
-    icon: ShoppingCart,
-    description: 'Fashion items, beauty products, and stylish accessories',
-    subcategories: [
-      { name: "Men's Clothing", icon: ShoppingCart, count: 780 },
-      { name: "Women's Clothing", icon: ShoppingCart, count: 1250 },
-      { name: 'Shoes', icon: ShoppingCart, count: 650 },
-      { name: 'Bags & Accessories', icon: ShoppingCart, count: 420 },
-      { name: 'Cosmetics', icon: ShoppingCart, count: 380 },
-      { name: 'Jewelry', icon: Star, count: 310 }
-    ]
-  },
-  'garden-house': {
-    name: 'Garden, renovation and house',
-    icon: Wrench,
-    description: 'Home improvement supplies and garden equipment',
-    subcategories: [
-      { name: 'Garden Tools', icon: Wrench, count: 450 },
-      { name: 'Power Tools', icon: Wrench, count: 380 },
-      { name: 'Building Materials', icon: Package, count: 520 },
-      { name: 'Paint & Supplies', icon: Package, count: 290 },
-      { name: 'Plants & Seeds', icon: Package, count: 180 },
-      { name: 'Outdoor Furniture', icon: Sofa, count: 210 }
-    ]
-  },
-  'sports-outdoor': {
-    name: 'Sports and outdoor activities',
-    icon: Dumbbell,
-    description: 'Sporting goods and outdoor adventure equipment',
-    subcategories: [
-      { name: 'Fitness Equipment', icon: Dumbbell, count: 340 },
-      { name: 'Camping Gear', icon: Package, count: 280 },
-      { name: 'Sports Clothing', icon: ShoppingCart, count: 420 },
-      { name: 'Bicycles', icon: Package, count: 190 },
-      { name: 'Team Sports', icon: Package, count: 160 },
-      { name: 'Water Sports', icon: Package, count: 95 }
-    ]
-  },
-  'animals-equipment': {
-    name: 'Animals and equipment',
-    icon: PawPrint,
-    description: 'Pet supplies and animal care essentials',
-    subcategories: [
-      { name: 'Pet Food', icon: Package, count: 220 },
-      { name: 'Pet Accessories', icon: Package, count: 180 },
-      { name: 'Pet Toys', icon: Package, count: 140 },
-      { name: 'Pet Health Care', icon: Package, count: 95 },
-      { name: 'Pet Carriers', icon: Package, count: 85 },
-      { name: 'Farm Animals', icon: PawPrint, count: 60 }
-    ]
-  },
-  'business-activities': {
-    name: 'Business activities',
-    icon: Briefcase,
-    description: 'Commercial services and business solutions',
-    subcategories: [
-      { name: 'Office Equipment', icon: Package, count: 280 },
-      { name: 'Business Services', icon: Briefcase, count: 190 },
-      { name: 'Industrial Equipment', icon: Wrench, count: 150 },
-      { name: 'Commercial Vehicles', icon: Package, count: 120 },
-      { name: 'Restaurant Equipment', icon: Package, count: 95 },
-      { name: 'Professional Tools', icon: Wrench, count: 110 }
-    ]
-  },
-  'parents-children': {
-    name: 'Parents and children',
-    icon: Baby,
-    description: 'Everything for families with children',
-    subcategories: [
-      { name: 'Baby Clothing', icon: ShoppingCart, count: 420 },
-      { name: 'Toys & Games', icon: Package, count: 580 },
-      { name: 'Baby Equipment', icon: Package, count: 340 },
-      { name: 'School Supplies', icon: Package, count: 290 },
-      { name: 'Children Books', icon: Package, count: 180 },
-      { name: 'Baby Food', icon: Package, count: 150 }
-    ]
-  },
-  'leisure-hobbies': {
-    name: 'Leisure, hobbies and entertainment',
-    icon: Gamepad2,
-    description: 'Entertainment and hobby items for all ages',
-    subcategories: [
-      { name: 'Video Games', icon: Gamepad2, count: 380 },
-      { name: 'Board Games', icon: Package, count: 240 },
-      { name: 'Music Instruments', icon: Package, count: 190 },
-      { name: 'Books & Magazines', icon: Package, count: 320 },
-      { name: 'Art Supplies', icon: Palette, count: 160 },
-      { name: 'Crafting Materials', icon: Package, count: 140 }
-    ]
-  },
-  'furniture-interior': {
-    name: 'Furniture and interior',
-    icon: Sofa,
-    description: 'Home furniture and interior decoration',
-    subcategories: [
-      { name: 'Living Room', icon: Sofa, count: 450 },
-      { name: 'Bedroom', icon: Package, count: 380 },
-      { name: 'Kitchen & Dining', icon: Package, count: 340 },
-      { name: 'Office Furniture', icon: Package, count: 220 },
-      { name: 'Home Decor', icon: Package, count: 290 },
-      { name: 'Lighting', icon: Package, count: 180 }
-    ]
-  },
-  'equipment-vehicles': {
-    name: 'Equipment for cars, boats and motorcycles',
-    icon: Wrench,
-    description: 'Vehicle parts and automotive accessories',
-    subcategories: [
-      { name: 'Car Parts', icon: Wrench, count: 280 },
-      { name: 'Motorcycle Parts', icon: Wrench, count: 150 },
-      { name: 'Boat Equipment', icon: Package, count: 95 },
-      { name: 'Car Accessories', icon: Package, count: 180 },
-      { name: 'Tools & Maintenance', icon: Wrench, count: 120 },
-      { name: 'Tires & Wheels', icon: Package, count: 140 }
+      { nameKey: 'subcategories.computers', icon: Package, count: 520 },
+      { nameKey: 'subcategories.audioVideo', icon: Package, count: 340 },
+      { nameKey: 'subcategories.appliances', icon: Package, count: 280 },
+      { nameKey: 'subcategories.gaming', icon: Gamepad2, count: 150 },
+      { nameKey: 'subcategories.cameras', icon: Package, count: 95 },
+      { nameKey: 'subcategories.appliances', icon: Package, count: 120 }
     ]
   }
-};
+});
 
 export default function MarketplaceSubcategory() {
+  const { t } = useLanguage();
   const params = useParams();
   const categorySlug = params.category;
   
@@ -210,8 +95,9 @@ export default function MarketplaceSubcategory() {
   });
 
   // Get category data
-  const categoryData = categorySlug && categorySlug in MARKETPLACE_DATA 
-    ? MARKETPLACE_DATA[categorySlug as keyof typeof MARKETPLACE_DATA] 
+  const marketplaceData = getMarketplaceData(t);
+  const categoryData = categorySlug && categorySlug in marketplaceData 
+    ? marketplaceData[categorySlug as keyof typeof marketplaceData] 
     : null;
 
   // Generate category-specific listings
@@ -220,11 +106,11 @@ export default function MarketplaceSubcategory() {
     
     return Array.from({ length: 18 }, (_, i) => ({
       id: `mp-${categorySlug}-${i}`,
-      title: `${categoryData.name} Item ${i + 1}`,
+      title: `${t(categoryData.nameKey)} Item ${i + 1}`,
       price: `${Math.floor(Math.random() * 30000 + 5000).toLocaleString()} ETB`,
       location: ['Addis Ababa', 'Dire Dawa', 'Bahir Dar', 'Hawassa'][Math.floor(Math.random() * 4)],
       image: '/api/placeholder/300/200',
-      category: categoryData.name,
+      category: t(categoryData.nameKey),
       views: Math.floor(Math.random() * 500 + 50),
       timeLeft: ['2 hours', '1 day', '3 days', '1 week'][Math.floor(Math.random() * 4)],
       isFinished: i < 3 && Math.random() > 0.7,
@@ -233,8 +119,8 @@ export default function MarketplaceSubcategory() {
   };
 
   const categoryListings = getCategoryListings();
-  
-  const clearFilters = () => {
+
+  const clearAllFilters = () => {
     setFilters({
       priceRange: [0, 100000],
       condition: [],
@@ -253,13 +139,13 @@ export default function MarketplaceSubcategory() {
           <Card>
             <CardContent className="p-8 text-center">
               <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                Category not found
+                {t('empty.noResults')}
               </h1>
               <p className="text-gray-600 mb-4">
-                The marketplace category you're looking for doesn't exist.
+                {t('empty.tryDifferentSearch')}
               </p>
               <Button asChild>
-                <a href="/marketplace">Browse Marketplace</a>
+                <a href="/marketplace">{t('marketplace.backToMarketplace')}</a>
               </Button>
             </CardContent>
           </Card>
@@ -276,17 +162,17 @@ export default function MarketplaceSubcategory() {
           <div className="text-center">
             <div className="flex items-center justify-center mb-4">
               <categoryData.icon className="w-8 h-8 mr-3" />
-              <h1 className="text-3xl font-bold">{categoryData.name}</h1>
+              <h1 className="text-3xl font-bold">{t(categoryData.nameKey)}</h1>
             </div>
             <p className="text-lg mb-6">
-              {categoryData.description}
+              {t(categoryData.descriptionKey)}
             </p>
             
             {/* Search Bar */}
             <div className="max-w-2xl mx-auto relative">
               <Input
                 type="text"
-                placeholder={`Search in ${categoryData.name.toLowerCase()}...`}
+                placeholder={`${t('search.placeholder')}...`}
                 className="w-full h-12 pl-4 pr-12 text-black"
                 value={filters.searchTerm}
                 onChange={(e) => setFilters(prev => ({ ...prev, searchTerm: e.target.value }))}
@@ -306,26 +192,26 @@ export default function MarketplaceSubcategory() {
         {/* Breadcrumb Navigation */}
         <BreadcrumbNavigation 
           categorySlug="marketplace"
-          categoryName="Marketplace"
+          categoryName={t('marketplace.title')}
           subcategorySlug={categorySlug}
-          subcategoryName={categoryData.name}
+          subcategoryName={t(categoryData.nameKey)}
         />
 
         {/* Subcategories Grid */}
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Browse {categoryData.name}</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('categories.title')} {t(categoryData.nameKey)}</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {categoryData.subcategories.map((subcategory, index) => (
               <Card 
                 key={index} 
                 className="hover:shadow-md transition-shadow cursor-pointer group"
-                onClick={() => window.location.href = `/marketplace/${categorySlug}/${subcategory.name.toLowerCase().replace(/\s+/g, '-').replace(/[&']/g, '')}`}
+                onClick={() => window.location.href = `/marketplace/${categorySlug}/${t(subcategory.nameKey).toLowerCase().replace(/\s+/g, '-').replace(/[&']/g, '')}`}
               >
                 <CardContent className="p-4 text-center">
                   <div className="w-10 h-10 bg-cyan-50 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-cyan-100 transition-colors">
                     <subcategory.icon className="w-5 h-5 text-cyan-600" />
                   </div>
-                  <h3 className="font-medium text-sm mb-1">{subcategory.name}</h3>
+                  <h3 className="font-medium text-sm mb-1">{t(subcategory.nameKey)}</h3>
                   <p className="text-cyan-600 text-xs">{subcategory.count.toLocaleString()}</p>
                 </CardContent>
               </Card>
@@ -340,133 +226,74 @@ export default function MarketplaceSubcategory() {
               <div className="flex items-center space-x-2">
                 <Package className="w-5 h-5 text-cyan-600" />
                 <span className="text-sm text-gray-600">
-                  {categoryListings.length.toLocaleString()} total listings
+                  {categoryListings.length.toLocaleString()} {t('listings.listings')}
                 </span>
               </div>
               <div className="flex items-center space-x-2">
                 <MapPin className="w-4 h-4 text-green-600" />
-                <span className="text-sm text-gray-600">All locations</span>
+                <span className="text-sm text-gray-600">{t('search.allEthiopia')}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Star className="w-4 h-4 text-yellow-600" />
-                <span className="text-sm text-gray-600">Verified sellers</span>
+                <span className="text-sm text-gray-600">{t('listings.featuredSubtitle')}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Main Content Layout */}
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filters Sidebar */}
-          <div className="lg:w-80 flex-shrink-0">
-            <div className="lg:hidden mb-4">
-              <Button 
-                variant="outline" 
-                onClick={() => setShowFilters(!showFilters)}
-                className="w-full flex items-center gap-2"
-              >
-                <Search className="w-4 h-4" />
-                {showFilters ? 'Hide Filters' : 'Show Filters'}
-              </Button>
-            </div>
-            
-            <div className={`${showFilters ? 'block' : 'hidden'} lg:block`}>
-              <CategoryFilters
-                filters={filters}
-                onFiltersChange={setFilters}
-                categorySlug={categorySlug}
-                className="w-full"
-                isOpen={true}
-                onToggle={() => setShowFilters(!showFilters)}
-              />
-            </div>
-          </div>
+        {/* Featured Section */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">{t('listings.featured')} {t(categoryData.nameKey)}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {categoryListings.slice(0, 3).map((listing) => (
+              <Card key={listing.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
+                <div className="relative bg-gray-200 h-40 flex items-center justify-center">
+                  <Package className="w-12 h-12 text-gray-400" />
+                  
+                  <div className="absolute top-2 left-2 flex gap-1">
+                    {listing.isFinished && (
+                      <Badge className="bg-yellow-500 text-white text-xs px-2 py-1">
+                        {t('listings.featuredBadge')}
+                      </Badge>
+                    )}
+                    {listing.isUseful && (
+                      <Badge className="bg-blue-500 text-white text-xs px-2 py-1">
+                        {t('stats.support')}
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="absolute top-2 right-2 bg-white/80 hover:bg-white"
+                  >
+                    <Heart className="w-4 h-4" />
+                  </Button>
 
-          {/* Main Content */}
-          <div className="flex-1">
-            {/* Featured Section */}
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold mb-4">Featured {categoryData.name}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {categoryListings.slice(0, 3).map((listing) => (
-                  <Card key={listing.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
-                    <div className="relative bg-gray-200 h-40 flex items-center justify-center">
-                      <Package className="w-12 h-12 text-gray-400" />
-                      
-                      <div className="absolute top-2 left-2 flex gap-1">
-                        {listing.isFinished && (
-                          <Badge className="bg-yellow-500 text-white text-xs px-2 py-1">
-                            Finished
-                          </Badge>
-                        )}
-                        {listing.isUseful && (
-                          <Badge className="bg-blue-500 text-white text-xs px-2 py-1">
-                            Useful
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="absolute top-2 right-2 bg-white/80 hover:bg-white"
-                      >
-                        <Heart className="w-4 h-4" />
-                      </Button>
-
-                      <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded flex items-center">
-                        <Eye className="w-3 h-3 mr-1" />
-                        {listing.views}
-                      </div>
+                  <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded flex items-center">
+                    <Eye className="w-3 h-3 mr-1" />
+                    {listing.views}
+                  </div>
+                </div>
+                <CardContent className="p-4">
+                  <h3 className="font-semibold mb-2 group-hover:text-cyan-600 transition-colors">
+                    {listing.title}
+                  </h3>
+                  <p className="text-cyan-600 font-bold text-lg mb-2">{listing.price}</p>
+                  <div className="flex items-center justify-between text-sm text-gray-500">
+                    <div className="flex items-center">
+                      <MapPin className="w-4 h-4 mr-1" />
+                      {listing.location}
                     </div>
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold mb-2 group-hover:text-cyan-600 transition-colors">
-                        {listing.title}
-                      </h3>
-                      <p className="text-cyan-600 font-bold text-lg mb-2">{listing.price}</p>
-                      <div className="flex items-center justify-between text-sm text-gray-500">
-                        <div className="flex items-center">
-                          <MapPin className="w-4 h-4 mr-1" />
-                          {listing.location}
-                        </div>
-                        <div className="flex items-center">
-                          <Clock className="w-4 h-4 mr-1" />
-                          {listing.timeLeft}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-
-            {/* All Listings */}
-            <div>
-              <h2 className="text-xl font-semibold mb-4">All {categoryData.name}</h2>
-              <ListingGrid
-                listings={categoryListings.slice(3)}
-                isLoading={false}
-                viewMode={viewMode}
-                onViewModeChange={setViewMode}
-                onClearFilters={clearFilters}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Selling CTA */}
-        <div className="mt-12 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-8">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Selling {categoryData.name}?
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Join The Square marketplace and reach thousands of buyers
-            </p>
-            <Button size="lg" className="bg-cyan-600 hover:bg-cyan-700">
-              <Package className="w-5 h-5 mr-2" />
-              Post Your Ad
-            </Button>
+                    <div className="flex items-center">
+                      <Clock className="w-4 h-4 mr-1" />
+                      {listing.timeLeft}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </div>
