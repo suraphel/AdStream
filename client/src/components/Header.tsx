@@ -125,7 +125,7 @@ export function Header() {
             ) : (
               <div className="flex items-center space-x-2">
                 <Button asChild>
-                  <a href="/api/login">Login</a>
+                  <Link href="/login">Login</Link>
                 </Button>
               </div>
             )}

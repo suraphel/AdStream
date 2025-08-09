@@ -100,7 +100,7 @@ export default function Landing() {
               size="lg"
               className="bg-white text-primary hover:bg-gray-100"
             >
-              <a href="/api/login">Login</a>
+              <Link href="/login">Login</Link>
             </Button>
             <Button
               asChild
