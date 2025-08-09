@@ -21,7 +21,7 @@ export default function Landing() {
   const recentListings = [];
   const recentLoading = false;
 
-  // Static category data for Ethiopian market
+  // Static category data for Ethiopian market - using existing routes
   const staticCategories = [
     { name: 'Marketplace', icon: ShoppingBag, href: '/categories', color: 'bg-blue-50 text-blue-600' },
     { name: 'Cars & Vehicles', icon: Car, href: '/category/vehicles', color: 'bg-green-50 text-green-600' },
@@ -29,7 +29,7 @@ export default function Landing() {
     { name: 'Jobs', icon: Briefcase, href: '/category/jobs', color: 'bg-indigo-50 text-indigo-600' },
     { name: 'Real Estate', icon: Home, href: '/category/real-estate', color: 'bg-emerald-50 text-emerald-600' },
     { name: 'Electronics', icon: Smartphone, href: '/category/electronics', color: 'bg-violet-50 text-violet-600' },
-    { name: 'Tools & Equipment', icon: Wrench, href: '/category/tools', color: 'bg-amber-50 text-amber-600' },
+    { name: 'Services', icon: Wrench, href: '/category/services', color: 'bg-amber-50 text-amber-600' },
     { name: 'Fashion', icon: Shirt, href: '/category/fashion', color: 'bg-pink-50 text-pink-600' },
   ];
 
