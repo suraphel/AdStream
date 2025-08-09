@@ -56,6 +56,8 @@ function Router() {
           <Route path="/categories" component={Categories} />
           <Route path="/category-group/:groupKey" component={CategoryGroup} />
           <Route path="/category/:slug" component={Category} />
+          <Route path="/categories/enhanced" component={EnhancedCategories} />
+          <Route path="/login" component={() => <div className="min-h-screen bg-gray-50 pt-16 px-4"><div className="max-w-md mx-auto"><h1 className="text-2xl font-bold mb-4">Login</h1><p>Login functionality coming soon</p></div></div>} />
 
           {/* Tender routes available to all */}
           <Route path="/tender" component={TenderHome} />

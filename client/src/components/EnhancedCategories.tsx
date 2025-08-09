@@ -1,5 +1,5 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+// Removed useQuery - standalone operation
 import { Link } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,9 +18,9 @@ interface Category {
 }
 
 export function EnhancedCategories() {
-  const { data: categories = [], isLoading } = useQuery<Category[]>({
-    queryKey: ['/api/categories'],
-  });
+  // Mock data for standalone operation  
+  const categories: Category[] = [];
+  const isLoading = false;
 
   if (isLoading) {
     return (
